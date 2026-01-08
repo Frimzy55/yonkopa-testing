@@ -1,0 +1,185 @@
+import React, { useState } from 'react';
+import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
+
+const LoginPage = ({ onClose }) => {
+  const navigate = useNavigate();
+
+  const [formData, setFormData] = useState({
+    email: '',
+    password: ''
+  });
+
+  const [errors, setErrors] = useState({});
+  const [touched, setTouched] = useState({});
+  const [serverError, setServerError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
+    switch (name) {
+      case 'email':
+        if (!value.trim()) newErrors.email = 'Email is required';
+        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
+          newErrors.email = 'Please enter a valid email';
+        else delete newErrors.email;
+        break;
+
+      case 'password':
+        if (!value) newErrors.password = 'Password is required';
+        else if (value.length < 6)
+          newErrors.password = 'Password must be at least 6 characters';
+        else delete newErrors.password;
+        break;
+
+      default:
+        break;
+    }
+    return newErrors;
+  };
+
+  const handleBlur = (e) => {
+    const { name, value } = e.target;
+    setTouched({ ...touched, [name]: true });
+    setErrors(validateField(name, value));
+  };
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData({ ...formData, [name]: value });
+    if (serverError) setServerError('');
+
+    if (touched[name]) {
+      setErrors(validateField(name, value));
+    }
+  };
+
+  const validateForm = () => {
+    const newErrors = {};
+    Object.keys(formData).forEach(field => {
+      Object.assign(newErrors, validateField(field, formData[field]));
+    });
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setServerError('');
+    setIsSubmitting(true);
+
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      return;
+    }
+
+    try {
+      const response = await axios.post("http://localhost:5000/login", formData);
+      const { token, user } = response.data;
+
+      localStorage.setItem("token", token);
+      localStorage.setItem("user", JSON.stringify(user));
+
+      alert("Login successful!");
+
+      if (user.role === "admin") navigate("/admin-dashboard");
+      else if (user.role === "loan_officer") navigate("/loan-officer-dashboard");
+      else navigate("/customer-dashboard");
+
+      onClose && onClose();
+
+    } catch (err) {
+      const errorMessage = err.response?.data?.message || "Login failed.";
+      setServerError(errorMessage);
+
+      setTimeout(() => setServerError(''), 5000);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const canSubmit = 
+    Object.keys(errors).length === 0 &&
+    formData.email &&
+    formData.password &&
+    !isSubmitting;
+
+  return (
+    <div className="container d-flex justify-content-center align-items-center vh-100">
+      <div className="card shadow p-4" style={{ maxWidth: '420px', width: '100%' }}>
+        
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h3 className="m-0">Login</h3>
+          {onClose && (
+            <button className="btn-close" onClick={onClose}></button>
+          )}
+        </div>
+
+        {serverError && (
+          <div className="alert alert-danger py-2">{serverError}</div>
+        )}
+
+        <form onSubmit={handleSubmit} noValidate>
+          
+          {/* Email */}
+          <div className="mb-3">
+            <label className="form-label">Email</label>
+            <input 
+              type="email" 
+              name="email"
+              className={`form-control ${touched.email && errors.email ? 'is-invalid' : ''}`}
+              placeholder="Enter email"
+              value={formData.email}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              disabled={isSubmitting}
+            />
+            {touched.email && errors.email && (
+              <div className="invalid-feedback">{errors.email}</div>
+            )}
+          </div>
+
+          {/* Password */}
+          <div className="mb-3">
+            <label className="form-label">Password</label>
+            <input 
+              type="password" 
+              name="password"
+              className={`form-control ${touched.password && errors.password ? 'is-invalid' : ''}`}
+              placeholder="Enter password"
+              value={formData.password}
+              onChange={handleChange}
+              onBlur={handleBlur}
+              disabled={isSubmitting}
+            />
+            {touched.password && errors.password && (
+              <div className="invalid-feedback">{errors.password}</div>
+            )}
+          </div>
+
+          {/* Options */}
+          <div className="d-flex justify-content-between align-items-center mb-3">
+            <div className="form-check">
+              <input className="form-check-input" type="checkbox" disabled={isSubmitting} />
+              <label className="form-check-label">Remember me</label>
+            </div>
+            <a href="#" className="text-decoration-none">Forgot password?</a>
+          </div>
+
+          {/* Login Button */}
+          <button 
+            type="submit"
+            className="btn btn-primary w-100"
+            disabled={!canSubmit}
+          >
+            {isSubmitting ? "Logging in..." : "Login"}
+          </button>
+
+        </form>
+      </div>
+    </div>
+  );
+};
+
+export default LoginPage;

@@ -1,0 +1,93 @@
+/* LoanForm.css */
+.content-section {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.form-step {
+  margin-top: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.nav-btn.submit-btn {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.nav-btn.next-btn {
+  background-color: #198754;
+  color: white;
+}
+
+.nav-btn.prev-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.progress-step-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.progress-step-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.progress-step-circle.active {
+  background: #0d6efd;
+  color: white;
+}
+
+.progress-step-circle.completed {
+  background: #198754;
+  color: white;
+}
+
+.progress-line {
+  flex: 1;
+  height: 4px;
+  background: #ddd;
+}
+
+.progress-line.completed {
+  background: #198754;
+}
+
+.progress-step-label {
+  display: flex;
+  flex-direction: column;
+  margin-left: 5px;
+  margin-right: 15px;
+}

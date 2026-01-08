@@ -1,0 +1,141 @@
+/* Full page layout */
+.login-page {
+  display: flex;
+  height: 100vh;
+  font-family: 'Arial', sans-serif;
+}
+
+/* Left side image */
+.login-image {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+.login-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.christmas-tree {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 40px;
+  height: 60px;
+}
+
+/* Right login form */
+.login-form-container {
+  flex: 0 0 40%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #f8f9fa;
+  padding: 30px;
+}
+.login-form-card {
+  width: 100%;
+  max-width: 400px;
+  background: #fff;
+  padding: 2rem;
+  border-radius: 0.5rem;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+}
+
+/* Logo */
+.logo-container {
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+.logo {
+  width: 150px;
+}
+
+/* Title */
+.login-title {
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+/* Server error */
+.server-error {
+  color: #e74c3c;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+/* Form groups */
+.form-group {
+  margin-bottom: 1.5rem;
+}
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+}
+.form-group input {
+  width: 100%;
+  padding: 0.6rem;
+  border-radius: 0.3rem;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+.input-error {
+  border-color: #e74c3c;
+}
+.error-message {
+  color: #e74c3c;
+  font-size: 0.85rem;
+  margin-top: 0.25rem;
+}
+
+/* PASSWORD FIELD FIXED — full width and icon inside */
+.password-input {
+  width: 100%;
+  position: relative;
+}
+
+/* Password input full width */
+.password-input input {
+  width: 100%;
+  padding: 0.6rem;
+  padding-right: 40px; /* space for icon */
+  border-radius: 0.3rem;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+/* Eye icon inside field */
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  cursor: pointer;
+  font-size: 1.2rem;
+  color: #555;
+}
+
+/* Login button */
+.btn-login {
+  width: 100%;
+  padding: 0.75rem;
+  background-color: #007bff;
+  color: white;
+  border: none;
+  border-radius: 0.4rem;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-login:hover {
+  background-color: #0056b3;
+}
+.btn-login:disabled {
+  background-color: #6c757d;
+  cursor: not-allowed;
+}
+.btn-login.loading {
+  opacity: 0.7;
+}
