@@ -78,7 +78,7 @@ const StaffLoginPage = () => {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/login', formData);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
       const { token, user } = response.data;
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
