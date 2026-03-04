@@ -30,7 +30,7 @@ const AdminUsers = () => {
 
   useEffect(() => {
     fetchUsers();
-  }, []);
+  }, );
 
   // Handle input changes
   const handleChange = (e) => {
