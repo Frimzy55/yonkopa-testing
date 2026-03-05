@@ -13,7 +13,7 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [ setMessage] = useState("");
+  const [message, setMessage] = useState("");
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
@@ -133,6 +133,9 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
           <h4 className="m-0">Create Your Account</h4>
           <button className="btn-close" onClick={onClose}></button>
         </div>
+
+        {/* Show server messages */}
+{message && <div className="alert alert-info text-center mb-3">{message}</div>}
 
         {/* Form */}
         <form onSubmit={handleSubmit} noValidate>
