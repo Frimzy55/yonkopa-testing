@@ -13,6 +13,7 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
+  const [message, setMessage] = useState("");
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
@@ -110,11 +111,13 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
       const data = await response.json();
 
       if (response.ok) {
-        alert(data.message);
-        onClose();
-      } else {
-        alert(data.message || "Error creating account");
-      }
+  setMessage(data.message);
+  setTimeout(() => {
+    onClose();
+  }, 1500);
+} else {
+  setMessage(data.message || "Error creating account");
+}
     } catch (err) {
       console.error(err);
       alert("Server error. Try later.");

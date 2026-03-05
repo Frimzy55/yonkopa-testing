@@ -118,9 +118,9 @@ const CustomerCompleteKyc = ({ user }) => {
         <div className="form-step">
           <h3>Personal Information</h3>
           <div className="form-grid">
-            <input type="text" name="firstName" value={formData.firstName} readOnly placeholder="First Name *" required />
-            <input type="text" name="middleName" value={formData.middleName} readOnly placeholder="Middle Name" />
-            <input type="text" name="lastName" value={formData.lastName} readOnly placeholder="Last Name *" required />
+            <input type="text" name="firstName" value={formData.firstName} onChange={handleInputChange} placeholder="First Name *" required />
+            <input type="text" name="middleName" value={formData.middleName} onChange={handleInputChange} placeholder="Middle Name" />
+            <input type="text" name="lastName" value={formData.lastName} onChange={handleInputChange} placeholder="Last Name *" required />
             <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleInputChange} required />
             <select name="gender" value={formData.gender} onChange={handleInputChange} required>
               <option value="">Select Gender</option>
@@ -147,7 +147,7 @@ const CustomerCompleteKyc = ({ user }) => {
           <h3>Contact Information</h3>
           <div className="form-grid">
             <input type="tel" name="mobileNumber" value={formData.mobileNumber} onChange={handleInputChange} placeholder="Mobile Number *" required />
-            <input type="email" name="email" value={formData.email} readOnly placeholder="Email Address *" required />
+            <input type="email" name="email" value={formData.email} onChange={handleInputChange} placeholder="Email Address *" required />
             <input type="text" name="residentialAddress" value={formData.residentialAddress} onChange={handleInputChange} placeholder="Residential Address *" required />
             <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="City *" required />
             <input type="text" name="state" value={formData.state} onChange={handleInputChange} placeholder="State/Province *" required />
