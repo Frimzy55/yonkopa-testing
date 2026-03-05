@@ -2,6 +2,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import logo from './image/yonko.png'; // import your logo
+import './LoginPage.css';
 
 const LoginPage = ({ onClose }) => {
   const navigate = useNavigate();
@@ -50,13 +52,9 @@ const LoginPage = ({ onClose }) => {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-
     setFormData({ ...formData, [name]: value });
     if (serverError) setServerError('');
-
-    if (touched[name]) {
-      setErrors(validateField(name, value));
-    }
+    if (touched[name]) setErrors(validateField(name, value));
   };
 
   const validateForm = () => {
@@ -79,11 +77,7 @@ const LoginPage = ({ onClose }) => {
     }
 
     try {
-      const response = await axios.post(
-        `${process.env.REACT_APP_API_URL}/login`,
-        formData
-      );
-
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
       const { token, user } = response.data;
 
       localStorage.setItem("token", token);
@@ -94,11 +88,9 @@ const LoginPage = ({ onClose }) => {
       else navigate("/customer-dashboard");
 
       onClose && onClose();
-
     } catch (err) {
       const errorMessage = err.response?.data?.message || "Login failed.";
       setServerError(errorMessage);
-
       setTimeout(() => setServerError(''), 5000);
     } finally {
       setIsSubmitting(false);
@@ -115,6 +107,11 @@ const LoginPage = ({ onClose }) => {
     <div className="container d-flex justify-content-center align-items-center vh-100">
       <div className="card shadow p-4" style={{ maxWidth: '420px', width: '100%' }}>
         
+        {/* Logo on top */}
+        <div className="d-flex justify-content-center mb-3">
+          <img src={logo} alt="Logo" style={{ height: '80px', objectFit: 'contain' }} />
+        </div>
+
         <div className="d-flex justify-content-between align-items-center mb-3">
           <h3 className="m-0">Login</h3>
           {onClose && (
