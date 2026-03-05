@@ -78,34 +78,34 @@ const CustomerCompleteKyc = ({ user }) => {
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
+  e.preventDefault();
 
-    const formToSend = new FormData();
-    for (const key in formData) {
+  const formToSend = new FormData();
+  for (const key in formData) {
+    if (formData[key] !== null && formData[key] !== '') {
       formToSend.append(key, formData[key]);
     }
+  }
 
-    try {
-      //const res = await fetch(`${process.env.REACT_APP_API_URL}/api/kyc/submit`, {
-         const res = await fetch("https://yonkopa-backend-production-b4f7.up.railway.app/api/kyc/submit", {
-        method: "POST",
-        body: formToSend,
-      });
+  try {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/kyc/submit`, {
+      method: "POST",
+      body: formToSend,
+    });
 
-      const data = await res.json();
-      console.log(data);
+    const data = await res.json();
+    console.log(data);
 
-      if (res.ok) {
-        alert("KYC submitted successfully!");
-      } else {
-        alert("Error submitting KYC");
-      }
-
-    } catch (error) {
-      console.error("Submit error:", error);
+    if (res.ok) {
+      alert("KYC submitted successfully!");
+    } else {
+      alert(`Error submitting KYC: ${data.message || 'Unknown error'}`);
     }
-  };
-
+  } catch (error) {
+    console.error("Submit error:", error);
+    alert("Network or server error. Check console.");
+  }
+};
   const renderStep = () => {
     switch (currentStep) {
       case 1: return (
