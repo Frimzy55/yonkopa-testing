@@ -88,7 +88,7 @@ const CustomerCompleteKyc = ({ user }) => {
   }
 
   try {
-    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/kyc/submit`, {
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/kyc/submit`, {
       method: "POST",
       body: formToSend,
     });
