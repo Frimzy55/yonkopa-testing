@@ -13,7 +13,7 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
 
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
-  const [message, setMessage] = useState("");
+  const [ setMessage] = useState("");
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
