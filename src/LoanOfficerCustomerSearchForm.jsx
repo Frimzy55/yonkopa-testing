@@ -10,9 +10,13 @@ const CustomerSearchForm = () => {
     if (!query.trim()) return;
 
     try {
-      const response = await fetch(
+      /*const response = await fetch(
         `http://localhost:5000/api/customers/search?q=${query}`
-      );
+      );*/
+
+      const response = await fetch(
+  `${process.env.REACT_APP_API_URL}/api/customers/search?q=${query}`
+);
 
       const data = await response.json();
       setResults(data);
