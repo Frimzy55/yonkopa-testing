@@ -119,7 +119,7 @@ const CustomerCompleteKyc = ({ user }) => {
           <h3>Personal Information</h3>
           <div className="form-grid">
             <input type="text" name="firstName" value={formData.firstName} readOnly placeholder="First Name *" required />
-            <input type="text" name="middleName" value={formData.middleName} readOnly placeholder="Middle Name" />
+            <input type="text" name="middleName" value={formData.middleName} onChange={handleInputChange} placeholder="Middle Name" />
             <input type="text" name="lastName" value={formData.lastName} readOnly placeholder="Last Name *" required />
             <input type="date" name="dateOfBirth" value={formData.dateOfBirth} onChange={handleInputChange} required />
             <select name="gender" value={formData.gender} onChange={handleInputChange} required>
