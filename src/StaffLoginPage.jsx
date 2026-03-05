@@ -89,7 +89,7 @@ const LoginPage = ({ onClose }) => {
 
       if (user.role === 'admin') navigate('/admin-dashboard');
       else if (user.role === 'loan_officer') navigate('/loan-officer-dashboard');
-      else navigate('/customer-dashboard');
+      //else navigate('/customer-dashboard');
 
       onClose && onClose();
     } catch (err) {
