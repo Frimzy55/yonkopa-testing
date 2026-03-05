@@ -1,3 +1,4 @@
+// src/components/LoginPage.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
@@ -6,7 +7,7 @@ const LoginPage = ({ onClose }) => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    email: '',
+    identifier: '', // email or phone
     password: ''
   });
 
@@ -18,11 +19,14 @@ const LoginPage = ({ onClose }) => {
   const validateField = (name, value) => {
     const newErrors = { ...errors };
     switch (name) {
-      case 'email':
-        if (!value.trim()) newErrors.email = 'Email is required';
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          newErrors.email = 'Please enter a valid email';
-        else delete newErrors.email;
+      case 'identifier':
+        if (!value.trim()) newErrors.identifier = 'Email or phone is required';
+        else if (
+          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && // not valid email
+          !/^\d{10}$/.test(value.replace(/\D/g, ''))    // not 10-digit phone
+        ) {
+          newErrors.identifier = 'Enter a valid email or 10-digit phone';
+        } else delete newErrors.identifier;
         break;
 
       case 'password':
@@ -75,14 +79,15 @@ const LoginPage = ({ onClose }) => {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/login`,
+        formData
+      );
 
       const { token, user } = response.data;
 
       localStorage.setItem("token", token);
       localStorage.setItem("user", JSON.stringify(user));
-
-      //alert("Login successful!");
 
       if (user.role === "admin") navigate("/admin-dashboard");
       else if (user.role === "loan_officer") navigate("/loan-officer-dashboard");
@@ -102,7 +107,7 @@ const LoginPage = ({ onClose }) => {
 
   const canSubmit = 
     Object.keys(errors).length === 0 &&
-    formData.email &&
+    formData.identifier &&
     formData.password &&
     !isSubmitting;
 
@@ -123,21 +128,21 @@ const LoginPage = ({ onClose }) => {
 
         <form onSubmit={handleSubmit} noValidate>
           
-          {/* Email */}
+          {/* Email or Phone */}
           <div className="mb-3">
-            <label className="form-label">Email</label>
+            <label className="form-label">Email or Phone</label>
             <input 
-              type="email" 
-              name="email"
-              className={`form-control ${touched.email && errors.email ? 'is-invalid' : ''}`}
-              placeholder="Enter email"
-              value={formData.email}
+              type="text" 
+              name="identifier"
+              className={`form-control ${touched.identifier && errors.identifier ? 'is-invalid' : ''}`}
+              placeholder="Enter email or phone"
+              value={formData.identifier}
               onChange={handleChange}
               onBlur={handleBlur}
               disabled={isSubmitting}
             />
-            {touched.email && errors.email && (
-              <div className="invalid-feedback">{errors.email}</div>
+            {touched.identifier && errors.identifier && (
+              <div className="invalid-feedback">{errors.identifier}</div>
             )}
           </div>
 
