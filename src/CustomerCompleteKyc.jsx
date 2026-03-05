@@ -5,6 +5,7 @@ import './CustomerCompleteKyc.css'; // CSS for form + progress bar
 const CustomerCompleteKyc = ({ user }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
+  const [formErrors, setFormErrors] = useState({});
 
 
   // Autofill names and email from user
@@ -68,15 +69,52 @@ const CustomerCompleteKyc = ({ user }) => {
     { number: 6, title: 'Document Upload', description: 'Upload required documents' }
   ];
 
-  const handleInputChange = (e) => {
+  /*const handleInputChange = (e) => {
     const { name, value, type, files } = e.target;
     setFormData(prev => ({
       ...prev,
       [name]: type === 'file' ? files[0] : value
     }));
-  };
+  };*/
 
-  const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length));
+ // const [formErrors, setFormErrors] = useState({});
+
+const handleInputChange = (e) => {
+  const { name, value, type, files } = e.target;
+  const newValue = type === 'file' ? files[0] : value;
+
+  setFormData(prev => ({
+    ...prev,
+    [name]: newValue
+  }));
+
+  // Validate National ID format immediately
+  if (name === 'nationalId') {
+    const nationalIdPattern = /^GHA-\d{9}-\d$/;
+    if (!nationalIdPattern.test(newValue)) {
+      setFormErrors(prev => ({
+        ...prev,
+        nationalId: 'National ID must be in the format GHA-123456789-0'
+      }));
+    } else {
+      setFormErrors(prev => {
+        const updated = { ...prev };
+        delete updated.nationalId;
+        return updated;
+      });
+    }
+  }
+};
+
+  //const nextStep = () => setCurrentStep(prev => Math.min(prev + 1, steps.length));
+  const nextStep = () => {
+  // Check if current step has errors
+  if (currentStep === 1 && formErrors.nationalId) {
+    alert("Please fix errors before proceeding.");
+    return;
+  }
+  setCurrentStep(prev => Math.min(prev + 1, steps.length));
+};
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = async (e) => {
@@ -136,7 +174,17 @@ const CustomerCompleteKyc = ({ user }) => {
               <option value="divorced">Divorced</option>
               <option value="widowed">Widowed</option>
             </select>
-            <input type="text" name="nationalId" value={formData.nationalId} onChange={handleInputChange} placeholder="National ID *" required />
+            <input
+  type="text"
+  name="nationalId"
+  value={formData.nationalId}
+  onChange={handleInputChange}
+  placeholder="National ID *"
+  required
+/>
+{formErrors.nationalId && (
+  <span className="error-message">{formErrors.nationalId}</span>
+)}
             <input type="text" name="passportNumber" value={formData.passportNumber} onChange={handleInputChange} placeholder="Passport Number" />
             <input type="text" name="taxId" value={formData.taxId} onChange={handleInputChange} placeholder="Tax ID" />
           </div>
