@@ -353,126 +353,128 @@ useEffect(() => {
   <hr />
 </div>
 
-          <div className="col-md-4">
-            <h5 className="mt-4">business financial section</h5>
-            <label className="form-label">Gross Margin Percentage (%)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={grossMarginPercentage}
-              onChange={(e) => setGrossMarginPercentage(e.target.value)}
-            />
-          </div>
+          <h5 className="mt-4">Business Financial Section</h5>
+<div className="row g-3">
+  <div className="col-md-4">
+    <label className="form-label">Gross Margin Percentage (%)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={grossMarginPercentage}
+      onChange={(e) => setGrossMarginPercentage(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Monthly Sales Revenue (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={monthlySalesRevenue}
-              onChange={(e) => setMonthlySalesRevenue(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Monthly Sales Revenue (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={monthlySalesRevenue}
+      onChange={(e) => setMonthlySalesRevenue(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Cost of Goods Sold (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={costOfGoodsSold}
-              onChange={(e) => setCostOfGoodsSold(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Cost of Goods Sold (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={costOfGoodsSold}
+      onChange={(e) => setCostOfGoodsSold(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Gross Profit (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={grossProfit}
-              onChange={(e) => setGrossProfit(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Gross Profit (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={grossProfit}
+      onChange={(e) => setGrossProfit(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Total Operating Expenses (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={totalOperatingExpenses}
-              onChange={(e) => setTotalOperatingExpenses(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Total Operating Expenses (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={totalOperatingExpenses}
+      onChange={(e) => setTotalOperatingExpenses(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Net Business Profit (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={netBusinessProfit}
-              onChange={(e) => setNetBusinessProfit(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Net Business Profit (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={netBusinessProfit}
+      onChange={(e) => setNetBusinessProfit(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Household Expenses (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={householdExpenses}
-              onChange={(e) => setHouseholdExpenses(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Household Expenses (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={householdExpenses}
+      onChange={(e) => setHouseholdExpenses(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Other Income (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={otherIncome}
-              onChange={(e) => setOtherIncome(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Other Income (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={otherIncome}
+      onChange={(e) => setOtherIncome(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Household Surplus (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={householdSurplus}
-              onChange={(e) => setHouseholdSurplus(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Household Surplus (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={householdSurplus}
+      onChange={(e) => setHouseholdSurplus(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Loan Recommendation (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={loanRecommendation}
-              onChange={(e) => setLoanRecommendation(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Loan Recommendation (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={loanRecommendation}
+      onChange={(e) => setLoanRecommendation(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Expected Monthly Installment</label>
-            <input
-              type="number"
-              className="form-control"
-              value={expectedMonthlyInstallment}
-              onChange={(e) => setExpectedMonthlyInstallment(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Expected Monthly Installment</label>
+    <input
+      type="number"
+      className="form-control"
+      value={expectedMonthlyInstallment}
+      onChange={(e) => setExpectedMonthlyInstallment(e.target.value)}
+    />
+  </div>
 
-          <div className="col-md-4">
-            <label className="form-label">Allowable Disposable Loan Service (GH¢)</label>
-            <input
-              type="number"
-              className="form-control"
-              value={allowableDisposableLoanService}
-              onChange={(e) => setAllowableDisposableLoanService(e.target.value)}
-            />
-          </div>
+  <div className="col-md-4">
+    <label className="form-label">Allowable Disposable Loan Service (GH¢)</label>
+    <input
+      type="number"
+      className="form-control"
+      value={allowableDisposableLoanService}
+      onChange={(e) => setAllowableDisposableLoanService(e.target.value)}
+    />
+  </div>
+</div>
 
            {/* Generate Pay Capacity Button – LAST */}
     <div className="col-12 mt-3">
