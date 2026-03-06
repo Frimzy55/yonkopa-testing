@@ -77,7 +77,7 @@ const CutomerLoanForm = ({ user, handleReset }) => {
       dob,
        kycCode: user.kyc_code || "" ,// <-- Autofill KYC Code
       email: user.email || "",
-      nationalId: user.national_id || user.nationalId || "",  // ✅ ADD THIS
+      nationalId: user.nationalId || "",  // ✅ ADD THIS
       
     }));
   }, [user]);
