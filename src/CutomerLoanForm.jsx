@@ -77,6 +77,7 @@ const CutomerLoanForm = ({ user, handleReset }) => {
       dob,
        kycCode: user.kyc_code || "" ,// <-- Autofill KYC Code
       email: user.email || "",
+      nationalId: user.national_id || user.nationalId || "",  // ✅ ADD THIS
       
     }));
   }, [user]);
@@ -178,13 +179,11 @@ const CutomerLoanForm = ({ user, handleReset }) => {
               </select>
 
               <input
-                name="nationalId"
-                placeholder="National ID / Passport"
-                value={formData.nationalId}
-                onChange={handleInputChange}
-                required
+              name="nationalId"
+              placeholder="National ID / Passport"
+              value={formData.nationalId}
+             readOnly
               />
-
               <select
                 name="maritalStatus"
                 value={formData.maritalStatus}
