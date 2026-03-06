@@ -485,25 +485,26 @@ useEffect(() => {
 </div>
 
            {/* Generate Pay Capacity Button – LAST */}
-    <div className="col-12 mt-3">
-           <button
-          className="btn btn-success"
-           onClick={() => {
-      // Calculate surplus: monthlyInstallment - loanRecommendation
-          const surplus = (parseFloat(monthlyInstallment) || 0) - (parseFloat(loanRecommendation) || 0);
-          setPayCapacity(surplus);
-         }}
-        >
-          Generate Pay Capacity
-      </button>
-    </div>
-
-    {payCapacity > 0 && (
-  <div className="col-12 mt-2">
-    <strong>Pay Capacity Surplus (GH¢): </strong> {payCapacity.toFixed(2)}
+    {/* Generate Pay Capacity Section */}
+<div className="row g-3 mt-3">
+  <div className="col-md-6">
+    <button
+      className="btn btn-success w-100"
+      onClick={() => {
+        const surplus = (parseFloat(monthlyInstallment) || 0) - (parseFloat(loanRecommendation) || 0);
+        setPayCapacity(surplus);
+      }}
+    >
+      Generate Pay Capacity
+    </button>
   </div>
-)}
 
+  {payCapacity !== null && (
+    <div className="col-md-6 d-flex align-items-center">
+      <strong>Pay Capacity Surplus (GH¢): </strong>&nbsp; {payCapacity.toFixed(2)}
+    </div>
+  )}
+</div>
 
 
 
