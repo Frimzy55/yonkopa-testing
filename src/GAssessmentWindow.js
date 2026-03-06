@@ -282,6 +282,9 @@ useEffect(() => {
               <option value="Others">Others</option>
             </select>
           </div>
+            <div className="col-12 my-4">
+  <hr />
+</div>
 
           <div className="col-md-6">
             <h5 className="mt-4">principal-rate calculation</h5>
