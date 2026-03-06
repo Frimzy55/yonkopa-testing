@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import SignUpPage from './SignUpPage';
 import LoginPage from './LoginPage';
+import logo from '../image/logo.png';
 
 const CustomerLanding = () => {
   const [showSignUp, setShowSignUp] = useState(false);
@@ -25,6 +26,11 @@ const CustomerLanding = () => {
       {/* HEADER */}
       <nav className="navbar navbar-light bg-white shadow-sm">
         <div className="container d-flex justify-content-between align-items-center">
+           <img 
+        src={logo} 
+        alt="Yonkopa Logo" 
+        style={{ width: "40px", height: "40px", objectFit: "contain" }}
+      />
           <h3 className="navbar-brand m-0">Yonkopa Micro Credit</h3>
           <button 
             className="btn btn-primary"
@@ -92,7 +98,7 @@ const CustomerLanding = () => {
       <footer className="mt-auto py-4 bg-dark text-white text-center">
         <div className="container">
           <p className="mb-1">&copy; 2026 Yonkopa. All rights reserved.</p>
-          <p className="mb-0">support@loanexpress.com | 1-800-LOAN-NOW</p>
+          
         </div>
       </footer>
 
