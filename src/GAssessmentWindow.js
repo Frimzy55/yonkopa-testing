@@ -3,21 +3,19 @@ import { useState, useEffect } from 'react';
 const AssessmentWindow = ({ application, formData, setFormData, onBack, onNext }) => {
   const initialCreditData = formData.borrowerCredit || {};
 
-  const [creditScore, setCreditScore] = useState(initialCreditData.creditScore || '');
-  const [existingLoans, setExistingLoans] = useState(initialCreditData.existingLoans || '');
-  const [remarks, setRemarks] = useState(initialCreditData.remarks || '');
+  const [isCreditworthy, setIsCreditworthy] = useState(initialCreditData.isCreditworthy || false);
+  const [businessOverview, setBusinessOverview] = useState(initialCreditData.businessOverview || '');
 
   // Sync local state to main formData
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
       borrowerCredit: {
-        creditScore,
-        existingLoans,
-        remarks
+        isCreditworthy,
+        businessOverview
       }
     }));
-  }, [creditScore, existingLoans, remarks, setFormData]);
+  }, [isCreditworthy, businessOverview, setFormData]);
 
   return (
     <div className="p-4 border rounded shadow">
@@ -34,34 +32,48 @@ const AssessmentWindow = ({ application, formData, setFormData, onBack, onNext }
       <p>Credit information for <strong>{application.applicantName}</strong></p>
 
       <div className="mt-3">
+        {/* Borrower Creditworthy */}
         <div className="mb-3">
-          <label className="form-label">Credit Score</label>
-          <input
-            type="number"
-            className="form-control"
-            value={creditScore}
-            onChange={(e) => setCreditScore(e.target.value)}
-          />
+          <label className="form-label">Is the Borrower Creditworthy?</label>
+          <div>
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="creditworthy"
+                value="yes"
+                checked={isCreditworthy === true}
+                onChange={() => setIsCreditworthy(true)}
+              />
+              <label className="form-check-label">Yes</label>
+            </div>
+            <div className="form-check form-check-inline">
+              <input
+                className="form-check-input"
+                type="radio"
+                name="creditworthy"
+                value="no"
+                checked={isCreditworthy === false}
+                onChange={() => setIsCreditworthy(false)}
+              />
+              <label className="form-check-label">No</label>
+            </div>
+          </div>
         </div>
 
+        {/* Business Overview */}
         <div className="mb-3">
-          <label className="form-label">Existing Loans (GHS)</label>
-          <input
-            type="number"
-            className="form-control"
-            value={existingLoans}
-            onChange={(e) => setExistingLoans(e.target.value)}
-          />
-        </div>
-
-        <div className="mb-3">
-          <label className="form-label">Remarks</label>
-          <textarea
-            className="form-control"
-            rows={3}
-            value={remarks}
-            onChange={(e) => setRemarks(e.target.value)}
-          />
+          <label className="form-label">Business Overview</label>
+          <select
+            className="form-select"
+            value={businessOverview}
+            onChange={(e) => setBusinessOverview(e.target.value)}
+          >
+            <option value="">Select Business Type</option>
+            <option value="Wholesale">Wholesale</option>
+            <option value="Retailer">Retailer</option>
+            <option value="Others">Others</option>
+          </select>
         </div>
       </div>
     </div>
