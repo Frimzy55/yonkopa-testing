@@ -460,7 +460,8 @@ useEffect(() => {
     <input
       type="number"
       className="form-control"
-      value={expectedMonthlyInstallment}
+      //value={expectedMonthlyInstallment}
+      value={monthlyInstallment}
       onChange={(e) => setExpectedMonthlyInstallment(e.target.value)}
     />
   </div>
@@ -470,7 +471,8 @@ useEffect(() => {
     <input
       type="number"
       className="form-control"
-      value={allowableDisposableLoanService}
+     // value={allowableDisposableLoanService}
+     value={loanRecommendation}
       onChange={(e) => setAllowableDisposableLoanService(e.target.value)}
     />
   </div>
