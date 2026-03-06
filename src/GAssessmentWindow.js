@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { calculateLoanDetails } from './utils/loanCalculations'; // <- import here
 
 const AssessmentWindow = ({ application, formData, setFormData, onBack, onNext }) => {
   const initialCreditData = formData.borrowerCredit || {};
@@ -36,70 +37,34 @@ const AssessmentWindow = ({ application, formData, setFormData, onBack, onNext }
   const [expectedMonthlyInstallment, setExpectedMonthlyInstallment] = useState(initialCreditData.expectedMonthlyInstallment || 0);
   const [allowableDisposableLoanService, setAllowableDisposableLoanService] = useState(initialCreditData.allowableDisposableLoanService || 0);
 
+
+
+  useEffect(() => {
+    const { interest: calcInterest, loanAmount: calcLoan, monthlyInstallment: calcMonthly } =
+      calculateLoanDetails({ principal, rate, loanTerm });
+
+    setInterest(calcInterest);
+    setLoanAmount(calcLoan);
+    setMonthlyInstallment(calcMonthly);
+  }, [principal, rate, loanTerm]);
+
   // Sync all form data
   useEffect(() => {
     setFormData(prev => ({
       ...prev,
       borrowerCredit: {
-        isCreditworthy,
-        businessOverview,
-        businessLocation,
-        businessStartDate,
-        nearestLandmark,
-        businessDescription,
-        isAbleToPay,
-        currentStockValue,
-        startedBusinessWith,
-        sourceOfFund,
-        principal,
-        rate,
-        loanTerm,
-        interest,
-        loanAmount,
-        monthlyInstallment,
-        grossMarginPercentage,
-        monthlySalesRevenue,
-        costOfGoodsSold,
-        grossProfit,
-        totalOperatingExpenses,
-        netBusinessProfit,
-        householdExpenses,
-        otherIncome,
-        householdSurplus,
-        loanRecommendation,
-        expectedMonthlyInstallment,
-        allowableDisposableLoanService
+        isCreditworthy,businessOverview,businessLocation,businessStartDate,nearestLandmark,businessDescription,
+        isAbleToPay,currentStockValue,startedBusinessWith,sourceOfFund,principal,rate,loanTerm,interest,loanAmount,monthlyInstallment,
+        grossMarginPercentage,monthlySalesRevenue,costOfGoodsSold,grossProfit,totalOperatingExpenses,netBusinessProfit,householdExpenses,
+        otherIncome,householdSurplus,loanRecommendation,expectedMonthlyInstallment,allowableDisposableLoanService
       }
     }));
   }, [
-    isCreditworthy,
-    businessOverview,
-    businessLocation,
-    businessStartDate,
-    nearestLandmark,
-    businessDescription,
-    isAbleToPay,
-    currentStockValue,
-    startedBusinessWith,
-    sourceOfFund,
-    principal,
-    rate,
-    loanTerm,
-    interest,
-    loanAmount,
-    monthlyInstallment,
-    grossMarginPercentage,
-    monthlySalesRevenue,
-    costOfGoodsSold,
-    grossProfit,
-    totalOperatingExpenses,
-    netBusinessProfit,
-    householdExpenses,
-    otherIncome,
-    householdSurplus,
-    loanRecommendation,
-    expectedMonthlyInstallment,
-    allowableDisposableLoanService,
+    isCreditworthy,businessOverview,businessLocation,businessStartDate,nearestLandmark,businessDescription,
+    isAbleToPay,currentStockValue,startedBusinessWith,sourceOfFund,
+    principal,rate,loanTerm,interest,loanAmount,monthlyInstallment,grossMarginPercentage,monthlySalesRevenue,costOfGoodsSold,
+    grossProfit,totalOperatingExpenses,netBusinessProfit,householdExpenses,otherIncome,householdSurplus,loanRecommendation,
+    expectedMonthlyInstallment,allowableDisposableLoanService,
     setFormData
   ]);
 
