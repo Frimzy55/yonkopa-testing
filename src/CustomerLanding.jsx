@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import SignUpPage from './SignUpPage';
 import LoginPage from './LoginPage';
-import logo from '../image/logo.png';
+import logo from '../image/yonko.png';
 
 const CustomerLanding = () => {
   const [showSignUp, setShowSignUp] = useState(false);
