@@ -453,6 +453,20 @@ const AssessmentWindow = ({ application, formData, setFormData, onBack, onNext }
               onChange={(e) => setAllowableDisposableLoanService(e.target.value)}
             />
           </div>
+
+           {/* Generate Pay Capacity Button – LAST */}
+    <div className="col-12 mt-3">
+      <button
+        className="btn btn-success"
+        onClick={() => {
+          // Placeholder for calculation logic
+          alert('Generating Pay Capacity...');
+          // You can calculate values like monthlyInstallment, householdSurplus, etc. here
+        }}
+      >
+        Generate Pay Capacity
+      </button>
+    </div>
         </div>
       )}
     </div>
