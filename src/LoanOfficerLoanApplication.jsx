@@ -35,10 +35,7 @@ const LoanOfficerLoanApplication = () => {
     setSelectedAssessmentType(null);
   };
 
-  const handleOnlineNotifications = () => {
-    console.log("Navigate to Online Application Notifications");
-    // Add navigation logic here
-  };
+  
 
   // Render the selected loan type component
   if (selectedLoanType) {
@@ -128,30 +125,7 @@ const LoanOfficerLoanApplication = () => {
           </div>
         </div>
 
-        {/* Online Application Notifications Card */}
-        <div className="col-md-4 mb-4">
-          <div className="card h-100 shadow-sm border-0">
-            <div className="card-body d-flex flex-column">
-              <div className="text-center mb-3">
-                <i className="bi bi-bell text-warning" style={{ fontSize: '2.5rem' }}></i>
-              </div>
-              <h5 className="card-title text-center">Online Application Notifications</h5>
-              <p className="card-text text-muted text-center">
-                Online application progress
-              </p>
-              <div className="mt-auto">
-                <button 
-                  className="btn btn-warning w-100"
-                  onClick={handleOnlineNotifications}
-                >
-                  <i className="bi bi-bell-fill me-2"></i>
-                  Check Notifications
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-
+       
         {/* Credit Assessment Card */}
         <div className="col-md-4 mb-4">
           <div className="card h-100 shadow-sm border-0">
