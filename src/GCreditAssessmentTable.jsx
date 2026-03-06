@@ -65,6 +65,22 @@ const CreditAssessmentWizard = () => {
     setSelectedAppIndex(index);
   };
 
+  const handleSkipAssessment = (index) => {
+    const app = applications[index];
+    alert(`Assessment skipped for Application #${app.id}`);
+    
+    // Later you can call backend API here
+    // fetch(`/api/applications/skip/${app.id}`)
+  };
+
+  const handleReprocess = (index) => {
+    const app = applications[index];
+    alert(`Reprocess requested for Application #${app.id}`);
+
+    // Later call backend API
+    // fetch(`/api/applications/reprocess/${app.id}`)
+  };
+
   if (loading) {
     return (
       <div className="text-center py-4">
@@ -76,7 +92,7 @@ const CreditAssessmentWizard = () => {
   return (
     <div className="container">
 
-      {/* SHOW PROFILE PAGE */}
+      {/* PROFILE PAGE */}
       {selectedAppIndex !== null && (
         <ApplicantProfile
           application={applications[selectedAppIndex]}
@@ -84,7 +100,7 @@ const CreditAssessmentWizard = () => {
         />
       )}
 
-      {/* SHOW TABLE */}
+      {/* TABLE */}
       {selectedAppIndex === null && (
         <>
           <h3 className="mb-1">Personal Loan Credit Assessment</h3>
@@ -128,16 +144,35 @@ const CreditAssessmentWizard = () => {
 
                       {app.open && (
                         <div className="dropdown-menu show">
+
                           <button
                             className="dropdown-item"
                             onClick={() => handleProceed(index)}
                           >
                             Proceed
                           </button>
+
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleSkipAssessment(index)}
+                          >
+                            Skip Assessment
+                          </button>
+
+                          <div className="dropdown-divider"></div>
+
+                          <button
+                            className="dropdown-item"
+                            onClick={() => handleReprocess(index)}
+                          >
+                            Reprocess
+                          </button>
+
                         </div>
                       )}
                     </div>
                   </td>
+
                 </tr>
               ))}
             </tbody>
