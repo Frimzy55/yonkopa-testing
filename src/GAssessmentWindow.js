@@ -491,7 +491,7 @@ useEffect(() => {
     <button
       className="btn btn-success w-100"
       onClick={() => {
-        const surplus = (parseFloat(monthlyInstallment) || 0) - (parseFloat(loanRecommendation) || 0);
+        const surplus = (parseFloat( loanRecommendation) || 0) - (parseFloat(monthlyInstallment) || 0);
         setPayCapacity(surplus);
       }}
     >
@@ -502,6 +502,19 @@ useEffect(() => {
   {payCapacity !== null && (
     <div className="col-md-6 d-flex align-items-center">
       <strong>Pay Capacity Surplus (GH¢): </strong>&nbsp; {payCapacity.toFixed(2)}
+
+
+      {/* Conditional Message */}
+      {payCapacity < 0 ? (
+        <span className="text-danger mt-2">
+          Applicant's disposable income to service the loan is less than the system's benchmark.
+          Based on the data submitted, the applicant may not be able to service the loan.
+        </span>
+      ) : (
+        <span className="text-success mt-2">
+          Applicant's disposable income is sufficient to service the loan.
+        </span>
+      )}
     </div>
   )}
 </div>
