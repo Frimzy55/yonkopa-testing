@@ -284,6 +284,7 @@ useEffect(() => {
           </div>
 
           <div className="col-md-6">
+            <h5 className="mt-4">principal-rate calculation</h5>
             <label className="form-label">Principal (GH¢)</label>
             <input
               type="number"
@@ -342,9 +343,9 @@ useEffect(() => {
               onChange={(e) => setMonthlyInstallment(e.target.value)}
             />
           </div>
-          <br></br>
-                    <br></br>
-                    <br></br>
+          <div className="col-12 my-4">
+  <hr />
+</div>
 
           <div className="col-md-4">
             <label className="form-label">Gross Margin Percentage (%)</label>
