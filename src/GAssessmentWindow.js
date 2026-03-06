@@ -13,6 +13,9 @@ import {
 const AssessmentWindow = ({ application, formData, setFormData, onBack, onNext }) => {
   const initialCreditData = formData.borrowerCredit || {};
 
+  // Add a new state at the top
+const [payCapacity, setPayCapacity] = useState(0);
+
   const [isCreditworthy, setIsCreditworthy] = useState(initialCreditData.isCreditworthy || false);
   const [businessOverview, setBusinessOverview] = useState(initialCreditData.businessOverview || '');
   const [businessLocation, setBusinessLocation] = useState(initialCreditData.businessLocation || '');
@@ -483,17 +486,28 @@ useEffect(() => {
 
            {/* Generate Pay Capacity Button – LAST */}
     <div className="col-12 mt-3">
-      <button
-        className="btn btn-success"
-        onClick={() => {
-          // Placeholder for calculation logic
-          alert('Generating Pay Capacity...');
-          // You can calculate values like monthlyInstallment, householdSurplus, etc. here
-        }}
-      >
-        Generate Pay Capacity
+           <button
+          className="btn btn-success"
+           onClick={() => {
+      // Calculate surplus: monthlyInstallment - loanRecommendation
+          const surplus = (parseFloat(monthlyInstallment) || 0) - (parseFloat(loanRecommendation) || 0);
+          setPayCapacity(surplus);
+         }}
+        >
+          Generate Pay Capacity
       </button>
     </div>
+
+    {payCapacity > 0 && (
+  <div className="col-12 mt-2">
+    <strong>Pay Capacity Surplus (GH¢): </strong> {payCapacity.toFixed(2)}
+  </div>
+)}
+
+
+
+
+
         </div>
       )}
     </div>
