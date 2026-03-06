@@ -342,6 +342,9 @@ useEffect(() => {
               onChange={(e) => setMonthlyInstallment(e.target.value)}
             />
           </div>
+          <br></br>
+                    <br></br>
+                    <br></br>
 
           <div className="col-md-4">
             <label className="form-label">Gross Margin Percentage (%)</label>
