@@ -36,44 +36,60 @@ const ApplicantProfile = ({ application, onBack }) => {
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 0));
 
   // ✅ Submit all steps at once
-  const handleSubmitAll = async () => {
-    try {
-      const formattedDate = new Date(formData.applicantProfile.applicationDate)
-        .toISOString()
-        .slice(0, 19)
-        .replace("T", " ");
+ const handleSubmitAll = async () => {
+  try {
+    const formattedDate = new Date(formData.applicantProfile.applicationDate)
+      .toISOString()
+      .slice(0, 19)
+      .replace("T", " ");
 
-      const payload = {
-        ...formData.applicantProfile,
-        applicationDate: formattedDate,
-        ...formData.collateralDetails,
-        ...formData.borrowerCredit,
-        ...formData.comments,
-      };
+    const payload = {
+      ...formData.applicantProfile,
+      applicationDate: formattedDate,
+      ...formData.collateralDetails,
+      ...formData.borrowerCredit,
+      ...formData.comments,
+    };
 
-      const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/applications/submit-all`,
+    // 1️⃣ Submit all steps to the backend
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/applications/submit-all`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      alert("All steps submitted successfully!");
+
+      // 2️⃣ Delete the corresponding loan from the 'loans' table
+      const deleteResponse = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/loans/delete/${formData.applicantProfile.loanId}`,
         {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          method: "DELETE",
         }
       );
 
-      const data = await response.json();
-
-      if (response.ok) {
-        alert("All steps submitted successfully!");
-        onBack(); // go back to table
+      if (deleteResponse.ok) {
+        alert("Loan record deleted successfully!");
       } else {
-        alert("Error submitting: " + data.message);
+        const delData = await deleteResponse.json();
+        alert("Error deleting loan: " + delData.message);
       }
-    } catch (error) {
-      console.error(error);
-      alert("Network error. Backend may not be running.");
-    }
-  };
 
+      onBack(); // go back to table
+    } else {
+      alert("Error submitting: " + data.message);
+    }
+  } catch (error) {
+    console.error(error);
+    alert("Network error. Backend may not be running.");
+  }
+};
   return (
     <div className="container mt-4">
       <div className="bg-white py-2">
