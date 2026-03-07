@@ -5,9 +5,7 @@ const CustomerSearchForm = () => {
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
 
-  const handleSearch = async (e) => {
-    e.preventDefault();
-
+  const handleSearch = async () => {
     if (!query.trim()) return;
 
     try {
@@ -24,10 +22,10 @@ const CustomerSearchForm = () => {
   };
 
   return (
-    <div className="form-container">
+    <div className="form-container" style={{ padding: "20px" }}>
       <h2>Search Customers</h2>
 
-      <form onSubmit={handleSearch} style={{ marginBottom: "20px" }}>
+      <div style={{ marginBottom: "20px" }}>
         <input
           type="text"
           placeholder="Search by Name or KYC Code"
@@ -43,7 +41,8 @@ const CustomerSearchForm = () => {
         />
 
         <button
-          type="submit"
+          type="button"
+          onClick={handleSearch}
           style={{
             padding: "10px 18px",
             border: "none",
@@ -55,7 +54,7 @@ const CustomerSearchForm = () => {
         >
           Search
         </button>
-      </form>
+      </div>
 
       {/* Results */}
       <div className="results">
@@ -69,7 +68,6 @@ const CustomerSearchForm = () => {
           results.map((customer) => (
             <div
               key={customer.id}
-              className="result-item"
               style={{
                 border: "1px solid #eee",
                 padding: "15px",
