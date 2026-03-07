@@ -5,15 +5,18 @@ const CustomerSearchForm = () => {
   const [results, setResults] = useState([]);
   const [searched, setSearched] = useState(false);
 
-  const handleSearch = async () => {
+  const handleSearch = async (e) => {
+    if (e) e.preventDefault();
+
     if (!query.trim()) return;
 
     try {
       const response = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/customers/search?q=${query}`
+        `${process.env.REACT_APP_API_URL}/api/customers/search?q=${encodeURIComponent(query)}`
       );
 
       const data = await response.json();
+
       setResults(data);
       setSearched(true);
     } catch (error) {
@@ -22,7 +25,7 @@ const CustomerSearchForm = () => {
   };
 
   return (
-    <div className="form-container" style={{ padding: "20px" }}>
+    <div style={{ padding: "20px" }}>
       <h2>Search Customers</h2>
 
       <div style={{ marginBottom: "20px" }}>
@@ -35,29 +38,15 @@ const CustomerSearchForm = () => {
             padding: "10px",
             width: "250px",
             marginRight: "10px",
-            borderRadius: "6px",
-            border: "1px solid #ccc",
           }}
         />
 
-        <button
-          type="button"
-          onClick={handleSearch}
-          style={{
-            padding: "10px 18px",
-            border: "none",
-            borderRadius: "6px",
-            background: "#007bff",
-            color: "#fff",
-            cursor: "pointer",
-          }}
-        >
+        <button type="button" onClick={handleSearch}>
           Search
         </button>
       </div>
 
-      {/* Results */}
-      <div className="results">
+      <div>
         <h3>Results</h3>
 
         {!searched ? (
@@ -66,32 +55,14 @@ const CustomerSearchForm = () => {
           <p>No customers found</p>
         ) : (
           results.map((customer) => (
-            <div
-              key={customer.id}
-              style={{
-                border: "1px solid #eee",
-                padding: "15px",
-                marginBottom: "10px",
-                borderRadius: "8px",
-                background: "#fafafa",
-              }}
-            >
+            <div key={customer.id}>
+              <p>KYC Code: {customer.kyc_code}</p>
               <p>
-                <strong>KYC Code:</strong> {customer.kyc_code}
+                Name: {customer.firstName} {customer.middleName}{" "}
+                {customer.lastName}
               </p>
-
-              <p>
-                <strong>Name:</strong>{" "}
-                {customer.firstName} {customer.middleName} {customer.lastName}
-              </p>
-
-              <p>
-                <strong>Phone:</strong> {customer.mobileNumber}
-              </p>
-
-              <p>
-                <strong>Email:</strong> {customer.email}
-              </p>
+              <p>Phone: {customer.mobileNumber}</p>
+              <p>Email: {customer.email}</p>
             </div>
           ))
         )}
