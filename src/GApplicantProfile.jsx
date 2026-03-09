@@ -20,10 +20,12 @@ const ApplicantProfile = ({ application, onBack }) => {
       customerId: application?.customerId || "",
       applicantName: application?.applicantName || "",
       contactNumber: application?.contactNumber || "",
+       idNumber: application?.idNumber || "",
       creditOfficer: application?.creditOfficer || "",
       loanType: application?.loanType || "",
       loanAmount: application?.loanAmount || "",
       applicationDate: application?.applicationDate || "",
+       email: application?.email|| "",
     },
     collateralDetails: {},
     borrowerCredit: {},
@@ -75,7 +77,7 @@ const ApplicantProfile = ({ application, onBack }) => {
       );
 
       if (deleteResponse.ok) {
-        alert("Loan record deleted successfully!");
+       // alert("Loan record deleted successfully!");
       } else {
         const delData = await deleteResponse.json();
         alert("Error deleting loan: " + delData.message);
@@ -141,6 +143,10 @@ const ApplicantProfile = ({ application, onBack }) => {
                 <th>Contact Number</th>
                 <td>{formData.applicantProfile.contactNumber}</td>
               </tr>
+               <tr>
+                <th>ID Number</th>
+                <td>{formData.applicantProfile.idNumber}</td>
+              </tr>
               <tr>
                 <th>Credit Officer</th>
                 <td>{formData.applicantProfile.creditOfficer}</td>
@@ -156,6 +162,10 @@ const ApplicantProfile = ({ application, onBack }) => {
               <tr>
                 <th>Application Date</th>
                 <td>{formData.applicantProfile.applicationDate}</td>
+              </tr>
+               <tr>
+                <th>Email</th>
+                <td>{formData.applicantProfile.email}</td>
               </tr>
             </tbody>
           </table>

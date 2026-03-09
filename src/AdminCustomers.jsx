@@ -3,10 +3,11 @@ import React, { useState } from "react";
 import "./LoanOfficerDashboard.css";
 import CustomerForm from "./LoanOfficerCustomerForm";
 import CustomerSearchForm from "./LoanOfficerCustomerSearchForm";
+import CustomerList from "./AdminCustomerList"; // <-- new component to show all customers
 
 const AdminCustomers = () => {
   const [view, setView] = useState("menu"); 
-  // menu | registration | search
+  // menu | registration | search | list
 
   return (
     <div className="content-section">
@@ -15,7 +16,7 @@ const AdminCustomers = () => {
       {view === "menu" && (
         <>
           <h2>Customer Menu</h2>
-          <p>Manage customer information, registration, and search.</p>
+          <p>Manage customer information, registration, search, and view all customers.</p>
 
           <div className="feature-grid">
             {/* Customer Registration */}
@@ -41,6 +42,18 @@ const AdminCustomers = () => {
                 Search Customers
               </button>
             </div>
+
+            {/* View All Customers */}
+            <div className="feature-card">
+              <h3>View All Registered Customers</h3>
+              <p>See a list of all registered customers in the system.</p>
+              <button
+                className="feature-btn"
+                onClick={() => setView("list")}
+              >
+                View Customers
+              </button>
+            </div>
           </div>
         </>
       )}
@@ -63,6 +76,20 @@ const AdminCustomers = () => {
       {view === "search" && (
         <>
           <CustomerSearchForm />
+          <button
+            className="feature-btn"
+            onClick={() => setView("menu")}
+            style={{ marginTop: "20px" }}
+          >
+            Back to Menu
+          </button>
+        </>
+      )}
+
+      {/* LIST VIEW */}
+      {view === "list" && (
+        <>
+          <CustomerList /> {/* <-- This component fetches & displays all customers */}
           <button
             className="feature-btn"
             onClick={() => setView("menu")}

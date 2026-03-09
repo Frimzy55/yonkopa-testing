@@ -47,9 +47,9 @@ const CustomerDashboard = () => {
   return (
     <div className="dashboard-container">
       <header className="top-bar">
-        <div className="top-bar-left"><h1>Yonkopa Micro Credit</h1></div>
+        <div className="top-bar-left"><h1>👤 {user?.fullName || 'user'}</h1></div>
         <div className="top-bar-right">
-          <span className="welcome-text">Welcome, {user?.fullName || 'User'}</span>
+          <span className="welcome-text">Yonkopa {user?.fullNam|| ''}</span>
           <button className="logout-btn" onClick={handleLogout}>Logout</button>
         </div>
       </header>

@@ -27,23 +27,23 @@ const LoginPage = ({ onClose }) => {
   }, []);
 
   // Validation
-  const validateField = (name, value) => {
-    const newErrors = { ...errors };
-    if (name === 'identifier') {
-      if (!value.trim()) newErrors.identifier = 'Email or phone is required';
-      else if (
-        !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && // not email
-        !/^\d{10}$/.test(value.replace(/\D/g, ''))    // not 10-digit phone
-      ) newErrors.identifier = 'Enter a valid email or 10-digit phone';
-      else delete newErrors.identifier;
-    }
-    if (name === 'password') {
-      if (!value) newErrors.password = 'Password is required';
-      else if (value.length < 6) newErrors.password = 'Password must be at least 6 characters';
-      else delete newErrors.password;
-    }
-    return newErrors;
-  };
+  // Validation
+const validateField = (name, value) => {
+  const newErrors = { ...errors };
+
+  if (name === 'identifier') {
+    if (!value.trim()) newErrors.identifier = 'Email or phone is required';
+    else delete newErrors.identifier; // remove format validation
+  }
+
+  if (name === 'password') {
+    if (!value) newErrors.password = 'Password is required';
+    else if (value.length < 6) newErrors.password = 'Password must be at least 6 characters';
+    else delete newErrors.password;
+  }
+
+  return newErrors;
+};
 
   const handleChange = (e) => {
     const { name, value } = e.target;

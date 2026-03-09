@@ -505,11 +505,13 @@ useEffect(() => {
     <div className="col-12 mt-3">
       <strong>Pay Capacity Surplus (GH¢): </strong> {payCapacity.toFixed(2)}
 
-      <div className={payCapacity < 0 ? "text-danger mt-2" : "text-success mt-2"}>
-        {payCapacity < 0
-          ? "Applicant's disposable income to service the loan is less than the system's benchmark. Based on the data submitted, the applicant may not be able to service the loan."
-          : "Applicant's disposable income is sufficient to service the loan."}
-      </div>
+      {payCapacity !== 0 && (
+  <div className={payCapacity < 0 ? "text-danger mt-2" : "text-success mt-2"}>
+    {payCapacity < 0
+      ? "Applicant's disposable income to service the loan is less than the system's benchmark. Based on the data submitted, the applicant may not be able to service the loan."
+      : "Applicant's disposable income to service the loan is greater than the system's benchmark. Based on the data submitted, the applicant can be able to service the loan."}
+  </div>
+)}
     </div>
   )}
 </div>

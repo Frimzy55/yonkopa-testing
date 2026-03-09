@@ -246,14 +246,76 @@ const handleInputChange = (e) => {
           <textarea name="existingLoans" value={formData.existingLoans} onChange={handleInputChange} placeholder="Existing Loans/Debts" rows="3" />
         </div>
       );
-      case 6: return (
-        <div className="form-step">
-          <h3>Document Upload</h3>
-          <input type="file" name="idDocument" onChange={handleInputChange} accept=".jpg,.jpeg,.png,.pdf" required />
-          <input type="file" name="addressProof" onChange={handleInputChange} accept=".jpg,.jpeg,.png,.pdf" required />
-          <input type="file" name="incomeProof" onChange={handleInputChange} accept=".jpg,.jpeg,.png,.pdf" required />
+
+      case 6:
+  return (
+    <div className="form-step">
+      <h3 className="text-success mb-4">Document Upload</h3>
+
+      <div className="doc-grid d-flex flex-wrap gap-3">
+        {/* ID Document */}
+        <div className="doc-card flex-fill p-3 rounded shadow-sm border bg-white">
+          <label htmlFor="idDocument" className="form-label fw-bold">ID Document</label>
+          <div className="input-group">
+            <span className="input-group-text bg-success text-white">
+              <i className="bi bi-file-earmark-arrow-up-fill"></i>
+            </span>
+            <input
+              type="file"
+              id="idDocument"
+              name="idDocument"
+              className="form-control"
+              onChange={handleInputChange}
+              accept=".jpg,.jpeg,.png,.pdf"
+              required
+            />
+          </div>
+          <small className="text-muted">Accepted formats: JPG, PNG, PDF</small>
         </div>
-      );
+
+        {/* Address Proof */}
+        <div className="doc-card flex-fill p-3 rounded shadow-sm border bg-white">
+          <label htmlFor="addressProof" className="form-label fw-bold">Address Proof</label>
+          <div className="input-group">
+            <span className="input-group-text bg-success text-white">
+              <i className="bi bi-file-earmark-arrow-up-fill"></i>
+            </span>
+            <input
+              type="file"
+              id="addressProof"
+              name="addressProof"
+              className="form-control"
+              onChange={handleInputChange}
+              accept=".jpg,.jpeg,.png,.pdf"
+              required
+            />
+          </div>
+          <small className="text-muted">Accepted formats: JPG, PNG, PDF</small>
+        </div>
+
+        {/* Income Proof */}
+        <div className="doc-card flex-fill p-3 rounded shadow-sm border bg-white">
+          <label htmlFor="incomeProof" className="form-label fw-bold">Income Proof</label>
+          <div className="input-group">
+            <span className="input-group-text bg-success text-white">
+              <i className="bi bi-file-earmark-arrow-up-fill"></i>
+            </span>
+            <input
+              type="file"
+              id="incomeProof"
+              name="incomeProof"
+              className="form-control"
+              onChange={handleInputChange}
+              accept=".jpg,.jpeg,.png,.pdf"
+              required
+            />
+          </div>
+          <small className="text-muted">Accepted formats: JPG, PNG, PDF</small>
+        </div>
+      </div>
+    </div>
+  );
+    
       default: return null;
     }
   };
