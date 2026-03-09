@@ -197,7 +197,7 @@ const handleInputChange = (e) => {
           <div className="form-grid">
             <input type="tel" name="mobileNumber" value={formData.mobileNumber} readOnly placeholder="Mobile Number *" required />
             <input type="email" name="email" value={formData.email} readOnly placeholder="Email Address *" required />
-            <input type="text" name="residentialAddress" value={formData.residentialAddress} onChange={handleInputChange} placeholder="Residential Address *" required />
+            <input type="text" name="residentialAddress" value={formData.residentialAddress} onChange={handleInputChange} placeholder="Residential Gps Address *" required />
             <input type="text" name="city" value={formData.city} onChange={handleInputChange} placeholder="City *" required />
             <input type="text" name="state" value={formData.state} onChange={handleInputChange} placeholder="State/Province *" required />
             <input type="text" name="zipCode" value={formData.zipCode} onChange={handleInputChange} placeholder="ZIP/Postal Code *" required />
