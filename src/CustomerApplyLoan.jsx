@@ -1,4 +1,4 @@
-// src/pages/CustomerApplyLoan.jsx
+
 import React, { useState } from "react";
 import LoanForm from "./CutomerLoanForm"; // ⬅ KEEP YOUR IMPORT
 //import "./CustomerApplyLoan.css"; // ⬅ IMPORT THE CSS HERE
