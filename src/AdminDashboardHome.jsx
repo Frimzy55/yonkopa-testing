@@ -33,7 +33,7 @@ const AdminDashboardHome = () => {
     { title: "Disbursed Amount", value: `$${stats.disbursedAmount}` },
     { title: "Overdue Loans", value: stats.overdueLoans },
     { title: "Staff Online", value: stats.staffOnline },
-    { title: "New Applications Today", value: stats.newApplications },
+    { title: "New Applications ", value: stats.newApplications },
   ];
 
   return (

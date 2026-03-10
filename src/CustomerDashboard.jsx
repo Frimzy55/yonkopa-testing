@@ -18,7 +18,7 @@ const CustomerDashboard = () => {
   }, []);
 
   const menuItems = [
-    { id: 'dashboard', label: 'Dashboard', icon: '📊', description: 'Overview of your accounts', color: '#e67e22' },
+    //{ id: 'dashboard', label: 'Dashboard', icon: '📊', description: 'Overview of your accounts', color: '#e67e22' },
     { id: 'kyc', label: ' Complete KYC And Profile', icon: '💳', description: 'Manage your bank accounts', color: '#e67e22' },
     { id: 'loan', label: 'Apply For loan', icon: '✅', description: 'Complete identity verification', color: '#e67e22' },
     { id: 'loanStatus', label: 'Loan Status', icon: '💰', description: 'View and manage loans', color: '#e67e22' },
@@ -28,7 +28,7 @@ const CustomerDashboard = () => {
 
   const renderContent = () => {
     switch (activeMenu) {
-      case 'dashboard': return <DashboardHome user={user} />;
+      //case 'dashboard': return <DashboardHome user={user} />;
       case 'kyc': return <CustomerCompleteKyc user={user} />;
       case 'loan': return <CustomerApplyLoan user={user} />;
       //case 'transactions': return <LoanManagement user={user} />;
