@@ -11,6 +11,8 @@ const CustomerCompleteKyc = ({ user }) => {
 
   const [formData, setFormData] = useState({
     // Personal Info
+    
+    avatar: null, // added for avatar
     title: "",
     firstName: "",
     middleName: "",
@@ -24,6 +26,7 @@ const CustomerCompleteKyc = ({ user }) => {
     residentialLandmark: "",
     spouseName: "",
     spouseContact: "",
+    //avatar: null, // added for avatar
     // Contact Info
     mobileNumber: "",
     email: "",
@@ -51,10 +54,10 @@ const CustomerCompleteKyc = ({ user }) => {
     numberOfWorkers: "",
     yearsInBusiness: "",
     workingCapital: "",
-    businessPicture: null, // added
+    businessPicture: null,
   });
 
-  // Autofill from user
+  // Autofill from user data
   useEffect(() => {
     if (!user) return;
     const fullname = user.fullname || user.fullName || "";
@@ -70,20 +73,23 @@ const CustomerCompleteKyc = ({ user }) => {
     }));
   }, [user]);
 
+  // Handle text input changes
   const handleInputChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // Handle file uploads (avatar, payslip, etc.)
   const handleFileChange = (e) => {
     const { name, files } = e.target;
-    if (files.length === 0) return;
+    if (!files || files.length === 0) return;
     setFormData((prev) => ({ ...prev, [name]: files[0] }));
   };
 
   const nextStep = () => setCurrentStep((prev) => Math.min(prev + 1, 3));
   const prevStep = () => setCurrentStep((prev) => Math.max(prev - 1, 1));
 
+  // Submit KYC form
   const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
@@ -91,15 +97,18 @@ const CustomerCompleteKyc = ({ user }) => {
     try {
       const data = new FormData();
 
+      // Append all fields to FormData
       Object.keys(formData).forEach((key) => {
         data.append(key, formData[key]);
       });
-            //const apiUrl = process.env.REACT_APP_API_URL;
 
-            const response = await fetch(`${process.env.REACT_APP_API_URL}/api/kyc/submit`, {
-             method: "POST",
-              body: data,
-              });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/kyc/submit`,
+        {
+          method: "POST",
+          body: data,
+        }
+      );
 
       const result = await response.json();
 
@@ -124,6 +133,7 @@ const CustomerCompleteKyc = ({ user }) => {
           <PersonalInfo
             formData={formData}
             handleInputChange={handleInputChange}
+            handleFileChange={handleFileChange}
             user={user}
           />
         );
