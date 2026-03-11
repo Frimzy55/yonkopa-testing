@@ -7,10 +7,12 @@ import CustomerCompleteKyc from './CustomerCompleteKyc';
 import CustomerApplyLoan from './CustomerApplyLoan';
 import CustomerLoanStatus from './CustomerLoanStatus';
 import CustomerRepayloan from './CustomerRepayloan';
+import { FaBell } from "react-icons/fa";
 
 const CustomerDashboard = () => {
   const [user, setUser] = useState(null);
-  const [activeMenu, setActiveMenu] = useState('kyc'); // default active menu
+  const [activeMenu, setActiveMenu] = useState('kyc');
+  const [notifications, ] = useState(1); // example notification count
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -27,12 +29,18 @@ const CustomerDashboard = () => {
 
   const renderContent = () => {
     switch (activeMenu) {
-      case 'kyc': return <CustomerCompleteKyc user={user} />;
-      case 'loan': return <CustomerApplyLoan user={user} />;
-      case 'loanStatus': return <CustomerLoanStatus user={user} />;
-      case 'loanrepay': return <CustomerRepayloan user={user} />;
-      case 'profile': return <NotificationsSupport user={user} />;
-      default: return <DashboardHome user={user} />;
+      case 'kyc':
+        return <CustomerCompleteKyc user={user} />;
+      case 'loan':
+        return <CustomerApplyLoan user={user} />;
+      case 'loanStatus':
+        return <CustomerLoanStatus user={user} />;
+      case 'loanrepay':
+        return <CustomerRepayloan user={user} />;
+      case 'profile':
+        return <NotificationsSupport user={user} />;
+      default:
+        return <DashboardHome user={user} />;
     }
   };
 
@@ -43,20 +51,55 @@ const CustomerDashboard = () => {
 
   return (
     <div className="dashboard-container">
+
+      {/* TOP BAR */}
       <header className="top-bar">
-        <div className="top-bar-left"><h1>👤 {user?.fullName || 'user'}</h1></div>
+        <div className="top-bar-left">
+          <h1>👤 {user?.fullName || 'User'}</h1>
+        </div>
+
         <div className="top-bar-right">
-          <span className="welcome-text">Yonkopa {user?.fullName || ''}</span>
-          <button className="logout-btn" onClick={handleLogout}>Logout</button>
+
+          {/* Notification Bell */}
+          <div
+            className="notification-bell"
+            onClick={() => setActiveMenu('profile')}
+          >
+            <FaBell size={20} />
+
+            {notifications > 0 && (
+              <span className="notification-badge">
+                {notifications}
+              </span>
+            )}
+          </div>
+
+          <span className="welcome-text">
+            Yonkopa {user?.fullName || ''}
+          </span>
+
+          <button
+            className="logout-btn"
+            onClick={handleLogout}
+          >
+            Logout
+          </button>
+
         </div>
       </header>
 
+      {/* DASHBOARD CONTENT */}
       <div className="dashboard-content">
+
+        {/* SIDEBAR */}
         <nav className="sidebar-cards">
-          <div className="sidebar-header"><h3>Navigation</h3></div>
+          <div className="sidebar-header">
+            <h3>Navigation</h3>
+          </div>
+
           <div className="menu-cards-grid">
             {menuItems.map((item) => {
-              // Disable only loanStatus, loanrepay, and profile
+
               const isDisabled = ['loanStatus', 'loanrepay', 'profile'].includes(item.id);
 
               return (
@@ -71,21 +114,38 @@ const CustomerDashboard = () => {
                     opacity: isDisabled ? 0.5 : 1,
                   }}
                 >
-                  <div className="menu-card-icon" style={{ backgroundColor: item.color }}>{item.icon}</div>
+                  <div
+                    className="menu-card-icon"
+                    style={{ backgroundColor: item.color }}
+                  >
+                    {item.icon}
+                  </div>
+
                   <div className="menu-card-content">
                     <h4>{item.label}</h4>
                     <p>{item.description}</p>
                   </div>
-                  <div className="menu-card-arrow">→</div>
+
+                  <div className="menu-card-arrow">
+                    →
+                  </div>
                 </div>
               );
             })}
           </div>
         </nav>
 
+        {/* MAIN CONTENT */}
         <main className="main-content">
-          {user ? renderContent() : <div className="loading-container"><p>Loading your profile...</p></div>}
+          {user ? (
+            renderContent()
+          ) : (
+            <div className="loading-container">
+              <p>Loading your profile...</p>
+            </div>
+          )}
         </main>
+
       </div>
     </div>
   );

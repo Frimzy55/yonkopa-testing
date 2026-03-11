@@ -427,39 +427,118 @@
 
 
 
-/* Existing menu-card styles stay the same */
 
-/* Mobile view tweaks */
-@media screen and (max-width: 768px) {
-  .menu-cards-grid {
-    gap: 0.5rem; /* less spacing between cards */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* VERY SMALL MOBILE MENU CARDS */
+@media (max-width: 768px) {
+
+  .sidebar-header{
+    display:none;
   }
 
-  .menu-card {
-    padding: 0.5rem 0.6rem; /* smaller padding */
-    font-size: 1.85rem;     /* smaller text inside card */
+  .sidebar-cards{
+    padding:0;
   }
 
-  .menu-card-icon {
-    width: 35px;
-    height: 35px;
-    font-size: 1.2rem; /* smaller icon */
-    margin-right: 0.6rem;
+  .menu-cards-grid{
+    display:grid;
+    grid-template-columns:repeat(5, 1fr);
+    gap:1px;
   }
 
-  .menu-card-content h4 {
-    font-size: 0.05rem; /* smaller title */
+  .menu-card{
+    aspect-ratio:1/1;
+    max-width:55px;   /* force smaller width */
+    max-height:55px;  /* force smaller height */
+    padding:1px;
+    margin:auto;
+    display:flex;
+    flex-direction:column;
+    justify-content:center;
+    align-items:center;
+    text-align:center;
+    border-left:none;
+    border-top:2px solid var(--card-color);
   }
 
-  .menu-card-content p {
-    font-size: 0.75rem; /* smaller description */
+  .menu-card-icon{
+    width:14px;
+    height:14px;
+    font-size:8px;
+    margin-bottom:1px;
   }
 
-  .menu-card-arrow {
-    font-size: 0.9rem; /* smaller arrow */
+  .menu-card-content h4{
+    font-size:7px;
+    line-height:1;
   }
+
+  .menu-card-content p{
+    display:none;
+  }
+
+  .menu-card-arrow{
+    display:none;
+  }
+
 }
 
 
 
 
+
+
+
+
+
+
+
+
+
+
+
+.notification-bell {
+  position: relative;
+  margin-right: 20px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.notification-badge {
+  position: absolute;
+  top: -6px;
+  right: -8px;
+  background: red;
+  color: white;
+  font-size: 11px;
+  padding: 3px 6px;
+  border-radius: 50%;
+  font-weight: bold;
+}

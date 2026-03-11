@@ -1,13 +1,20 @@
-import React, { useState } from "react";
-import LoanForm from "./CutomerLoanForm"; // keep your import
+import React, { useState, useEffect } from "react";
+import LoanForm from "./CutomerLoanForm";
 import "bootstrap/dist/css/bootstrap.min.css";
 
-const CustomerApplyLoan = () => {
+const CustomerApplyLoan = ({ user }) => {
   const [formData, setFormData] = useState({ phone: "", kycCode: "" });
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState("verify");
   const [verifiedCustomer, setVerifiedCustomer] = useState(null);
+
+  // Autofill phone number on component mount
+  useEffect(() => {
+    if (user?.phone) {
+      setFormData((prev) => ({ ...prev, phone: user.phone }));
+    }
+  }, [user]);
 
   const statusMessages = {
     verified: { type: "success", message: "✔ Your details have been VERIFIED." },
@@ -50,7 +57,7 @@ const CustomerApplyLoan = () => {
 
   const handleProceed = () => setStep("loan-form");
   const handleReset = () => {
-    setFormData({ phone: "", kycCode: "" });
+    setFormData({ phone: user?.phone || "", kycCode: "" }); // Reset keeps autofill
     setStatus("");
     setStep("verify");
     setVerifiedCustomer(null);
@@ -78,9 +85,11 @@ const CustomerApplyLoan = () => {
                   value={formData.phone}
                   onChange={handleInputChange}
                   required
-                  disabled={loading}
+                  disabled={loading} // Optional: keep disabled if you don't want edits
                   className="form-control"
                   placeholder="e.g. 0551234567"
+                  readOnly
+                  
                 />
               </div>
 
@@ -104,23 +113,26 @@ const CustomerApplyLoan = () => {
             </form>
           )}
 
-          {/* Verification Success */}
-          {step === "verify" && status === "verified" && (
-            <div className="text-center mt-4">
-              <div className="display-4 text-success mb-3">✅</div>
-              <h4 className="text-success mb-2">Verification Successful!</h4>
-              <p>You can now proceed with your loan application.</p>
+  {/* Verification Success */}
+{step === "verify" && status === "verified" && (
+  <div className="text-center mt-4">
+    <div className="display-4 text-success mb-3">✅</div>
+    <h4 className="text-success mb-2">Verification Successful!</h4>
+    <p>You can now proceed with your loan application.</p>
 
-              <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap">
-                <button onClick={handleProceed} className="btn btn-success">
-                  Proceed to Loan Application
-                </button>
-                <button onClick={handleReset} className="btn btn-secondary">
-                  Verify Another Customer
-                </button>
-              </div>
-            </div>
-          )}
+    <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap">
+      <button onClick={handleProceed} className="btn btn-success">
+        Proceed to Loan Application
+      </button>
+      <button
+        onClick={() => setStatus("")} // Reset status to go back to form
+        className="btn btn-secondary"
+      >
+        Back
+      </button>
+    </div>
+  </div>
+)}
 
           {/* Status Messages */}
           {status && status !== "verified" && step === "verify" && currentStatus && (

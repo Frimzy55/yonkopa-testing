@@ -50,7 +50,16 @@ const LoanDetails = ({ formData, handleInputChange }) => {
   const monthlyPayment =
     numberOfPayments > 0 ? totalInterest / numberOfPayments : 0;
 
-  const loanFees = 0;
+  let loanFees = 0;
+  //Calculate Loan Fees
+  //let loanFees = 0;
+  if (formData.employmentStatus === "self-employed") {
+    loanFees = loanAmount * 0.7;
+  } else if (formData.employmentStatus === "salary-worker") {
+    loanFees = loanAmount * 0.5;
+  }
+ 
+
 
   setLoanSummary({
     interest,
@@ -96,14 +105,20 @@ const LoanDetails = ({ formData, handleInputChange }) => {
         />
 
         <select
-          name="repaymentFrequency"
-          value={formData.repaymentFrequency}
-          onChange={handleInputChange}
-          required
-        >
-          <option value="">Repayment Frequency</option>
-          <option value="Weekly">Weekly</option>
-          <option value="Monthly">Monthly</option>
+            name="repaymentFrequency"
+            value={formData.repaymentFrequency}
+             onChange={handleInputChange}
+              required
+             >
+            <option value="">Repayment Frequency</option>
+
+              {formData.employmentStatus === "self-employed" && (
+              <option value="Weekly">Weekly</option>
+               )}
+
+                {formData.employmentStatus === "salary-worker" && (
+               <option value="Monthly">Monthly</option>
+              )}
         </select>
 
         <input
