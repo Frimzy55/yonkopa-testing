@@ -18,8 +18,8 @@ const CustomerDashboard = () => {
   }, []);
 
   const menuItems = [
-    { id: 'kyc', label: 'Complete KYC And Profile', icon: '💳', description: 'Manage your bank accounts', color: '#e67e22' },
-    { id: 'loan', label: 'Apply For Loan', icon: '✅', description: 'Complete identity verification', color: '#e67e22' },
+    { id: 'kyc', label: 'Complete KYC And Profile', icon: '💳', description: 'Complete KYC And Profile', color: '#e67e22' },
+    { id: 'loan', label: 'Apply For Loan', icon: '✅', description: 'Apply For Loan', color: '#e67e22' },
     { id: 'loanStatus', label: 'Loan Status', icon: '💰', description: 'View and manage loans', color: '#e67e22' },
     { id: 'loanrepay', label: 'Repay Loan', icon: '🔄', description: 'Transaction history', color: '#e67e22' },
     { id: 'profile', label: 'Notifications and Support', icon: '👤', description: 'Personal settings', color: '#e67e22' },

@@ -38,16 +38,37 @@ const CutomerLoanForm = ({ user, handleReset }) => {
   const prevStep = () => setCurrentStep(prev => Math.max(prev - 1, 1));
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/loan/apply-loan`, {
-        method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(formData)
-      });
-      const data = await res.json();
-      if (data.success) { alert("Loan application submitted successfully!"); handleReset && handleReset(); }
-      else alert("Failed to submit loan application.");
-    } catch (err) { console.error(err); alert("Server error. Try again!"); }
-  };
+  e.preventDefault();
+  try {
+    // Create a FormData object
+    const formPayload = new FormData();
+
+    // Append all form fields
+    for (let key in formData) {
+      // Skip undefined/null values
+      if (formData[key] !== undefined && formData[key] !== null) {
+        formPayload.append(key, formData[key]);
+      }
+    }
+
+    // Send multipart/form-data request
+    const res = await fetch(`${process.env.REACT_APP_API_URL}/api/loan/apply-loan`, {
+      method: "POST",
+      body: formPayload,
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      alert("Loan application submitted successfully!");
+      handleReset && handleReset();
+    } else {
+      alert("Failed to submit loan application.");
+    }
+  } catch (err) {
+    console.error(err);
+    alert("Server error. Try again!");
+  }
+};
 
   const progressPercentage = ((currentStep - 1) / (steps.length - 1)) * 100;
 
