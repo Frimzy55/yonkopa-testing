@@ -1,20 +1,30 @@
 // src/pages/CustomerDashboard/KYCVerification/steps/PersonalInfo.jsx
-import React, { useState } from "react";
-import defaultAvatar from "./image/av.png"; // adjust path
+
+import React, { useState, useEffect } from "react";
+import defaultAvatar from "./image/av.png";
 import "./PersonalInfo.css";
 
-const PersonalInfo = ({ formData, handleInputChange, handleFileChange, formErrors, user }) => {
+const PersonalInfo = ({
+  formData,
+  handleInputChange,
+  handleFileChange,
+  formErrors,
+  checkingNationalId, // NEW PROP
+  user,
+}) => {
   const [preview, setPreview] = useState(formData?.avatar || defaultAvatar);
 
-  // Handle avatar change and live preview
+  useEffect(() => {
+    if (formData.avatar) {
+      setPreview(URL.createObjectURL(formData.avatar));
+    }
+  }, [formData.avatar]);
+
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = () => setPreview(reader.result);
-    reader.readAsDataURL(file);
-
+    setPreview(URL.createObjectURL(file));
     handleFileChange({ target: { name: "avatar", files: [file] } });
   };
 
@@ -25,7 +35,7 @@ const PersonalInfo = ({ formData, handleInputChange, handleFileChange, formError
 
       {/* Avatar Upload */}
       <div className="avatar-container">
-        <label className="avatar-title">Profile Picture</label>
+        <label className="avatar-title">Profile Picture *</label>
         <div className="avatar-upload-wrapper">
           <label htmlFor="avatarUpload">
             <img src={preview} alt="avatar" className="avatar-preview" />
@@ -40,46 +50,91 @@ const PersonalInfo = ({ formData, handleInputChange, handleFileChange, formError
             style={{ display: "none" }}
           />
         </div>
+        {formErrors?.avatar && <span className="error-message">{formErrors.avatar}</span>}
       </div>
 
       {/* Form Grid */}
       <div className="form-grid">
-        <select name="title" value={formData?.title || ""} onChange={handleInputChange} required>
-          <option value="">Select Title</option>
-          <option value="mr">Mr.</option>
-          <option value="mrs">Mrs.</option>
-          <option value="miss">Miss</option>
-          <option value="dr">Dr</option>
-        </select>
+        <div>
+          <select name="title" value={formData?.title || ""} onChange={handleInputChange}>
+            <option value="">Select Title *</option>
+            <option value="mr">Mr.</option>
+            <option value="mrs">Mrs.</option>
+            <option value="miss">Miss</option>
+            <option value="dr">Dr</option>
+          </select>
+          {formErrors?.title && <span className="error-message">{formErrors.title}</span>}
+        </div>
 
-        <input type="text" name="firstName" value={formData?.firstName || ""} readOnly placeholder="First Name *" />
-        <input type="text" name="middleName" value={formData?.middleName || ""} onChange={handleInputChange} placeholder="Middle Name" />
-        <input type="text" name="lastName" value={formData?.lastName || ""} readOnly placeholder="Last Name *" />
+        <div>
+          <input type="text" name="firstName" value={formData?.firstName || ""} readOnly placeholder="First Name *" />
+          {formErrors?.firstName && <span className="error-message">{formErrors.firstName}</span>}
+        </div>
 
-        <input type="date" name="dateOfBirth" value={formData?.dateOfBirth || ""} onChange={handleInputChange} required />
+        <div>
+          <input type="text" name="middleName" value={formData?.middleName || ""} onChange={handleInputChange} placeholder="Middle Name" />
+        </div>
 
-        <select name="gender" value={formData?.gender || ""} onChange={handleInputChange} required>
-          <option value="">Select Gender</option>
-          <option value="male">Male</option>
-          <option value="female">Female</option>
-        </select>
+        <div>
+          <input type="text" name="lastName" value={formData?.lastName || ""} readOnly placeholder="Last Name *" />
+          {formErrors?.lastName && <span className="error-message">{formErrors.lastName}</span>}
+        </div>
 
-        <select name="maritalStatus" value={formData?.maritalStatus || ""} onChange={handleInputChange}>
-          <option value="">Marital Status</option>
-          <option value="single">Single</option>
-          <option value="married">Married</option>
-          <option value="divorced">Divorced</option>
-          <option value="widowed">Widowed</option>
-        </select>
+        <div>
+          <input type="date" name="dateOfBirth" value={formData?.dateOfBirth || ""} onChange={handleInputChange} placeholder="Date of birth *" />
+          {formErrors?.dateOfBirth && <span className="error-message">{formErrors.dateOfBirth}</span>}
+        </div>
 
-        <input type="text" name="nationalId" value={formData?.nationalId || ""} onChange={handleInputChange} placeholder="National ID *" required />
-        {formErrors?.nationalId && <span className="error-message">{formErrors.nationalId}</span>}
+        <div>
+          <select name="gender" value={formData?.gender || ""} onChange={handleInputChange}>
+            <option value="">Select Gender *</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+          {formErrors?.gender && <span className="error-message">{formErrors.gender}</span>}
+        </div>
 
-        <input type="text" name="residentialLocation" value={formData?.residentialLocation || ""} onChange={handleInputChange} placeholder="Residential Location *" required />
-        <input type="text" name="residentialLandmark" value={formData?.residentialLandmark || ""} onChange={handleInputChange} placeholder="Residential Landmark" />
+        <div>
+          <select name="maritalStatus" value={formData?.maritalStatus || ""} onChange={handleInputChange}>
+            <option value="">Marital Status</option>
+            <option value="single">Single</option>
+            <option value="married">Married</option>
+            <option value="divorced">Divorced</option>
+            <option value="widowed">Widowed</option>
+          </select>
+        </div>
 
-        <input type="text" name="spouseName" value={formData?.spouseName || ""} onChange={handleInputChange} placeholder="Name of Spouse" />
-        <input type="tel" name="spouseContact" value={formData?.spouseContact || ""} onChange={handleInputChange} placeholder="Spouse Contact" />
+        {/* National ID with live check */}
+        <div>
+          <input
+            type="text"
+            name="nationalId"
+            value={formData?.nationalId || ""}
+            onChange={handleInputChange}
+            placeholder="National ID *"
+          />
+          {checkingNationalId && <small className="checking-message">Checking National ID...</small>}
+          {formErrors?.nationalId && <span className="error-message">{formErrors.nationalId}</span>}
+        </div>
+
+        <div>
+          <input type="text" name="residentialLocation" value={formData?.residentialLocation || ""} onChange={handleInputChange} placeholder="Residential Location *" />
+          {formErrors?.residentialLocation && <span className="error-message">{formErrors.residentialLocation}</span>}
+        </div>
+
+        <div>
+          <input type="text" name="residentialLandmark" value={formData?.residentialLandmark || ""} onChange={handleInputChange} placeholder="Residential Landmark" />
+        </div>
+
+        <div>
+          <input type="text" name="spouseName" value={formData?.spouseName || ""} onChange={handleInputChange} placeholder="Name of Spouse" />
+          {formErrors?.spouseName && <span className="error-message">{formErrors.spouseName}</span>}
+        </div>
+
+        <div>
+          <input type="tel" name="spouseContact" value={formData?.spouseContact || ""} onChange={handleInputChange} placeholder="Spouse Contact" />
+          {formErrors?.spouseContact && <span className="error-message">{formErrors.spouseContact}</span>}
+        </div>
       </div>
     </div>
   );

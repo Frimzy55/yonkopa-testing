@@ -9,7 +9,7 @@
 
 /* Top Bar Styles */
 .top-bar {
-  background: linear-gradient(135deg, #669bea 0%, #2176e6 100%);
+  background: linear-gradient(135deg, #669bea 0%, #5521e6 100%);
   color: white;
   padding: 0 30px;
   height: 70px;
@@ -418,3 +418,48 @@
     padding: 20px;
   }
 }
+
+
+
+
+
+
+
+
+
+/* Existing menu-card styles stay the same */
+
+/* Mobile view tweaks */
+@media screen and (max-width: 768px) {
+  .menu-cards-grid {
+    gap: 0.5rem; /* less spacing between cards */
+  }
+
+  .menu-card {
+    padding: 0.5rem 0.6rem; /* smaller padding */
+    font-size: 1.85rem;     /* smaller text inside card */
+  }
+
+  .menu-card-icon {
+    width: 35px;
+    height: 35px;
+    font-size: 1.2rem; /* smaller icon */
+    margin-right: 0.6rem;
+  }
+
+  .menu-card-content h4 {
+    font-size: 0.05rem; /* smaller title */
+  }
+
+  .menu-card-content p {
+    font-size: 0.75rem; /* smaller description */
+  }
+
+  .menu-card-arrow {
+    font-size: 0.9rem; /* smaller arrow */
+  }
+}
+
+
+
+
