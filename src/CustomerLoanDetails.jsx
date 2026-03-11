@@ -54,9 +54,9 @@ const LoanDetails = ({ formData, handleInputChange }) => {
   //Calculate Loan Fees
   //let loanFees = 0;
   if (formData.employmentStatus === "self-employed") {
-    loanFees = loanAmount * 0.7;
+    loanFees = loanAmount * 0.07;
   } else if (formData.employmentStatus === "salary-worker") {
-    loanFees = loanAmount * 0.5;
+    loanFees = loanAmount * 0.05;
   }
  
 
