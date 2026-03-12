@@ -78,7 +78,7 @@ const CustomerApplyLoan = ({ user }) => {
           {step === "verify" && status !== "verified" && (
             <form onSubmit={handleSubmit}>
               <div className="mb-3">
-                <label className="form-label">Phone Number</label>
+                <label  hidden className="form-label">Phone Number</label>
                 <input
                   name="phone"
                   type="tel"
@@ -89,6 +89,7 @@ const CustomerApplyLoan = ({ user }) => {
                   className="form-control"
                   placeholder="e.g. 0551234567"
                   readOnly
+                  hidden
                   
                 />
               </div>

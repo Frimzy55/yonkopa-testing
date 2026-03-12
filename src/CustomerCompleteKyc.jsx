@@ -147,6 +147,8 @@ const CustomerCompleteKyc = ({ user }) => {
     if (!formData.lastName) errors.lastName = "Last name required";
     if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth required";
     if (!formData.gender) errors.gender = "Gender required";
+     if (!formData.gender) errors.gender = "Gender required";
+
 
     if (!id) errors.nationalId = "National ID required";
     else if (!ghanaCardRegex.test(id)) errors.nationalId = "Invalid format. Example: GHA-1234567890-1";
@@ -155,16 +157,67 @@ const CustomerCompleteKyc = ({ user }) => {
       if (exists) errors.nationalId = "This National ID is already registered";
     }
 
-    if (!formData.residentialLocation) errors.residentialLocation = "Residential location required";
+    //if (!formData.residentialLocation) errors.residentialLocation = "Residential location required";
+  
 
     if (formData.maritalStatus === "married") {
       if (!formData.spouseName) errors.spouseName = "Spouse name required";
       if (!formData.spouseContact) errors.spouseContact = "Spouse contact required";
     }
 
+    // if (!formData.residentialLandmark) errors.residentialLandmark = "Residential landmark required";
+
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
+
+
+
+   // ----------------------------
+  // STEP 2 VALIDATION (Contact Info)
+  const validateStep2 = () => {
+    const errors = {};
+    if (!formData.residentialAddress) errors.residentialAddress = "Residential address required";
+    if (!formData.city) errors.city = "City/Town required";
+    if (!formData.state) errors.state = "Suburb/Area required";
+    if (!formData.alternatePhone)
+      errors.alternatePhone = "Alternate phone number required";
+    else if (!/^\d{10,15}$/.test(formData.alternatePhone))
+      errors.alternatePhone = "Enter valid phone number (10-15 digits)";
+
+    setFormErrors(errors);
+    return Object.keys(errors).length === 0;
+  };
+
+
+
+  const validateStep3 = () => {
+  const errors = {};
+
+  if (!formData.employmentStatus) {
+    errors.employmentStatus = "Employment status required";
+  } else if (formData.employmentStatus === "salary-worker") {
+    if (!formData.employerName) errors.employerName = "Employer name required";
+    if (!formData.jobTitle) errors.jobTitle = "Job title required";
+    if (!formData.monthlyIncome) errors.monthlyIncome = "Monthly income required";
+    if (!formData.yearsInCurrentEmployment) errors.yearsInCurrentEmployment = "Years in employment required";
+    if (!formData.workPlaceLocation) errors.workPlaceLocation = "Workplace location required";
+    if (!formData.payslip) errors.payslip = "Recent payslip required";
+  } else if (formData.employmentStatus === "self-employed") {
+    if (!formData.businessName) errors.businessName = "Business name required";
+    if (!formData.businessType) errors.businessType = "Business type required";
+    if (!formData.monthlyBusinessIncome) errors.monthlyBusinessIncome = "Monthly business income required";
+    if (!formData.businessLocation) errors.businessLocation = "Business location required";
+    if (!formData.businessGpsAddress) errors.businessGpsAddress = "Business GPS address required";
+    if (!formData.numberOfWorkers) errors.numberOfWorkers = "Number of workers required";
+    if (!formData.yearsInBusiness) errors.yearsInBusiness = "Years in business required";
+    if (!formData.workingCapital) errors.workingCapital = "Working capital required";
+    if (!formData.businessPicture) errors.businessPicture = "Business picture required";
+  }
+
+  setFormErrors(errors);
+  return Object.keys(errors).length === 0;
+};
 
   // ----------------------------
   // STEP NAVIGATION
@@ -173,6 +226,15 @@ const CustomerCompleteKyc = ({ user }) => {
       const valid = await validateStep1();
       if (!valid) return;
     }
+    if (currentStep === 2) {
+      const valid = validateStep2();
+      if (!valid) return;
+    }
+
+    if (currentStep === 3) {
+    const valid = validateStep3();
+    if (!valid) return;
+  }
     setCurrentStep((prev) => Math.min(prev + 1, 3));
   };
 
@@ -180,11 +242,22 @@ const CustomerCompleteKyc = ({ user }) => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
+
+
+  
   // ----------------------------
   // SUBMIT KYC
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitting(true);
+
+
+    //Validate Step 3 before submitting
+  const step3Valid = validateStep3();
+  if (!step3Valid) {
+    setSubmitting(false);
+    return; // stop submission if validation fails
+  }
 
     const data = new FormData();
     Object.keys(formData).forEach((key) => {
@@ -229,13 +302,17 @@ const CustomerCompleteKyc = ({ user }) => {
           />
         );
       case 2:
-        return <ContactInfo formData={formData} handleInputChange={handleInputChange} />;
+        return <ContactInfo formData={formData}
+         handleInputChange={handleInputChange} 
+          formErrors={formErrors}
+         />;
       case 3:
         return (
           <EmploymentInfo
             formData={formData}
             handleInputChange={handleInputChange}
             handleFileChange={handleFileChange}
+             formErrors={formErrors}
           />
         );
       default:

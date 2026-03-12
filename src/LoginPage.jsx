@@ -4,6 +4,7 @@ import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import logo from './image/yonko.png'; // import your logo
 import './LoginPage.css';
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 const LoginPage = ({ onClose }) => {
   const navigate = useNavigate();
@@ -17,6 +18,7 @@ const LoginPage = ({ onClose }) => {
   const [touched, setTouched] = useState({});
   const [serverError, setServerError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
@@ -144,22 +146,35 @@ const LoginPage = ({ onClose }) => {
           </div>
 
           {/* Password */}
-          <div className="mb-3">
-            <label className="form-label">Password</label>
-            <input 
-              type="password" 
-              name="password"
-              className={`form-control ${touched.password && errors.password ? 'is-invalid' : ''}`}
-              placeholder="Enter password"
-              value={formData.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              disabled={isSubmitting}
-            />
-            {touched.password && errors.password && (
-              <div className="invalid-feedback">{errors.password}</div>
-            )}
-          </div>
+         {/* Password */}
+<div className="mb-3">
+  <label className="form-label">Password</label>
+
+  <div className="input-group">
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      className={`form-control ${touched.password && errors.password ? 'is-invalid' : ''}`}
+      placeholder="Enter password"
+      value={formData.password}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      disabled={isSubmitting}
+    />
+
+    <span
+      className="input-group-text"
+      style={{ cursor: "pointer" }}
+      onClick={() => setShowPassword(!showPassword)}
+    >
+      <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+    </span>
+  </div>
+
+  {touched.password && errors.password && (
+    <div className="invalid-feedback d-block">{errors.password}</div>
+  )}
+</div>
 
           {/* Options */}
           <div className="d-flex justify-content-between align-items-center mb-3">

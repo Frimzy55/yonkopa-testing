@@ -1,6 +1,9 @@
 // src/components/SignUpPage.jsx
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
+//import React, { useState } from "react";
+//import "bootstrap/dist/css/bootstrap.min.css";
+import "bootstrap-icons/font/bootstrap-icons.css";
 
 const SignUpPage = ({ onClose, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
@@ -14,6 +17,8 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [message, setMessage] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
@@ -198,45 +203,74 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
           </div>
 
           {/* Password */}
-          <div className="mb-3">
-            <label className="form-label">Password</label>
-            <input
-              type="password"
-              name="password"
-              className={`form-control ${
-                touched.password && errors.password ? "is-invalid" : ""
-              }`}
-              value={formData.password}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Create a password"
-            />
-            {touched.password && errors.password && (
-              <div className="invalid-feedback">{errors.password}</div>
-            )}
-          </div>
+          {/* Password */}
+<div className="mb-3">
+  <label className="form-label">Password</label>
+
+  <div className="input-group">
+    <input
+      type={showPassword ? "text" : "password"}
+      name="password"
+      className={`form-control ${
+        touched.password && errors.password ? "is-invalid" : ""
+      }`}
+      value={formData.password}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      placeholder="Create a password"
+    />
+
+    <span
+      className="input-group-text"
+      style={{ cursor: "pointer" }}
+      onClick={() => setShowPassword(!showPassword)}
+    >
+      <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+    </span>
+  </div>
+
+  {touched.password && errors.password && (
+    <div className="invalid-feedback d-block">{errors.password}</div>
+  )}
+</div>
 
           {/* Confirm Password */}
-          <div className="mb-3">
-            <label className="form-label">Confirm Password</label>
-            <input
-              type="password"
-              name="confirmPassword"
-              className={`form-control ${
-                touched.confirmPassword && errors.confirmPassword
-                  ? "is-invalid"
-                  : ""
-              }`}
-              value={formData.confirmPassword}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="Confirm password"
-            />
-            {touched.confirmPassword && errors.confirmPassword && (
-              <div className="invalid-feedback">{errors.confirmPassword}</div>
-            )}
-          </div>
+         {/* Confirm Password */}
+<div className="mb-3">
+  <label className="form-label">Confirm Password</label>
 
+  <div className="input-group">
+    <input
+      type={showConfirmPassword ? "text" : "password"}
+      name="confirmPassword"
+      className={`form-control ${
+        touched.confirmPassword && errors.confirmPassword ? "is-invalid" : ""
+      }`}
+      value={formData.confirmPassword}
+      onChange={handleChange}
+      onBlur={handleBlur}
+      placeholder="Confirm password"
+    />
+
+    <span
+      className="input-group-text"
+      style={{ cursor: "pointer" }}
+      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+    >
+      <i
+        className={`bi ${
+          showConfirmPassword ? "bi-eye-slash" : "bi-eye"
+        }`}
+      ></i>
+    </span>
+  </div>
+
+  {touched.confirmPassword && errors.confirmPassword && (
+    <div className="invalid-feedback d-block">
+      {errors.confirmPassword}
+    </div>
+  )}
+</div>
           {/* Submit */}
           <button
             type="submit"

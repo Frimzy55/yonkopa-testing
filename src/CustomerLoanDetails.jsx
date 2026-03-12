@@ -15,9 +15,9 @@ const LoanDetails = ({ formData, handleInputChange }) => {
     let rate = "";
 
     if (formData.employmentStatus === "self-employed") {
-      rate = 80;
+      rate = "80% Rate Per Annum";
     } else if (formData.employmentStatus === "salary-worker") {
-      rate = 72;
+      rate = "72% Rate Per Annum";
     }
 
     if (formData.ratePerAnnum !== rate) {

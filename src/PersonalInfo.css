@@ -103,3 +103,22 @@
   margin-top: -5px;
   margin-bottom: 5px;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Light blue labels */
+.form-step label {
+  color: #5bc0de; /* light blue */
+  font-weight: 500;
+}
