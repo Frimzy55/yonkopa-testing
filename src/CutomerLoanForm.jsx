@@ -105,10 +105,11 @@ const CutomerLoanForm = ({ user, handleReset }) => {
       fullName,
       phone,
       dob,
-      kycCode: user.kyc_code || "",
+      kycCode: user.kycCode || "",
       email: user.email || "",
       nationalId: user.nationalId || "",
       employmentStatus: user.employmentStatus || "",
+      maritalStatus: user.maritalStatus || "",
     }));
   }, [user]);
 

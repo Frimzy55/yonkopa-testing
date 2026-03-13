@@ -1,18 +1,31 @@
 // src/pages/CustomerDashboard/CustomerDashboard.jsx
+
 import React, { useEffect, useState } from 'react';
 import './CustomerDashboard.css';
+
 import DashboardHome from './CustomerDashboardHome';
 import NotificationsSupport from './CustomerNotificationsSupport';
 import CustomerCompleteKyc from './CustomerCompleteKyc';
 import CustomerApplyLoan from './CustomerApplyLoan';
 import CustomerLoanStatus from './CustomerLoanStatus';
 import CustomerRepayloan from './CustomerRepayloan';
-import { FaBell } from "react-icons/fa";
+
+import {
+  FaBell,
+  FaIdCard,
+  FaCheckCircle,
+  FaMoneyBillWave,
+  FaSyncAlt,
+  FaUserCog,
+  FaSignOutAlt,
+  FaHome
+} from "react-icons/fa";
 
 const CustomerDashboard = () => {
+
   const [user, setUser] = useState(null);
   const [activeMenu, setActiveMenu] = useState('kyc');
-  const [notifications, ] = useState(1); // example notification count
+  const [notifications] = useState(1);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -20,11 +33,41 @@ const CustomerDashboard = () => {
   }, []);
 
   const menuItems = [
-    { id: 'kyc', label: 'Complete KYC And Profile', icon: '💳', description: 'Complete KYC And Profile', color: '#e67e22' },
-    { id: 'loan', label: 'Apply For Loan', icon: '✅', description: 'Apply For Loan', color: '#e67e22' },
-    { id: 'loanStatus', label: 'Loan Status', icon: '💰', description: 'View and manage loans', color: '#e67e22' },
-    { id: 'loanrepay', label: 'Repay Loan', icon: '🔄', description: 'Transaction history', color: '#e67e22' },
-    { id: 'profile', label: 'Notifications and Support', icon: '👤', description: 'Personal settings', color: '#e67e22' },
+    {
+      id: 'kyc',
+      label: 'Complete KYC And Profile',
+      icon: <FaIdCard />,
+      description: 'Complete KYC And Profile',
+      color: '#e67e22'
+    },
+    {
+      id: 'loan',
+      label: 'Apply For Loan',
+      icon: <FaCheckCircle />,
+      description: 'Apply For Loan',
+      color: '#e67e22'
+    },
+    {
+      id: 'loanStatus',
+      label: 'Loan Status',
+      icon: <FaMoneyBillWave />,
+      description: 'View and manage loans',
+      color: '#e67e22'
+    },
+    {
+      id: 'loanrepay',
+      label: 'Repay Loan',
+      icon: <FaSyncAlt />,
+      description: 'Transaction history',
+      color: '#e67e22'
+    },
+    {
+      id: 'profile',
+      label: 'Notifications and Support',
+      icon: <FaUserCog />,
+      description: 'Personal settings',
+      color: '#e67e22'
+    },
   ];
 
   const renderContent = () => {
@@ -54,8 +97,12 @@ const CustomerDashboard = () => {
 
       {/* TOP BAR */}
       <header className="top-bar">
+
         <div className="top-bar-left">
-          <h1>👤 {user?.fullName || 'User'}</h1>
+          <h1>
+            <FaHome style={{ marginRight: "8px" }} />
+            {user?.fullName || 'User'}
+          </h1>
         </div>
 
         <div className="top-bar-right">
@@ -82,6 +129,7 @@ const CustomerDashboard = () => {
             className="logout-btn"
             onClick={handleLogout}
           >
+            <FaSignOutAlt style={{ marginRight: "6px" }} />
             Logout
           </button>
 
@@ -93,11 +141,13 @@ const CustomerDashboard = () => {
 
         {/* SIDEBAR */}
         <nav className="sidebar-cards">
+
           <div className="sidebar-header">
             <h3>Navigation</h3>
           </div>
 
           <div className="menu-cards-grid">
+
             {menuItems.map((item) => {
 
               const isDisabled = ['loanStatus', 'loanrepay', 'profile'].includes(item.id);
@@ -108,12 +158,12 @@ const CustomerDashboard = () => {
                   className={`menu-card ${activeMenu === item.id ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
                   onClick={() => !isDisabled && setActiveMenu(item.id)}
                   style={{
-                    '--card-color': item.color,
                     borderLeft: `4px solid ${item.color}`,
                     cursor: isDisabled ? 'not-allowed' : 'pointer',
                     opacity: isDisabled ? 0.5 : 1,
                   }}
                 >
+
                   <div
                     className="menu-card-icon"
                     style={{ backgroundColor: item.color }}
@@ -129,14 +179,18 @@ const CustomerDashboard = () => {
                   <div className="menu-card-arrow">
                     →
                   </div>
+
                 </div>
               );
             })}
+
           </div>
+
         </nav>
 
         {/* MAIN CONTENT */}
         <main className="main-content">
+
           {user ? (
             renderContent()
           ) : (
@@ -144,6 +198,7 @@ const CustomerDashboard = () => {
               <p>Loading your profile...</p>
             </div>
           )}
+
         </main>
 
       </div>
