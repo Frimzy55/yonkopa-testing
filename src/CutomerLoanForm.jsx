@@ -1,4 +1,4 @@
-
+                                         
 // src/pages/CustomerDashboard/CutomerLoanForm.jsx
 
 import React, { useState, useEffect } from "react";
@@ -298,4 +298,6 @@ const CutomerLoanForm = ({ user, handleReset }) => {
 };
 
 export default CutomerLoanForm;
+
+
 

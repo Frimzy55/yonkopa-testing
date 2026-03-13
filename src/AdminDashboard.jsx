@@ -89,6 +89,8 @@ const AdminDashboard = () => {
 
     { id: "customers", label: "Customer Menu", icon: "👤" },
 
+     // { id: "applications", label: "Applications", icon: "📂" }, // ✅ Added
+
     { id: "loan-application", label: "Loan Application", icon: "📝" },
 
     { id: "credit-committee", label: "Credit Committee", icon: "⚖️" },
@@ -114,6 +116,10 @@ const AdminDashboard = () => {
 
       case "customers":
         return <AdminCustomers />;
+
+        //case "applications":
+      //return <AdminLoanApplication />; // ✅ New menu
+
 
       case "loan-application":
         return <AdminLoanApplication />;

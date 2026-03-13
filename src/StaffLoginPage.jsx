@@ -89,6 +89,8 @@ const validateField = (name, value) => {
 
       if (user.role === 'admin') navigate('/admin-dashboard');
       else if (user.role === 'loan_officer') navigate('/loan-officer-dashboard');
+      else if (user.role === 'manager') navigate('/loan-manager');
+       else if (user.role === 'supervisor') navigate('/loan-supervisor');
       //else navigate('/customer-dashboard');
 
       onClose && onClose();

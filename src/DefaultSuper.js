@@ -23,7 +23,7 @@ const DefaultSuper = () => {
     e.preventDefault();
 
     try {
-      const response = await axios.post("http://localhost:5000/signup1", formData);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/signup1`, formData);
       setMessage(response.data.message);
       setFormData({
         full_name: "",
@@ -89,17 +89,19 @@ const DefaultSuper = () => {
         />
 
         <select
-          name="role"
-          value={formData.role}
-          onChange={handleChange}
-          style={styles.input}
-          required
-        >
-          <option value="">Select Role</option>
-          <option value="customer">Customer</option>
-          <option value="loan_officer">Loan Officer</option>
-          <option value="admin">Admin</option>
-        </select>
+  name="role"
+  value={formData.role}
+  onChange={handleChange}
+  style={styles.input}
+  required
+>
+  <option value="">Select Role</option>
+  <option value="customer">Customer</option>
+  <option value="loan_officer">Loan Officer</option>
+  <option value="supervisor">Supervisor</option>
+  <option value="manager">Manager</option>
+  <option value="admin">Admin</option>
+</select>
 
         <button type="submit" style={styles.button}>
           Sign Up
