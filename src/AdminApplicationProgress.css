@@ -205,3 +205,74 @@
 .close-btn:hover {
   background-color: #c0392b;
 }
+
+
+
+
+
+
+
+
+
+.step-header {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 15px 0;
+}
+
+.step-btn {
+  padding: 6px 10px;
+  border: none;
+  background: #e0e0e0;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.active-step {
+  background: #007bff;
+  color: white;
+}
+
+.step-content {
+  min-height: 220px;
+  margin-top: 10px;
+}
+
+.modal-navigation {
+  margin-top: 20px;
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal-navigation button {
+  padding: 6px 12px;
+  cursor: pointer;
+}
+
+
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modal-container {
+  background: white;
+  width: 90%;          /* 🔥 Expanded width */
+  max-width: 1000px;   /* 🔥 Bigger max size */
+  height: 90vh;        /* 🔥 Taller modal */
+  overflow-y: auto;    /* Scroll if content is long */
+  padding: 30px;
+  border-radius: 10px;
+}

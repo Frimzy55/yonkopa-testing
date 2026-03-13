@@ -16,6 +16,7 @@ import AdminOperationalWorkflow from "./AdminOperationalWorkflow";
 import AdminServices from "./AdminServices";
 import AdminChangePassword from "./AdminChangePassword";
 import AdminProgressApplication from "./AdminProgressApplication";
+import AdminLoanAssessment from "./AdminLoanAssessment";
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -72,14 +73,26 @@ const AdminDashboard = () => {
   const menuItems = [
     { id: "dashboard", label: "Dashboard", icon: "📊" },
     { id: "users", label: "User Management", icon: "👥" },
-    { id: "customers", label: "Customer Menu", icon: "👤" },
+    { id: "customers",
+       label: "Customer Menu",
+        icon: "👤",
+         subMenu: [
+        { id: "customer-registration", label: "New Customer Registration" },
+        { id: "customer-search", label: "Customer Search" },
+        { id: "View-all", label: "View all Registered Customers" }
+     ]
+      
+      
+      },
+
     {
       id: "loans",
       label: "Loans",
       icon: "📝",
       subMenu: [
         { id: "loan-applications", label: "New Loan Applications" },
-        { id: "application-progress", label: "Application in Progress" }
+        { id: "application-progress", label: "Application in Progress" },
+        { id: "loan-assessment", label: "Loan Assessment" }
       ]
     },
     { id: "credit-committee", label: "Credit Committee", icon: "⚖️" },
@@ -104,6 +117,8 @@ const AdminDashboard = () => {
         return <AdminCreditCommittee />;
       case "reports":
         return <AdminReports />;
+        case "loan-assessment":
+        return <AdminLoanAssessment />;
       case "operational-workflow":
         return <AdminOperationalWorkflow />;
       case "services":

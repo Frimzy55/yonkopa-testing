@@ -39,11 +39,11 @@ const CutomerLoanForm = ({ user, handleReset }) => {
     // =========================
     // LOAN SUMMARY
     // =========================
-    interest: 0,
-    totalInterest: 0,
-    numberOfPayments: 0,
-    monthlyPayment: 0,
-    loanFees: 0,
+    interest: "",
+    totalInterest: "",
+    numberOfPayments: "",
+    monthlyPayment: "",
+    loanFees: "",
 
     // =========================
     // GUARANTOR DETAILS

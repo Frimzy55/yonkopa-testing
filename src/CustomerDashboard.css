@@ -455,61 +455,6 @@
 
 
 
-/* VERY SMALL MOBILE MENU CARDS */
-@media (max-width: 768px) {
-
-  .sidebar-header{
-    display:none;
-  }
-
-  .sidebar-cards{
-    padding:0;
-  }
-
-  .menu-cards-grid{
-    display:grid;
-    grid-template-columns:repeat(5, 1fr);
-    gap:1px;
-  }
-
-  .menu-card{
-    aspect-ratio:1/1;
-    max-width:55px;   /* force smaller width */
-    max-height:55px;  /* force smaller height */
-    padding:1px;
-    margin:auto;
-    display:flex;
-    flex-direction:column;
-    justify-content:center;
-    align-items:center;
-    text-align:center;
-    border-left:none;
-    border-top:2px solid var(--card-color);
-  }
-
-  .menu-card-icon{
-    width:14px;
-    height:14px;
-    font-size:8px;
-    margin-bottom:1px;
-  }
-
-  .menu-card-content h4{
-    font-size:7px;
-    line-height:1;
-  }
-
-  .menu-card-content p{
-    display:none;
-  }
-
-  .menu-card-arrow{
-    display:none;
-  }
-
-}
-
-
 
 
 
