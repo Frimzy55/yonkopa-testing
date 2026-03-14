@@ -18,24 +18,37 @@ import {
   FaSyncAlt,
   FaUserCog,
   FaSignOutAlt,
-  FaHome
+  FaHome,
+  FaBars,
+  FaTimes
 } from "react-icons/fa";
 
 const CustomerDashboard = () => {
-
   const [user, setUser] = useState(null);
   const [activeMenu, setActiveMenu] = useState('kyc');
   const [notifications] = useState(1);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
+  // Close mobile menu when window resizes to desktop
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setMobileMenuOpen(false);
+      }
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const menuItems = [
     {
       id: 'kyc',
-      label: 'Complete KYC And Profile',
+      label: 'Complete KYC',
       icon: <FaIdCard />,
       description: 'Complete KYC And Profile',
       color: '#e67e22'
@@ -63,7 +76,7 @@ const CustomerDashboard = () => {
     },
     {
       id: 'profile',
-      label: 'Notifications and Support',
+      label: 'Notifications',
       icon: <FaUserCog />,
       description: 'Personal settings',
       color: '#e67e22'
@@ -92,28 +105,39 @@ const CustomerDashboard = () => {
     window.location.href = '/';
   };
 
+  const handleMenuClick = (itemId) => {
+    setActiveMenu(itemId);
+    setMobileMenuOpen(false);
+  };
+
   return (
     <div className="dashboard-container">
 
       {/* TOP BAR */}
       <header className="top-bar">
-
         <div className="top-bar-left">
-          <h1>
-            <FaHome style={{ marginRight: "8px" }} />
-            {user?.fullName || 'User'}
+          <button 
+            className="mobile-menu-toggle"
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? <FaTimes /> : <FaBars />}
+          </button>
+          <h1 className="dashboard-title">
+            <FaHome className="home-icon" />
+            <span className="user-name">{user?.fullName?.split(' ')[0] || 'User'}</span>
           </h1>
         </div>
 
         <div className="top-bar-right">
-
-          {/* Notification Bell */}
           <div
             className="notification-bell"
-            onClick={() => setActiveMenu('profile')}
+            onClick={() => {
+              setActiveMenu('profile');
+              setMobileMenuOpen(false);
+            }}
           >
             <FaBell size={20} />
-
             {notifications > 0 && (
               <span className="notification-badge">
                 {notifications}
@@ -122,48 +146,48 @@ const CustomerDashboard = () => {
           </div>
 
           <span className="welcome-text">
-            Yonkopa {user?.fullName || ''}
+            Hi, {user?.fullName?.split(' ')[0] || ''}
           </span>
 
           <button
             className="logout-btn"
             onClick={handleLogout}
           >
-            <FaSignOutAlt style={{ marginRight: "6px" }} />
-            Logout
+            <FaSignOutAlt className="logout-icon" />
+            <span className="logout-text">Logout</span>
           </button>
-
         </div>
       </header>
 
       {/* DASHBOARD CONTENT */}
       <div className="dashboard-content">
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div 
+            className="mobile-menu-overlay"
+            onClick={() => setMobileMenuOpen(false)}
+          />
+        )}
 
         {/* SIDEBAR */}
-        <nav className="sidebar-cards">
-
+        <nav className={`sidebar-cards ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <div className="sidebar-header">
-            <h3>Navigation</h3>
+            <h3>Menu</h3>
           </div>
 
           <div className="menu-cards-grid">
-
             {menuItems.map((item) => {
-
               const isDisabled = ['loanStatus', 'loanrepay', 'profile'].includes(item.id);
-
+              
               return (
                 <div
                   key={item.id}
                   className={`menu-card ${activeMenu === item.id ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
-                  onClick={() => !isDisabled && setActiveMenu(item.id)}
+                  onClick={() => !isDisabled && handleMenuClick(item.id)}
                   style={{
-                    borderLeft: `4px solid ${item.color}`,
-                    cursor: isDisabled ? 'not-allowed' : 'pointer',
-                    opacity: isDisabled ? 0.5 : 1,
+                    borderLeftColor: item.color,
                   }}
                 >
-
                   <div
                     className="menu-card-icon"
                     style={{ backgroundColor: item.color }}
@@ -173,34 +197,29 @@ const CustomerDashboard = () => {
 
                   <div className="menu-card-content">
                     <h4>{item.label}</h4>
-                    <p>{item.description}</p>
+                    <p className="menu-desktop-only">{item.description}</p>
                   </div>
 
                   <div className="menu-card-arrow">
                     →
                   </div>
-
                 </div>
               );
             })}
-
           </div>
-
         </nav>
 
         {/* MAIN CONTENT */}
         <main className="main-content">
-
           {user ? (
             renderContent()
           ) : (
             <div className="loading-container">
+              <div className="loading-spinner"></div>
               <p>Loading your profile...</p>
             </div>
           )}
-
         </main>
-
       </div>
     </div>
   );
