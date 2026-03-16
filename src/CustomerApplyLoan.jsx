@@ -152,4 +152,4 @@ const CustomerApplyLoan = ({ user }) => {
   );
 };
 
-export default CustomerApplyLoan;
+export default CustomerApplyLoan;  

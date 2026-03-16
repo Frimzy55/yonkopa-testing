@@ -9,6 +9,7 @@ import CustomerCompleteKyc from './CustomerCompleteKyc';
 import CustomerApplyLoan from './CustomerApplyLoan';
 import CustomerLoanStatus from './CustomerLoanStatus';
 import CustomerRepayloan from './CustomerRepayloan';
+//import { io } from "socket.io-client";
 
 import {
   FaBell,
@@ -26,7 +27,8 @@ import {
 const CustomerDashboard = () => {
   const [user, setUser] = useState(null);
   const [activeMenu, setActiveMenu] = useState('kyc');
-  const [notifications] = useState(1);
+  //const [notifications] = useState(1);
+ const [notifications, setNotifications] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -44,6 +46,32 @@ const CustomerDashboard = () => {
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
   }, []);
+
+
+useEffect(() => {
+  if (!user) return;
+
+  const fetchNotifications = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/notifications/${user.id}`
+      );
+
+      const data = await res.json();
+      setNotifications(data.length);
+
+    } catch (error) {
+      console.error("Notification error:", error);
+    }
+  };
+
+  fetchNotifications();
+
+  const interval = setInterval(fetchNotifications, 1000);
+
+  return () => clearInterval(interval);
+
+}, [user]);
 
   const menuItems = [
     {
@@ -110,6 +138,10 @@ const CustomerDashboard = () => {
     setMobileMenuOpen(false);
   };
 
+  // Format name for display
+  const displayName = user?.fullName || 'User';
+  const firstName = displayName.split(' ')[0];
+
   return (
     <div className="dashboard-container">
 
@@ -125,7 +157,8 @@ const CustomerDashboard = () => {
           </button>
           <h1 className="dashboard-title">
             <FaHome className="home-icon" />
-            <span className="user-name">{user?.fullName?.split(' ')[0] || 'User'}</span>
+            <span className="user-name desktop-only">{displayName}</span>
+            <span className="user-name mobile-only">{displayName}</span>
           </h1>
         </div>
 
@@ -145,8 +178,8 @@ const CustomerDashboard = () => {
             )}
           </div>
 
-          <span className="welcome-text">
-            Hi, {user?.fullName?.split(' ')[0] || ''}
+          <span className="welcome-text desktop-only">
+            Hi, {firstName}
           </span>
 
           <button

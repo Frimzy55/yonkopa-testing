@@ -191,4 +191,170 @@ const LoanDetails = ({ formData, handleInputChange }) => {
   );
 };
 
-export default LoanDetails;
+export default LoanDetails;           
+
+
+
+
+// src/pages/CustomerDashboard/LoanDetails.jsx
+
+/*import React, { useEffect, useState } from "react";
+import axios from "axios";
+
+const LoanDetails = ({ formData, handleInputChange }) => {
+  const [loanSummary, setLoanSummary] = useState({
+    interest: 0,
+    totalAmount: 0,
+    numberOfPayments: 0,
+    monthlyPayment: 0,
+    loanFees: 0,
+  });
+
+  // Fetch calculation from backend
+  useEffect(() => {
+  const calculateLoan = async () => {
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/api/loan/calculate`,
+        {
+          loanAmount: formData.loanAmount,
+          loanTerm: formData.loanTerm,
+          repaymentFrequency: formData.repaymentFrequency,
+          employmentStatus: formData.employmentStatus,
+        }
+      );
+
+      setLoanSummary(response.data);
+    } catch (error) {
+      console.error("Loan calculation error:", error);
+    }
+  };
+
+  if (
+    formData.loanAmount &&
+    formData.loanTerm &&
+    formData.employmentStatus
+  ) {
+    calculateLoan();
+  }
+}, [
+  formData.loanAmount,
+  formData.loanTerm,
+  formData.repaymentFrequency,
+  formData.employmentStatus,
+]);
+
+  return (
+    <div className="form-step">
+      <h3>Loan Details</h3>
+
+      <div className="form-grid">
+        <input
+          name="loanAmount"
+          type="number"
+          placeholder="Loan Amount"
+          value={formData.loanAmount}
+          onChange={handleInputChange}
+          required
+        />
+
+        <input
+          name="loanPurpose"
+          placeholder="Loan Purpose"
+          value={formData.loanPurpose}
+          onChange={handleInputChange}
+          required
+        />
+
+        <input
+          name="loanTerm"
+          type="number"
+          placeholder="Loan Term (months)"
+          value={formData.loanTerm}
+          onChange={handleInputChange}
+          required
+        />
+
+        <select
+          name="repaymentFrequency"
+          value={formData.repaymentFrequency}
+          onChange={handleInputChange}
+          required
+        >
+          <option value="">Repayment Frequency</option>
+
+          {formData.employmentStatus === "self-employed" && (
+            <option value="Weekly">Weekly</option>
+          )}
+
+          {formData.employmentStatus === "salary-worker" && (
+            <option value="Monthly">Monthly</option>
+          )}
+        </select>
+
+        <input
+          name="ratePerAnnum"
+          type="text"
+          value={formData.ratePerAnnum || ""}
+          readOnly
+        />
+      </div>
+
+      {/* Loan Summary *
+      <div className="card shadow-sm mt-4">
+        <div className="card-header bg-primary text-white">
+          <h5 className="mb-0">Loan Summary</h5>
+        </div>
+
+        <div className="card-body">
+          <div className="row text-center">
+
+            <div className="col-md-3 mb-3">
+              <div className="border rounded p-3 bg-light">
+                <h6 className="text-muted">Interest</h6>
+                <h5 className="text-danger">
+                  GHS {Number(loanSummary.interest).toFixed(2)}
+                </h5>
+              </div>
+            </div>
+
+            <div className="col-md-3 mb-3">
+              <div className="border rounded p-3 bg-light">
+                <h6 className="text-muted">Total Amount</h6>
+                <h5 className="text-success">
+                  GHS {Number(loanSummary.totalAmount).toFixed(2)}
+                </h5>
+              </div>
+            </div>
+
+            <div className="col-md-3 mb-3">
+              <div className="border rounded p-3 bg-light">
+                <h6 className="text-muted">Monthly Payment</h6>
+                <h5 className="text-primary">
+                  GHS {Number(loanSummary.monthlyPayment).toFixed(2)}
+                </h5>
+              </div>
+            </div>
+
+            <div className="col-md-3 mb-3">
+              <div className="border rounded p-3 bg-light">
+                <h6 className="text-muted">Number of Payments</h6>
+                <h5>{loanSummary.numberOfPayments}</h5>
+              </div>
+            </div>
+
+            <div className="col-md-12 mt-2">
+              <div className="alert alert-warning">
+                <strong>Loan Fees:</strong> GHS{" "}
+                {Number(loanSummary.loanFees).toFixed(2)}
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default LoanDetails;*/

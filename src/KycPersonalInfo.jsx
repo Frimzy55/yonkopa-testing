@@ -12,32 +12,57 @@ const PersonalInfo = ({
   checkingNationalId,
   user,
 }) => {
-  const [preview, setPreview] = useState(formData?.avatar || defaultAvatar);
+  const [preview, setPreview] = useState(
+    formData?.avatar ? formData.avatar : defaultAvatar
+  );
 
+  // Avatar preview
   useEffect(() => {
-    if (formData.avatar) setPreview(URL.createObjectURL(formData.avatar));
-  }, [formData.avatar]);
+    if (!formData?.avatar) return;
+
+    const objectUrl = URL.createObjectURL(formData.avatar);
+    setPreview(objectUrl);
+
+    return () => URL.revokeObjectURL(objectUrl);
+  }, [formData?.avatar]);
 
   const handleAvatarChange = (e) => {
     const file = e.target.files[0];
     if (!file) return;
+
     setPreview(URL.createObjectURL(file));
-    handleFileChange({ target: { name: "avatar", files: [file] } });
+
+    handleFileChange({
+      target: { name: "avatar", files: [file] },
+    });
   };
 
   return (
     <div className="form-step">
-      <p className="welcome-text">Welcome, {user?.fullName || "User"}!</p>
+      <p className="welcome-text">
+        Welcome, {user?.fullName || "User"}!
+      </p>
+
       <h3 className="form-title">Personal Information</h3>
 
       {/* Avatar Upload */}
       <div className="avatar-container">
-        <label className="avatar-title">Profile Picture *</label>
+        <label className="avatar-title">
+          Profile Picture *
+        </label>
+
         <div className="avatar-upload-wrapper">
           <label htmlFor="avatarUpload">
-            <img src={preview} alt="avatar" className="avatar-preview" />
-            <div className="avatar-overlay">Click to Upload</div>
+            <img
+              src={preview}
+              alt="avatar"
+              className="avatar-preview"
+            />
+            <div className="avatar-overlay">
+              Click to Upload
+            </div>
           </label>
+
           <input
             type="file"
             id="avatarUpload"
@@ -47,29 +72,44 @@ const PersonalInfo = ({
             style={{ display: "none" }}
           />
         </div>
-        {formErrors?.avatar && <span className="error-message">{formErrors.avatar}</span>}
+
+        {formErrors?.avatar && (
+          <span className="error-message">
+            {formErrors.avatar}
+          </span>
+        )}
       </div>
 
       {/* Form Grid */}
       <div className="form-grid">
+
         {/* Title */}
         <div>
           <label>Title *</label>
-          <select name="title" value={formData?.title || ""} onChange={handleInputChange}>
+          <select
+            name="title"
+            value={formData?.title || ""}
+            onChange={handleInputChange}
+          >
             <option value="">Select Title *</option>
             <option value="mr">Mr.</option>
             <option value="mrs">Mrs.</option>
             <option value="miss">Miss</option>
             <option value="dr">Dr</option>
           </select>
-          {formErrors?.title && <span className="error-message">{formErrors.title}</span>}
+          {formErrors?.title && (
+            <span className="error-message">
+              {formErrors.title}
+            </span>
+          )}
         </div>
 
         {/* First Name */}
         <div>
           <label>First Name *</label>
-          <div className="form-control bg-light">{formData?.firstName || "-"}</div>
-          {formErrors?.firstName && <span className="error-message">{formErrors.firstName}</span>}
+          <div className="form-control bg-light">
+            {formData?.firstName || "-"}
+          </div>
         </div>
 
         {/* Middle Name */}
@@ -87,8 +127,9 @@ const PersonalInfo = ({
         {/* Last Name */}
         <div>
           <label>Last Name *</label>
-          <div className="form-control bg-light">{formData?.lastName || "-"}</div>
-          {formErrors?.lastName && <span className="error-message">{formErrors.lastName}</span>}
+          <div className="form-control bg-light">
+            {formData?.lastName || "-"}
+          </div>
         </div>
 
         {/* Date of Birth */}
@@ -99,25 +140,42 @@ const PersonalInfo = ({
             name="dateOfBirth"
             value={formData?.dateOfBirth || ""}
             onChange={handleInputChange}
+            required
           />
-          {formErrors?.dateOfBirth && <span className="error-message">{formErrors.dateOfBirth}</span>}
+          {formErrors?.dateOfBirth && (
+            <span className="error-message">
+              {formErrors.dateOfBirth}
+            </span>
+          )}
         </div>
 
         {/* Gender */}
         <div>
           <label>Gender *</label>
-          <select name="gender" value={formData?.gender || ""} onChange={handleInputChange}>
+          <select
+            name="gender"
+            value={formData?.gender || ""}
+            onChange={handleInputChange}
+          >
             <option value="">Select Gender *</option>
             <option value="male">Male</option>
             <option value="female">Female</option>
           </select>
-          {formErrors?.gender && <span className="error-message">{formErrors.gender}</span>}
+          {formErrors?.gender && (
+            <span className="error-message">
+              {formErrors.gender}
+            </span>
+          )}
         </div>
 
         {/* Marital Status */}
         <div>
           <label>Marital Status</label>
-          <select name="maritalStatus" value={formData?.maritalStatus || ""} onChange={handleInputChange}>
+          <select
+            name="maritalStatus"
+            value={formData?.maritalStatus || ""}
+            onChange={handleInputChange}
+          >
             <option value="">Select Marital Status</option>
             <option value="single">Single</option>
             <option value="married">Married</option>
@@ -136,8 +194,16 @@ const PersonalInfo = ({
             onChange={handleInputChange}
             placeholder="National ID *"
           />
-          {checkingNationalId && <small className="checking-message">Checking National ID...</small>}
-          {formErrors?.nationalId && <span className="error-message">{formErrors.nationalId}</span>}
+          {checkingNationalId && (
+            <small className="checking-message">
+              Checking National ID...
+            </small>
+          )}
+          {formErrors?.nationalId && (
+            <span className="error-message">
+              {formErrors.nationalId}
+            </span>
+          )}
         </div>
 
         {/* Residential Location */}
@@ -150,10 +216,14 @@ const PersonalInfo = ({
             onChange={handleInputChange}
             placeholder="Residential Location *"
           />
-          {formErrors?.residentialLocation && <span className="error-message">{formErrors.residentialLocation}</span>}
+          {formErrors?.residentialLocation && (
+            <span className="error-message">
+              {formErrors.residentialLocation}
+            </span>
+          )}
         </div>
 
-        {/* Spouse Details (Show only if married) */}
+        {/* Spouse Details */}
         {formData?.maritalStatus === "married" && (
           <>
             <div>
@@ -165,9 +235,6 @@ const PersonalInfo = ({
                 onChange={handleInputChange}
                 placeholder="Name of Spouse"
               />
-              {formErrors?.spouseName && (
-                <span className="error-message">{formErrors.spouseName}</span>
-              )}
             </div>
 
             <div>
@@ -179,9 +246,6 @@ const PersonalInfo = ({
                 onChange={handleInputChange}
                 placeholder="Spouse Contact"
               />
-              {formErrors?.spouseContact && (
-                <span className="error-message">{formErrors.spouseContact}</span>
-              )}
             </div>
           </>
         )}

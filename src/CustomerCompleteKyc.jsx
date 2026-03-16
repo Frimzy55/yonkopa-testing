@@ -5,12 +5,14 @@ import PersonalInfo from "./KycPersonalInfo";
 import ContactInfo from "./KycContactInfo";
 import EmploymentInfo from "./KycEmploymentInfos";
 import "./CustomerCompleteKyc.css";
+//mport { io } from "socket.io-client";
 
 const CustomerCompleteKyc = ({ user }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [formErrors, setFormErrors] = useState({});
   const [checkingNationalId, setCheckingNationalId] = useState(false);
+  const [submitMessage, setSubmitMessage] = useState(null);
 
   const [formData, setFormData] = useState({
     avatar: null,
@@ -246,46 +248,61 @@ const CustomerCompleteKyc = ({ user }) => {
 
   
   // ----------------------------
-  // SUBMIT KYC
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    setSubmitting(true);
+ const handleSubmit = async (e) => {
+  e.preventDefault();
+  setSubmitting(true);
+  setSubmitMessage(null); // clear old messages
 
-
-    //Validate Step 3 before submitting
+  // Validate Step 3
   const step3Valid = validateStep3();
   if (!step3Valid) {
     setSubmitting(false);
-    return; // stop submission if validation fails
+    return;
   }
 
+  try {
     const data = new FormData();
+
     Object.keys(formData).forEach((key) => {
       data.append(key, formData[key]);
     });
 
-    fetch(`${process.env.REACT_APP_API_URL}/api/kyc/submit`, {
-      method: "POST",
-      body: data,
-    })
-      .then((res) => res.json())
-      .then((result) => {
-        if (result.success || result.message === "KYC Submitted") {
-          alert("KYC Submitted Successfully");
-          console.log(result);
-        } else {
-          alert(result.message || "Submission failed");
-        }
-      })
-      .catch((err) => {
-        console.error("Error submitting KYC:", err);
-        alert("Error submitting KYC");
-      })
-      .finally(() => {
-        setSubmitting(false);
-      });
-  };
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/kyc/submit`,
+      {
+        method: "POST",
+        body: data,
+      }
+    );
 
+    const result = await response.json();
+
+    if (result.success || result.message === "KYC Submitted") {
+      setSubmitMessage({
+        type: "success",
+        text: "🎉 KYC Submitted Successfully!",
+      });
+
+      // Optional: reset form or go to step 1
+      // setCurrentStep(1);
+
+    } else {
+      setSubmitMessage({
+        type: "error",
+        text: result.message || "Submission failed",
+      });
+    }
+  } catch (err) {
+    console.error("Error submitting KYC:", err);
+
+    setSubmitMessage({
+      type: "error",
+      text: "Something went wrong. Please try again.",
+    });
+  } finally {
+    setSubmitting(false);
+  }
+};
   // ----------------------------
   // RENDER STEP
   const renderStep = () => {
@@ -323,6 +340,7 @@ const CustomerCompleteKyc = ({ user }) => {
   return (
     <div className="content-section">
       <h2>KYC forms</h2>
+    
 
       <div className="kyc-progress">
         <div className={`step ${currentStep >= 1 ? "active" : ""}`}>
@@ -365,7 +383,20 @@ const CustomerCompleteKyc = ({ user }) => {
               {submitting ? "Submitting..." : "Submit"}
             </button>
           )}
+
+          
         </div>
+          {submitMessage && (
+  <div
+    className={`submit-message ${
+      submitMessage.type === "success"
+        ? "success-message"
+        : "error-message"
+    }`}
+  >
+    {submitMessage.text}
+  </div>
+)}
       </form>
     </div>
   );

@@ -635,3 +635,57 @@ textarea {
 .avatar-upload-container:hover .avatar-overlay {
   opacity: 1;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.submit-message {
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 6px;
+  font-weight: 500;
+}
+
+.success-message {
+  background-color: #e6ffed;
+  color: #1a7f37;
+  border: 1px solid #1a7f37;
+}
+
+.error-message {
+  background-color: #ffe6e6;
+  color: #b00020;
+  border: 1px solid #b00020;
+}
