@@ -87,6 +87,7 @@ const NotificationsSupport = ({ user }) => {
                           <small className="text-muted">
                             {new Date(note.createdAt).toLocaleString()}
                           </small>
+                          <p>NB:Do not share this code with anyone</p>
 
                         </div>
 

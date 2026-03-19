@@ -17,6 +17,9 @@ const CustomerCompleteKyc = ({ user }) => {
 
   const [formData, setFormData] = useState({
      // userId: "", // ✅ ADD THIS
+
+  userId: user?.id || user?.userId || "", // ✅ ADD THIS
+  kycCode:"",
     avatar: null,
     title: "",
     firstName: "",
@@ -80,6 +83,9 @@ const CustomerCompleteKyc = ({ user }) => {
       ...prev,
        //userId: user.id, // ✅ VERY IMPORTANT
       // userId: user?.id || user?.userId || null, // ✅ safe fallback
+        //userId: user?.id || user?.userId || "", // ✅ ADD THIS
+          userId: user?.id || user?.userId || "", // ✅ IMPORTANT
+           kycCode: user.kycCode || "",
       firstName: nameParts[0] || "",
       middleName: nameParts.length === 3 ? nameParts[1] : "",
       lastName: nameParts.length >= 2 ? nameParts[nameParts.length - 1] : "",
