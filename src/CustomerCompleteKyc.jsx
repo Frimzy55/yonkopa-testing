@@ -167,7 +167,29 @@ const CustomerCompleteKyc = ({ user }) => {
     if (!formData.title) errors.title = "Title required";
     if (!formData.firstName) errors.firstName = "First name required";
     if (!formData.lastName) errors.lastName = "Last name required";
-    if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth required";
+    //if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth required";
+    const today = new Date();
+const dob = new Date(formData.dateOfBirth);
+
+if (!formData.dateOfBirth) {
+  errors.dateOfBirth = "Date of birth required";
+} else {
+  let age = today.getFullYear() - dob.getFullYear();
+
+  const monthDiff = today.getMonth() - dob.getMonth();
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 && today.getDate() < dob.getDate())
+  ) {
+    age--;
+  }
+
+  if (age < 18) {
+    errors.dateOfBirth = "You must be at least 18 years old";
+  } else if (age > 60) {
+    errors.dateOfBirth = "Age must not be more than 60 years";
+  }
+}
     if (!formData.gender) errors.gender = "Gender required";
      if (!formData.gender) errors.gender = "Gender required";
 

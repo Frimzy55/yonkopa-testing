@@ -1,15 +1,12 @@
 // src/components/SignUpPage.jsx
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
-//import React, { useState } from "react";
-//import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 
 const SignUpPage = ({ onClose, onSwitchToLogin }) => {
   const [formData, setFormData] = useState({
     fullName: "",
-    email: "",
-    phone: "",
+    identifier: "",
     password: "",
     confirmPassword: "",
   });
@@ -21,30 +18,28 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const validateField = (name, value) => {
-    const newErrors = { ...errors };
+    let newErrors = { ...errors };
 
     switch (name) {
       case "fullName":
         if (!value.trim()) newErrors.fullName = "Full name is required";
-        else if (value.trim().length < 2)
-          newErrors.fullName = "Must be at least 2 characters";
-        else if (!/^[a-zA-Z\s]+$/.test(value.trim()))
-          newErrors.fullName = "Only letters and spaces allowed";
         else delete newErrors.fullName;
         break;
 
-      case "email":
-        if (!value) newErrors.email = "Email is required";
-        else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))
-          newErrors.email = "Enter a valid email";
-        else delete newErrors.email;
-        break;
+      case "identifier":
+        if (!value) {
+          newErrors.identifier = "Email or phone number is required";
+        } else {
+          const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+          const isPhone = /^\d{10}$/.test(value.replace(/\D/g, ""));
 
-      case "phone":
-        if (!value) newErrors.phone = "Phone number is required";
-        else if (!/^\d{10}$/.test(value.replace(/\D/g, "")))
-          newErrors.phone = "Enter a valid 10-digit number";
-        else delete newErrors.phone;
+          if (!isEmail && !isPhone) {
+            newErrors.identifier =
+              "Enter a valid email or 10-digit phone number";
+          } else {
+            delete newErrors.identifier;
+          }
+        }
         break;
 
       case "password":
@@ -74,12 +69,11 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    setFormData({
-      ...formData,
-      [name]: value,
-    });
+    const updatedForm = { ...formData, [name]: value };
+    setFormData(updatedForm);
 
-    if (touched[name]) setErrors(validateField(name, value));
+    const updatedErrors = validateField(name, value);
+    setErrors(updatedErrors);
   };
 
   const handleBlur = (e) => {
@@ -87,16 +81,23 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
 
     setTouched({ ...touched, [name]: true });
 
-    setErrors(validateField(name, value));
+    const updatedErrors = validateField(name, value);
+    setErrors(updatedErrors);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     let newErrors = {};
+
     Object.keys(formData).forEach((key) => {
-      newErrors = validateField(key, formData[key]);
+      newErrors = {
+        ...newErrors,
+        ...validateField(key, formData[key]),
+      };
     });
+
+    setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
       alert("Fix validation errors!");
@@ -104,25 +105,25 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
     }
 
     try {
-      //const response = await fetch("https://yonkopa-backend-production-b4f7.up.railway.app/signup", {
-        //const response = await fetch(`${Process.env.REACT_APP_API_URL}/signup`, {
-        const response = await fetch(`${process.env.REACT_APP_API_URL}/signup`, {
-       
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/signup`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-  setMessage(data.message);
-  setTimeout(() => {
-    onClose();
-  }, 1500);
-} else {
-  setMessage(data.message || "Error creating account");
-}
+        setMessage(data.message);
+        setTimeout(() => {
+          onClose();
+        }, 1500);
+      } else {
+        setMessage(data.message || "Error creating account");
+      }
     } catch (err) {
       console.error(err);
       alert("Server error. Try later.");
@@ -132,18 +133,19 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
   return (
     <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center">
       <div className="bg-white rounded shadow p-4" style={{ width: "400px" }}>
-        
+
         {/* Header */}
         <div className="d-flex justify-content-between align-items-center mb-3">
-          <h4 className="m-0">Create Your Account</h4>
+          <h4 className="m-0">Create Account</h4>
           <button className="btn-close" onClick={onClose}></button>
         </div>
 
-        {/* Show server messages */}
-{message && <div className="alert alert-info text-center mb-3">{message}</div>}
+        {message && (
+          <div className="alert alert-info text-center">{message}</div>
+        )}
 
-        {/* Form */}
         <form onSubmit={handleSubmit} noValidate>
+
           {/* Full Name */}
           <div className="mb-3">
             <label className="form-label">Full Name</label>
@@ -156,126 +158,107 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
               value={formData.fullName}
               onChange={handleChange}
               onBlur={handleBlur}
-              placeholder="Enter your full name"
             />
             {touched.fullName && errors.fullName && (
               <div className="invalid-feedback">{errors.fullName}</div>
             )}
           </div>
 
-          {/* Email */}
+          {/* Identifier */}
           <div className="mb-3">
-            <label className="form-label">Email</label>
+            <label className="form-label">Email or Phone Number</label>
             <input
-              type="email"
-              name="email"
+              type="text"
+              name="identifier"
               className={`form-control ${
-                touched.email && errors.email ? "is-invalid" : ""
+                touched.identifier && errors.identifier ? "is-invalid" : ""
               }`}
-              value={formData.email}
+              value={formData.identifier}
               onChange={handleChange}
               onBlur={handleBlur}
-              placeholder="Enter your email"
+              placeholder="Enter email or phone number"
             />
-            {touched.email && errors.email && (
-              <div className="invalid-feedback">{errors.email}</div>
-            )}
-          </div>
-
-          {/* Phone */}
-          <div className="mb-3">
-            <label className="form-label">Phone Number</label>
-            <input
-              type="tel"
-              name="phone"
-              maxLength={14}
-              className={`form-control ${
-                touched.phone && errors.phone ? "is-invalid" : ""
-              }`}
-              value={formData.phone}
-              onChange={handleChange}
-              onBlur={handleBlur}
-              placeholder="(123) 456-7890"
-            />
-            {touched.phone && errors.phone && (
-              <div className="invalid-feedback">{errors.phone}</div>
+            {touched.identifier && errors.identifier && (
+              <div className="invalid-feedback">{errors.identifier}</div>
             )}
           </div>
 
           {/* Password */}
-          {/* Password */}
-<div className="mb-3">
-  <label className="form-label">Password</label>
+          <div className="mb-3">
+            <label className="form-label">Password</label>
 
-  <div className="input-group">
-    <input
-      type={showPassword ? "text" : "password"}
-      name="password"
-      className={`form-control ${
-        touched.password && errors.password ? "is-invalid" : ""
-      }`}
-      value={formData.password}
-      onChange={handleChange}
-      onBlur={handleBlur}
-      placeholder="Create a password"
-    />
+            <div className="input-group">
+              <input
+                type={showPassword ? "text" : "password"}
+                name="password"
+                className={`form-control ${
+                  touched.password && errors.password ? "is-invalid" : ""
+                }`}
+                value={formData.password}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
 
-    <span
-      className="input-group-text"
-      style={{ cursor: "pointer" }}
-      onClick={() => setShowPassword(!showPassword)}
-    >
-      <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
-    </span>
-  </div>
+              <span
+                className="input-group-text"
+                onClick={() => setShowPassword(!showPassword)}
+                style={{ cursor: "pointer" }}
+              >
+                <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+              </span>
+            </div>
 
-  {touched.password && errors.password && (
-    <div className="invalid-feedback d-block">{errors.password}</div>
-  )}
-</div>
+            {touched.password && errors.password && (
+              <div className="invalid-feedback d-block">
+                {errors.password}
+              </div>
+            )}
+          </div>
 
           {/* Confirm Password */}
-         {/* Confirm Password */}
-<div className="mb-3">
-  <label className="form-label">Confirm Password</label>
+          <div className="mb-3">
+            <label className="form-label">Confirm Password</label>
 
-  <div className="input-group">
-    <input
-      type={showConfirmPassword ? "text" : "password"}
-      name="confirmPassword"
-      className={`form-control ${
-        touched.confirmPassword && errors.confirmPassword ? "is-invalid" : ""
-      }`}
-      value={formData.confirmPassword}
-      onChange={handleChange}
-      onBlur={handleBlur}
-      placeholder="Confirm password"
-    />
+            <div className="input-group">
+              <input
+                type={showConfirmPassword ? "text" : "password"}
+                name="confirmPassword"
+                className={`form-control ${
+                  touched.confirmPassword && errors.confirmPassword
+                    ? "is-invalid"
+                    : ""
+                }`}
+                value={formData.confirmPassword}
+                onChange={handleChange}
+                onBlur={handleBlur}
+              />
 
-    <span
-      className="input-group-text"
-      style={{ cursor: "pointer" }}
-      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-    >
-      <i
-        className={`bi ${
-          showConfirmPassword ? "bi-eye-slash" : "bi-eye"
-        }`}
-      ></i>
-    </span>
-  </div>
+              <span
+                className="input-group-text"
+                onClick={() =>
+                  setShowConfirmPassword(!showConfirmPassword)
+                }
+                style={{ cursor: "pointer" }}
+              >
+                <i
+                  className={`bi ${
+                    showConfirmPassword ? "bi-eye-slash" : "bi-eye"
+                  }`}
+                ></i>
+              </span>
+            </div>
 
-  {touched.confirmPassword && errors.confirmPassword && (
-    <div className="invalid-feedback d-block">
-      {errors.confirmPassword}
-    </div>
-  )}
-</div>
+            {touched.confirmPassword && errors.confirmPassword && (
+              <div className="invalid-feedback d-block">
+                {errors.confirmPassword}
+              </div>
+            )}
+          </div>
+
           {/* Submit */}
           <button
             type="submit"
             className="btn btn-primary w-100"
-            disabled={Object.keys(errors).length > 0}
           >
             Create Account
           </button>
