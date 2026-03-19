@@ -5,6 +5,7 @@ import PersonalInfo from "./KycPersonalInfo";
 import ContactInfo from "./KycContactInfo";
 import EmploymentInfo from "./KycEmploymentInfos";
 import "./CustomerCompleteKyc.css";
+import ReferenceInfo from "./KycReferenceInfo";
 //mport { io } from "socket.io-client";
 
 const CustomerCompleteKyc = ({ user }) => {
@@ -15,6 +16,7 @@ const CustomerCompleteKyc = ({ user }) => {
   const [submitMessage, setSubmitMessage] = useState(null);
 
   const [formData, setFormData] = useState({
+     // userId: "", // ✅ ADD THIS
     avatar: null,
     title: "",
     firstName: "",
@@ -55,6 +57,16 @@ const CustomerCompleteKyc = ({ user }) => {
     yearsInBusiness: "",
     workingCapital: "",
     businessPicture: null,
+
+
+      // REFERENCES
+  referenceName1: "",
+  referencePhone1: "",
+  referenceRelationship1: "",
+
+  referenceName2: "",
+  referencePhone2: "",
+  referenceRelationship2: "",
   });
 
   // Autofill user info
@@ -66,6 +78,8 @@ const CustomerCompleteKyc = ({ user }) => {
 
     setFormData((prev) => ({
       ...prev,
+       //userId: user.id, // ✅ VERY IMPORTANT
+      // userId: user?.id || user?.userId || null, // ✅ safe fallback
       firstName: nameParts[0] || "",
       middleName: nameParts.length === 3 ? nameParts[1] : "",
       lastName: nameParts.length >= 2 ? nameParts[nameParts.length - 1] : "",
@@ -221,6 +235,31 @@ const CustomerCompleteKyc = ({ user }) => {
   return Object.keys(errors).length === 0;
 };
 
+
+
+const validateStep4 = () => {
+  const errors = {};
+
+  if (!formData.referenceName1)
+    errors.referenceName1 = "Reference 1 name required";
+
+  if (!formData.referencePhone1)
+    errors.referencePhone1 = "Reference 1 phone required";
+  else if (!/^\d{10,15}$/.test(formData.referencePhone1))
+    errors.referencePhone1 = "Invalid phone number";
+
+  if (!formData.referenceName2)
+    errors.referenceName2 = "Reference 2 name required";
+
+  if (!formData.referencePhone2)
+    errors.referencePhone2 = "Reference 2 phone required";
+  else if (!/^\d{10,15}$/.test(formData.referencePhone2))
+    errors.referencePhone2 = "Invalid phone number";
+
+  setFormErrors(errors);
+  return Object.keys(errors).length === 0;
+};
+
   // ----------------------------
   // STEP NAVIGATION
   const nextStep = async () => {
@@ -237,7 +276,12 @@ const CustomerCompleteKyc = ({ user }) => {
     const valid = validateStep3();
     if (!valid) return;
   }
-    setCurrentStep((prev) => Math.min(prev + 1, 3));
+
+  if (currentStep === 4) {
+  const valid = validateStep4();
+  if (!valid) return;
+}
+    setCurrentStep((prev) => Math.min(prev + 1, 4));
   };
 
   const prevStep = () => {
@@ -254,8 +298,8 @@ const CustomerCompleteKyc = ({ user }) => {
   setSubmitMessage(null); // clear old messages
 
   // Validate Step 3
-  const step3Valid = validateStep3();
-  if (!step3Valid) {
+  const step4Valid = validateStep4();
+  if (!step4Valid) {
     setSubmitting(false);
     return;
   }
@@ -332,6 +376,15 @@ const CustomerCompleteKyc = ({ user }) => {
              formErrors={formErrors}
           />
         );
+
+        case 4:
+  return (
+    <ReferenceInfo
+      formData={formData}
+      handleInputChange={handleInputChange}
+      formErrors={formErrors}
+    />
+  );
       default:
         return null;
     }
@@ -355,6 +408,11 @@ const CustomerCompleteKyc = ({ user }) => {
           <div className="step-circle">3</div>
           <div className="step-label">Employment Info</div>
         </div>
+
+        <div className={`step ${currentStep >= 4 ? "active" : ""}`}>
+  <div className="step-circle">4</div>
+  <div className="step-label">References</div>
+</div>
       </div>
 
       <form className="kyc-form" onSubmit={handleSubmit}>
@@ -367,7 +425,7 @@ const CustomerCompleteKyc = ({ user }) => {
             </button>
           )}
 
-          {currentStep < 3 && (
+          {currentStep < 4 && (
             <button
               type="button"
               className="btn-next"
@@ -378,7 +436,7 @@ const CustomerCompleteKyc = ({ user }) => {
             </button>
           )}
 
-          {currentStep === 3 && (
+          {currentStep === 4 && (
             <button type="submit" className="btn-submit" disabled={submitting}>
               {submitting ? "Submitting..." : "Submit"}
             </button>

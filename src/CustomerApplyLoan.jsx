@@ -107,6 +107,10 @@ const CustomerApplyLoan = ({ user }) => {
                   placeholder="e.g. 00001"
                 />
               </div>
+                {/* Message for user */}
+  <small className="text-muted">
+    Please check your notifications to find your KYC verification code.
+  </small>
 
               <button type="submit" className="btn btn-primary w-100">
                 {loading ? "Verifying..." : "Verify Details"}

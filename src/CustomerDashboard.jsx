@@ -52,8 +52,11 @@ useEffect(() => {
   if (!user) return;
 
   const fetchNotifications = async () => {
+    //const formattedId = String(user.id).padStart(5, "0");
     try {
-      const res = await fetch(
+      // const formattedId = String(user.id).padStart(5, "0");
+      const res 
+      = await fetch(
         `${process.env.REACT_APP_API_URL}/api/notifications/${user.id}`
       );
 
