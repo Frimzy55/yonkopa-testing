@@ -36,7 +36,7 @@ const LoanDetails = ({ formData, handleInputChange }) => {
 
   // NEW RULE
   if (formData.employmentStatus === "self-employed") {
-    monthlyRate = 0.0667; // 6.67%
+    monthlyRate = 0.06667; // 6.67%
   } else if (formData.employmentStatus === "salary-worker") {
     monthlyRate = 0.06; // 6%
   }
