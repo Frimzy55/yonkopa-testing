@@ -134,7 +134,7 @@ const CustomerCompleteKyc = ({ user }) => {
     if (!formData.nationalId) return;
 
     const timer = setTimeout(async () => {
-      const ghanaCardRegex = /^GHA-\d{10}-\d$/;
+      const ghanaCardRegex = /^GHA-\d{9}-\d$/;
       const id = formData.nationalId.trim();
       if (!ghanaCardRegex.test(id)) return;
 
@@ -158,7 +158,7 @@ const CustomerCompleteKyc = ({ user }) => {
   // STEP 1 VALIDATION
   const validateStep1 = async () => {
     let errors = {};
-    const ghanaCardRegex = /^GHA-\d{10}-\d$/;
+    const ghanaCardRegex = /^GHA-\d{9}-\d$/;
    // const id = formData.nationalId.trim();
     const id = formData.nationalId.trim().toUpperCase(); // trim + uppercase
      //const exists = await checkNationalIdExists(id);
@@ -195,7 +195,7 @@ if (!formData.dateOfBirth) {
 
 
     if (!id) errors.nationalId = "National ID required";
-    else if (!ghanaCardRegex.test(id)) errors.nationalId = "Invalid format. Example: GHA-1234567890-1";
+    else if (!ghanaCardRegex.test(id)) errors.nationalId = "Invalid format. Example: GHA-123456789-1";
     else {
       const exists = await checkNationalIdExists(id);
       if (exists) errors.nationalId = "This National ID is already registered";
