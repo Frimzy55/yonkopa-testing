@@ -9,7 +9,6 @@ import CustomerCompleteKyc from './CustomerCompleteKyc';
 import CustomerApplyLoan from './CustomerApplyLoan';
 import CustomerLoanStatus from './CustomerLoanStatus';
 import CustomerRepayloan from './CustomerRepayloan';
-//import { io } from "socket.io-client";
 
 import {
   FaBell,
@@ -27,8 +26,7 @@ import {
 const CustomerDashboard = () => {
   const [user, setUser] = useState(null);
   const [activeMenu, setActiveMenu] = useState('kyc');
-  //const [notifications] = useState(1);
- const [notifications, setNotifications] = useState(0);
+  const [notifications, setNotifications] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -47,34 +45,31 @@ const CustomerDashboard = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
+  // Fetch notifications
+  useEffect(() => {
+    if (!user) return;
 
-useEffect(() => {
-  if (!user) return;
+    const fetchNotifications = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/notifications/${user.id}`
+        );
 
-  const fetchNotifications = async () => {
-    //const formattedId = String(user.id).padStart(5, "0");
-    try {
-      // const formattedId = String(user.id).padStart(5, "0");
-      const res 
-      = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/notifications/${user.id}`
-      );
+        const data = await res.json();
+        //setNotifications(data.length);
+        const unread = data.filter(n => n.isRead === 0);
+setNotifications(unread.length);
+      } catch (error) {
+        console.error("Notification error:", error);
+      }
+    };
 
-      const data = await res.json();
-      setNotifications(data.length);
+    fetchNotifications();
 
-    } catch (error) {
-      console.error("Notification error:", error);
-    }
-  };
+    const interval = setInterval(fetchNotifications, 1000);
+    return () => clearInterval(interval);
 
-  fetchNotifications();
-
-  const interval = setInterval(fetchNotifications, 1000);
-
-  return () => clearInterval(interval);
-
-}, [user]);
+  }, [user]);
 
   const menuItems = [
     {
@@ -141,7 +136,25 @@ useEffect(() => {
     setMobileMenuOpen(false);
   };
 
-  // Format name for display
+  // ✅ Handle notification click (RESET BADGE)
+  const handleNotificationClick = async () => {
+    try {
+      // Optional: mark as read in backend
+      await fetch(
+        `${process.env.REACT_APP_API_URL}/api/notifications/mark-read/${user.id}`,
+        { method: "PUT" }
+      );
+    } catch (error) {
+      console.error("Error marking notifications as read:", error);
+    }
+
+    // Reset UI count immediately
+    setNotifications(0);
+
+    setActiveMenu('profile');
+    setMobileMenuOpen(false);
+  };
+
   const displayName = user?.fullName || 'User';
   const firstName = displayName.split(' ')[0];
 
@@ -154,24 +167,22 @@ useEffect(() => {
           <button 
             className="mobile-menu-toggle"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
           >
             {mobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
+
           <h1 className="dashboard-title">
             <FaHome className="home-icon" />
-            <span className="user-name desktop-only">{displayName}</span>
-            <span className="user-name mobile-only">{displayName}</span>
+            <span className="user-name">{displayName}</span>
           </h1>
         </div>
 
         <div className="top-bar-right">
+
+          {/* 🔔 NOTIFICATION */}
           <div
             className="notification-bell"
-            onClick={() => {
-              setActiveMenu('profile');
-              setMobileMenuOpen(false);
-            }}
+            onClick={handleNotificationClick}
           >
             <FaBell size={20} />
             {notifications > 0 && (
@@ -181,81 +192,61 @@ useEffect(() => {
             )}
           </div>
 
-          <span className="welcome-text desktop-only">
+          <span className="welcome-text">
             Hi, {firstName}
           </span>
 
-          <button
-            className="logout-btn"
-            onClick={handleLogout}
-          >
-            <FaSignOutAlt className="logout-icon" />
-            <span className="logout-text">Logout</span>
+          <button className="logout-btn" onClick={handleLogout}>
+            <FaSignOutAlt />
+            Logout
           </button>
         </div>
       </header>
 
-      {/* DASHBOARD CONTENT */}
+      {/* CONTENT */}
       <div className="dashboard-content">
-        {/* Mobile Menu Overlay */}
-        {mobileMenuOpen && (
-          <div 
-            className="mobile-menu-overlay"
-            onClick={() => setMobileMenuOpen(false)}
-          />
-        )}
 
         {/* SIDEBAR */}
         <nav className={`sidebar-cards ${mobileMenuOpen ? 'mobile-open' : ''}`}>
-          <div className="sidebar-header">
-            <h3>Menu</h3>
-          </div>
 
           <div className="menu-cards-grid">
             {menuItems.map((item) => {
               const isDisabled = ['loanStatus', 'loanrepay', 'profile'].includes(item.id);
-              
+
               return (
                 <div
                   key={item.id}
                   className={`menu-card ${activeMenu === item.id ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
                   onClick={() => !isDisabled && handleMenuClick(item.id)}
-                  style={{
-                    borderLeftColor: item.color,
-                  }}
+                  style={{ borderLeftColor: item.color }}
                 >
-                  <div
-                    className="menu-card-icon"
-                    style={{ backgroundColor: item.color }}
-                  >
+                  <div className="menu-card-icon" style={{ backgroundColor: item.color }}>
                     {item.icon}
                   </div>
 
                   <div className="menu-card-content">
                     <h4>{item.label}</h4>
-                    <p className="menu-desktop-only">{item.description}</p>
+                    <p>{item.description}</p>
                   </div>
 
-                  <div className="menu-card-arrow">
-                    →
-                  </div>
+                  <div className="menu-card-arrow">→</div>
                 </div>
               );
             })}
           </div>
+
         </nav>
 
         {/* MAIN CONTENT */}
         <main className="main-content">
-          {user ? (
-            renderContent()
-          ) : (
+          {user ? renderContent() : (
             <div className="loading-container">
               <div className="loading-spinner"></div>
               <p>Loading your profile...</p>
             </div>
           )}
         </main>
+
       </div>
     </div>
   );
