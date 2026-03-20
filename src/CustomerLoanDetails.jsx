@@ -163,42 +163,73 @@ const LoanDetails = ({ formData, handleInputChange }) => {
       </div>
 
       {/* Loan Summary */}
-      <div className="card shadow-sm mt-4">
-        <div className="card-header bg-primary text-white">
-          <h5 className="mb-0">Loan Summary</h5>
-        </div>
+     {/* Loan Summary */}
+<div className="card border-0 shadow-lg mt-4 rounded-4 overflow-hidden">
+  {/* Header */}
+  <div
+    className="text-white p-3"
+    style={{
+      background: "linear-gradient(135deg, #0d6efd, #6610f2)",
+    }}
+  >
+    <h5 className="mb-0 fw-bold">📊 Loan Summary</h5>
+  </div>
 
-        <div className="card-body">
-          <div className="row text-center">
-            <div className="col-md-3 mb-3">
-              <h6>Interest</h6>
-              <h5>GHS {loanSummary.interest.toFixed(2)}</h5>
-            </div>
-
-            <div className="col-md-3 mb-3">
-              <h6>Total Amount</h6>
-              <h5>GHS {loanSummary.totalInterest.toFixed(2)}</h5>
-            </div>
-
-            <div className="col-md-3 mb-3">
-              <h6>Monthly Payment</h6>
-              <h5>GHS {loanSummary.monthlyPayment.toFixed(2)}</h5>
-            </div>
-
-            <div className="col-md-3 mb-3">
-              <h6>Number of Payments</h6>
-              <h5>{loanSummary.numberOfPayments}</h5>
-            </div>
-
-            <div className="col-md-12 mt-2">
-              <div className="alert alert-warning">
-                <strong>Loan Fees:</strong> GHS{" "}
-                {loanSummary.loanFees.toFixed(2)}
-              </div>
-            </div>
-          </div>
+  {/* Body */}
+  <div className="card-body bg-light">
+    <div className="row g-3 text-center">
+      {/* Interest */}
+      <div className="col-md-3">
+        <div className="p-3 bg-white rounded-3 shadow-sm h-100">
+          <div className="text-muted small">Interest</div>
+          <h5 className="fw-bold text-danger">
+            GHS {loanSummary.interest.toFixed(2)}
+          </h5>
         </div>
       </div>
+
+      {/* Total Amount */}
+      <div className="col-md-3">
+        <div className="p-3 bg-white rounded-3 shadow-sm h-100">
+          <div className="text-muted small">Total Amount</div>
+          <h5 className="fw-bold text-primary">
+            GHS {loanSummary.totalInterest.toFixed(2)}
+          </h5>
+        </div>
+      </div>
+
+      {/* Monthly Payment */}
+      <div className="col-md-3">
+        <div className="p-3 bg-white rounded-3 shadow-sm h-100">
+          <div className="text-muted small">Monthly Payment</div>
+          <h5 className="fw-bold text-success">
+            GHS {loanSummary.monthlyPayment.toFixed(2)}
+          </h5>
+        </div>
+      </div>
+
+      {/* Number of Payments */}
+      <div className="col-md-3">
+        <div className="p-3 bg-white rounded-3 shadow-sm h-100">
+          <div className="text-muted small">Payments</div>
+          <h5 className="fw-bold text-dark">
+            {loanSummary.numberOfPayments}
+          </h5>
+        </div>
+      </div>
+    </div>
+
+    {/* Loan Fees */}
+    <div className="mt-4">
+      <div className="alert alert-warning rounded-3 shadow-sm d-flex justify-content-between align-items-center">
+        <span className="fw-semibold">Loan Fees</span>
+        <span className="fw-bold">
+          GHS {loanSummary.loanFees.toFixed(2)}
+        </span>
+      </div>
+    </div>
+  </div>
+</div>
     </div>
   );
 };
