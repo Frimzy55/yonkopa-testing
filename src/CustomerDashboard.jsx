@@ -56,9 +56,9 @@ const CustomerDashboard = () => {
         );
 
         const data = await res.json();
-        //setNotifications(data.length);
-        const unread = data.filter(n => n.isRead === 0);
-setNotifications(unread.length);
+        setNotifications(data.length);
+       // const unread = data.filter(n => n.isRead === 0);
+//setNotifications(unread.length);
       } catch (error) {
         console.error("Notification error:", error);
       }
