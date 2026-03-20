@@ -508,3 +508,34 @@
 html {
   scroll-behavior: smooth;
 }
+
+
+
+/* Avatar container */
+.user-avatar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Actual image */
+.avatar-img {
+  width: 40px;          /* 🔥 control size here */
+  height: 40px;
+  border-radius: 50%;   /* make it circular */
+  object-fit: cover;    /* prevents stretching */
+  border: 2px solid #eee;
+}
+
+/* Placeholder (when no image) */
+.avatar-placeholder {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e67e22;
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}

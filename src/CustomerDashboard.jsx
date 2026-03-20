@@ -116,7 +116,9 @@ const CustomerDashboard = () => {
       case 'loan':
         return <CustomerApplyLoan user={user} />;
       case 'loanStatus':
-        return <CustomerLoanStatus user={user} />;
+       return <CustomerLoanStatus user={user} />;
+       //case 'loanStatus':
+        // return <CustomerLoanStatus loanId={localStorage.getItem("loanId")} />;
       case 'loanrepay':
         return <CustomerRepayloan user={user} />;
       case 'profile':
@@ -158,6 +160,36 @@ const CustomerDashboard = () => {
   const displayName = user?.fullName || 'User';
   const firstName = displayName.split(' ')[0];
 
+
+
+
+
+
+
+  const [avatar, setAvatar] = useState(null);
+
+useEffect(() => {
+  if (!user?.id) return;
+
+  const fetchAvatar = async () => {
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/customer-kyc/${user.id}`
+      );
+
+      const data = await res.json();
+
+      if (data?.avatar) {
+        setAvatar(data.avatar);
+      }
+    } catch (error) {
+      console.error("Error fetching avatar:", error);
+    }
+  };
+
+  fetchAvatar();
+}, [user]);
+
   return (
     <div className="dashboard-container">
 
@@ -177,30 +209,45 @@ const CustomerDashboard = () => {
           </h1>
         </div>
 
-        <div className="top-bar-right">
+       <div className="top-bar-right">
 
-          {/* 🔔 NOTIFICATION */}
-          <div
-            className="notification-bell"
-            onClick={handleNotificationClick}
-          >
-            <FaBell size={20} />
-            {notifications > 0 && (
-              <span className="notification-badge">
-                {notifications}
-              </span>
-            )}
-          </div>
+  {/* 🔔 NOTIFICATION */}
+  <div
+    className="notification-bell"
+    onClick={handleNotificationClick}
+  >
+    <FaBell size={20} />
+    {notifications > 0 && (
+      <span className="notification-badge">
+        {notifications}
+      </span>
+    )}
+  </div>
 
-          <span className="welcome-text">
-            Hi, {firstName}
-          </span>
+  {/* 👤 AVATAR */}
+  <div className="user-avatar">
+    {avatar ? (
+     <img
+     src={`${process.env.REACT_APP_API_URL}/uploads/${avatar}`}
+      alt="avatar"
+     className="avatar-img"
+     />
+    ) : (
+      <div className="avatar-placeholder">
+        {firstName?.charAt(0)}
+      </div>
+    )}
+  </div>
 
-          <button className="logout-btn" onClick={handleLogout}>
-            <FaSignOutAlt />
-            Logout
-          </button>
-        </div>
+  <span className="welcome-text">
+    Hi, {firstName}
+  </span>
+
+  <button className="logout-btn" onClick={handleLogout}>
+    <FaSignOutAlt />
+    Logout
+  </button>
+</div>
       </header>
 
       {/* CONTENT */}
@@ -211,7 +258,7 @@ const CustomerDashboard = () => {
 
           <div className="menu-cards-grid">
             {menuItems.map((item) => {
-              const isDisabled = ['loanStatus', 'loanrepay', 'profile'].includes(item.id);
+              const isDisabled = [ 'loanrepay', 'profile'].includes(item.id);
 
               return (
                 <div

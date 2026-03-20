@@ -18,7 +18,7 @@ const CustomerApplyLoan = ({ user }) => {
 
   const statusMessages = {
     verified: { type: "success", message: "✔ Your details have been VERIFIED." },
-    "not-found": { type: "danger", message: "✖ Invalid phone number or KYC code." },
+    "not-found": { type: "danger", message: "✖ Invalid  KYC code." },
     error: { type: "warning", message: "⚠ Server error. Please try again later." },
   };
 
