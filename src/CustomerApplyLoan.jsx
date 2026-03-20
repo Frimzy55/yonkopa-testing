@@ -109,7 +109,7 @@ const CustomerApplyLoan = ({ user }) => {
               </div>
                 {/* Message for user */}
   <small className="text-muted">
-    Please check your notifications to find your KYC verification code.
+    Please fill your Kyc Forms to get Your Kyc code
   </small>
 
               <button type="submit" className="btn btn-primary w-100">

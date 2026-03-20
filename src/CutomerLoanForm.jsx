@@ -1,19 +1,17 @@
-                                         
 // src/pages/CustomerDashboard/CutomerLoanForm.jsx
 
 import React, { useState, useEffect } from "react";
 import ApplicantDetails from "./CustomerApplicantDetails";
 import LoanDetails from "./CustomerLoanDetails";
 import GuarantorInfo from "./CustomerGuarantorInfo";
+import CustomerMomoDetails from "./CustomerMomoDetails";
 import "./LoanForm.css";
 
 const CutomerLoanForm = ({ user, handleReset }) => {
   const [currentStep, setCurrentStep] = useState(1);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
-    // =========================
-    // APPLICANT DETAILS
-    // =========================
     fullName: "",
     phone: "",
     email: "",
@@ -27,58 +25,46 @@ const CutomerLoanForm = ({ user, handleReset }) => {
     residentialGPS: "",
     employmentStatus: "",
 
-    // =========================
-    // LOAN DETAILS
-    // =========================
     loanAmount: "",
     loanPurpose: "",
     loanTerm: "",
     repaymentFrequency: "",
     ratePerAnnum: "",
 
-    // =========================
-    // LOAN SUMMARY
-    // =========================
     interest: "",
     totalInterest: "",
     numberOfPayments: "",
     monthlyPayment: "",
     loanFees: "",
 
-    // =========================
-    // GUARANTOR DETAILS
-    // =========================
     guarantorProfilePicture: null,
-
     guarantorName: "",
     guarantorPhone: "",
     guarantorAddress: "",
     guarantorResidenceLocation: "",
     guarantorIdNumber: "",
-
     guarantorEmployeeType: "",
 
-    // Salary Worker
     guarantorRank: "",
     guarantorWorkLocation: "",
     guarantorNameOfEmployer: "",
     guarantorYearsInService: "",
     guarantorPayslip: null,
 
-    // Self Employed
     guarantorBusinessName: "",
     guarantorBusinessLocation: "",
     guarantorYearsInBusiness: "",
     guarantorBusinessPicture: null,
 
-    // Documents
     guarantorGhanaCardFront: null,
     guarantorGhanaCardBack: null,
+
+    momoProvider: "",
+    momoNumber: "",
+    momoAccountName: "",
   });
 
-  // =========================
   // PREFILL USER DATA
-  // =========================
   useEffect(() => {
     if (!user) return;
 
@@ -113,18 +99,13 @@ const CutomerLoanForm = ({ user, handleReset }) => {
     }));
   }, [user]);
 
-  // =========================
-  // STEPS
-  // =========================
   const steps = [
-    { number: 1,title: "" },
+    { number: 1, title: "" },
     { number: 2, title: "Loan Details" },
     { number: 3, title: "Guarantor Info" },
+    { number: 4, title: "Momo Details" },
   ];
 
-  // =========================
-  // INPUT HANDLER
-  // =========================
   const handleInputChange = (e) => {
     const { name, value, files } = e.target;
 
@@ -134,10 +115,8 @@ const CutomerLoanForm = ({ user, handleReset }) => {
     }));
   };
 
-  // =========================
-  // STEP NAVIGATION
-  // =========================
-  const nextStep = () => {
+  const nextStep = (e) => {
+    if (e) e.preventDefault();
     setCurrentStep((prev) => Math.min(prev + 1, steps.length));
   };
 
@@ -145,11 +124,11 @@ const CutomerLoanForm = ({ user, handleReset }) => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
   };
 
-  // =========================
-  // FORM SUBMISSION
-  // =========================
+  // ✅ SUBMIT WITH ALERT
   const handleSubmit = async (e) => {
     e.preventDefault();
+
+    setIsSubmitting(true);
 
     try {
       const formPayload = new FormData();
@@ -171,26 +150,23 @@ const CutomerLoanForm = ({ user, handleReset }) => {
       const data = await res.json();
 
       if (data.success) {
-        alert("Loan application submitted successfully!");
+        alert("✅ Loan application submitted successfully!");
+
         if (handleReset) handleReset();
       } else {
-        alert("Failed to submit loan application.");
+        alert("❌ Failed to submit loan application.");
       }
     } catch (error) {
       console.error("Submission error:", error);
-      alert("Server error. Please try again.");
+      alert("❌ Server error. Please try again.");
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  // =========================
-  // PROGRESS BAR
-  // =========================
   const progressPercentage =
     ((currentStep - 1) / (steps.length - 1)) * 100;
 
-  // =========================
-  // RENDER STEP
-  // =========================
   const renderStep = () => {
     switch (currentStep) {
       case 1:
@@ -217,6 +193,14 @@ const CutomerLoanForm = ({ user, handleReset }) => {
           />
         );
 
+      case 4:
+        return (
+          <CustomerMomoDetails
+            formData={formData}
+            handleInputChange={handleInputChange}
+          />
+        );
+
       default:
         return null;
     }
@@ -226,9 +210,19 @@ const CutomerLoanForm = ({ user, handleReset }) => {
     <div className="content-section">
       <h2>Loan Application</h2>
 
-      {/* Progress Section */}
-      <div className="progress-section">
+      {/* LOADING */}
+      {isSubmitting && (
+        <div className="modal-overlay">
+          <div className="modal-box">
+            <div className="spinner"></div>
+            <h5>Submitting your loan application...</h5>
+            <p>Please wait...</p>
+          </div>
+        </div>
+      )}
 
+      {/* PROGRESS */}
+      <div className="progress-section">
         <div className="progress-bar-container">
           <div
             className="progress-bar-fill"
@@ -251,8 +245,7 @@ const CutomerLoanForm = ({ user, handleReset }) => {
         </div>
 
         <div className="progress-text">
-          Step {currentStep} of {steps.length} —{" "}
-          {steps[currentStep - 1]?.title}
+          Step {currentStep} of {steps.length}
           <span className="progress-percentage">
             {Math.round(progressPercentage)}%
           </span>
@@ -261,44 +254,32 @@ const CutomerLoanForm = ({ user, handleReset }) => {
 
       {/* FORM */}
       <form onSubmit={handleSubmit} className="loan-form">
-
         {renderStep()}
 
         <div className="form-navigation">
           {currentStep > 1 && (
-            <button
-              type="button"
-              onClick={prevStep}
-              className="btn-prev"
-            >
+            <button type="button" onClick={prevStep} className="btn-prev">
               Previous
             </button>
           )}
 
           {currentStep < steps.length ? (
-            <button
-              type="button"
-              onClick={nextStep}
-              className="btn-next"
-            >
+            <button type="button" onClick={nextStep} className="btn-next">
               Next
             </button>
           ) : (
             <button
               type="submit"
               className="btn-submit"
+              disabled={isSubmitting}
             >
               Submit Application
             </button>
           )}
         </div>
-
       </form>
     </div>
   );
 };
 
 export default CutomerLoanForm;
-
-
-

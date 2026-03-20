@@ -59,7 +59,7 @@ const KycReferenceInfo = ({ formData, handleInputChange, formErrors }) => {
       </div>
 
       {/* Reference 2 */}
-      <div className="card shadow-sm">
+      <div className="card shadow-sm mb-4">
         <div className="card-header bg-light fw-semibold">
           Reference 2
         </div>
@@ -104,6 +104,54 @@ const KycReferenceInfo = ({ formData, handleInputChange, formErrors }) => {
               onChange={handleInputChange}
               className="form-control"
               placeholder="e.g. Colleague, Sister"
+            />
+          </div>
+
+        </div>
+      </div>
+
+      {/* ✅ Reference 3 (Optional) */}
+      <div className="card shadow-sm">
+        <div className="card-header bg-light fw-semibold d-flex justify-content-between">
+          <span>Reference 3</span>
+          <small className="text-muted">(Optional)</small>
+        </div>
+
+        <div className="card-body row g-3">
+
+          <div className="col-md-6">
+            <label className="form-label">Full Name</label>
+            <input
+              type="text"
+              name="referenceName3"
+              value={formData.referenceName3 || ""}
+              onChange={handleInputChange}
+              className="form-control"
+              placeholder="Enter full name"
+            />
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label">Phone Number</label>
+            <input
+              type="text"
+              name="referencePhone3"
+              value={formData.referencePhone3 || ""}
+              onChange={handleInputChange}
+              className="form-control"
+              placeholder="e.g. 0551234567"
+            />
+          </div>
+
+          <div className="col-md-6">
+            <label className="form-label">Relationship</label>
+            <input
+              type="text"
+              name="referenceRelationship3"
+              value={formData.referenceRelationship3 || ""}
+              onChange={handleInputChange}
+              className="form-control"
+              placeholder="e.g. Friend"
             />
           </div>
 

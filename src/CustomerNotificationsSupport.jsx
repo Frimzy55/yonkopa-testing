@@ -72,8 +72,8 @@ const NotificationsSupport = ({ user }) => {
 
                         <div>
 
-                          <p className="mb-1">
-                            <strong>User ID:</strong> {note.userId}
+                          <p hidden className="mb-1">
+                            <strong>User ID:</strong> {note.userId} 
                           </p>
 
                           <p className="mb-1">

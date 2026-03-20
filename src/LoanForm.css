@@ -294,3 +294,79 @@
     margin-left: 0;
   }
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  text-align: center;
+  width: 300px;
+}
+
+.modal-box.success {
+  border-top: 5px solid green;
+}
+
+.modal-box.error {
+  border-top: 5px solid red;
+}
+
+.modal-box button {
+  margin-top: 15px;
+  padding: 8px 15px;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}

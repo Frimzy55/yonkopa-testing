@@ -1,5 +1,6 @@
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import ForgotPassword from "./ForgotPassword";
 
 import CustomerLanding from "./CustomerLanding";
 import LoginPage from "./StaffLoginPage";
@@ -23,6 +24,8 @@ function App() {
           <Route path="/" element={<CustomerLanding />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<DefaultSuper />} />
+
+          <Route path="/forgot-password" element={<ForgotPassword />} />
 
           {/* ================= PROTECTED ROUTES ================= */}
 

@@ -169,7 +169,7 @@ const CustomerCompleteKyc = ({ user }) => {
     if (!formData.lastName) errors.lastName = "Last name required";
     //if (!formData.dateOfBirth) errors.dateOfBirth = "Date of birth required";
     const today = new Date();
-const dob = new Date(formData.dateOfBirth);
+    const dob = new Date(formData.dateOfBirth);
 
 if (!formData.dateOfBirth) {
   errors.dateOfBirth = "Date of birth required";
@@ -247,6 +247,9 @@ if (!formData.dateOfBirth) {
     if (!formData.yearsInCurrentEmployment) errors.yearsInCurrentEmployment = "Years in employment required";
     if (!formData.workPlaceLocation) errors.workPlaceLocation = "Workplace location required";
     if (!formData.payslip) errors.payslip = "Recent payslip required";
+    if (!formData.ghanaCardFront) errors.ghanaCardFront = "Ghana card required";
+    if (!formData.ghanaCardBack) errors.ghanaCardBack = "Ghana card  required";
+    if (!formData.employmentId) errors.employmentId = "Employment Id required";
   } else if (formData.employmentStatus === "self-employed") {
     if (!formData.businessName) errors.businessName = "Business name required";
     if (!formData.businessType) errors.businessType = "Business type required";
