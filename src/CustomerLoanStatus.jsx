@@ -73,8 +73,12 @@ const CustomerLoanStatus = ({ user, onStatusChange, showDetails = true }) => {
 
         // ✅ HANDLE NO LOAN
         if (data.status === "No Loan") {
-          setCurrentStatus("No Loan");
-          setIsLoading(false);
+          setCurrentStatus(prev => {
+            if (onStatusChange && prev !== "No Loan") {
+              onStatusChange("No Loan");
+            }
+            return "No Loan";
+          });
           return;
         }
 
@@ -85,13 +89,16 @@ const CustomerLoanStatus = ({ user, onStatusChange, showDetails = true }) => {
           ? data.status
           : "Pending";
 
-        setCurrentStatus(newStatus);
+        // ✅ SAFE STATE UPDATE (NO ESLINT WARNING)
+        setCurrentStatus(prevStatus => {
+          if (onStatusChange && newStatus !== prevStatus) {
+            onStatusChange(newStatus);
+          }
+          return newStatus;
+        });
+
         setLoanDetails(data.details || null);
-        
-        if (onStatusChange && newStatus !== currentStatus) {
-          onStatusChange(newStatus);
-        }
-        
+
       } catch (error) {
         console.error("Error fetching loan status:", error);
         setError("Failed to load loan status. Please try again later.");
@@ -101,9 +108,9 @@ const CustomerLoanStatus = ({ user, onStatusChange, showDetails = true }) => {
     };
 
     fetchStatus();
-  }, []);
+  }, [user?.id, onStatusChange]); // ✅ CORRECT DEPENDENCIES
 
-  // ✅ SHOW LOADING
+  // ✅ LOADING UI
   if (isLoading) {
     return (
       <Card className="shadow-sm border-0">
@@ -115,7 +122,7 @@ const CustomerLoanStatus = ({ user, onStatusChange, showDetails = true }) => {
     );
   }
 
-  // ✅ SHOW ERROR
+  // ✅ ERROR UI
   if (error) {
     return (
       <Card className="shadow-sm border-0">
@@ -151,7 +158,7 @@ const CustomerLoanStatus = ({ user, onStatusChange, showDetails = true }) => {
   }
 
   const currentIndex = STEPS.findIndex(step => step.name === currentStatus);
-  const progressPercentage = ((currentIndex) / (STEPS.length - 1)) * 100;
+  const progressPercentage = (currentIndex / (STEPS.length - 1)) * 100;
   const currentStep = STEPS[currentIndex];
   const CurrentIcon = currentStep?.icon || ClockFill;
 
