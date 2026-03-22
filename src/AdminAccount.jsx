@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 const AdminAccount = () => {
   const [accounts, setAccounts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [ setSelectedAccount] = useState(null);
   const [showCreateModal, setShowCreateModal] = useState(false);
   const [formData, setFormData] = useState({
     accountNumber: '',

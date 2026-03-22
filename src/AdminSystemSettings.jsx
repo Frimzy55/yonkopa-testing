@@ -41,8 +41,8 @@ const AdminSystemSettings = () => {
     }
   });
 
-  const [editingBranch, setEditingBranch] = useState(null);
-  const [editingProduct, setEditingProduct] = useState(null);
+  //const [editingBranch, setEditingBranch] = useState(null);
+  //const [editingProduct, setEditingProduct] = useState(null);
   const [showBranchModal, setShowBranchModal] = useState(false);
   const [showProductModal, setShowProductModal] = useState(false);
 

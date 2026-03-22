@@ -4,7 +4,7 @@ import React, { useState, useEffect } from 'react';
 const AdminLoans = () => {
   const [activeTab, setActiveTab] = useState('applications');
   const [loans, setLoans] = useState([]);
-  const [selectedLoan, setSelectedLoan] = useState(null);
+  const [ setSelectedLoan] = useState(null);
   const [applicationForm, setApplicationForm] = useState({
     customerName: '',
     customerId: '',

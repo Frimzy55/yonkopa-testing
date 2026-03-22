@@ -1,5 +1,5 @@
 // CustomerMaintenance.jsx
-import React, { useState, useEffect } from 'react';
+import React, { useState, } from 'react';
 
 const CustomerMaintenance = () => {
   const [customers, setCustomers] = useState([
