@@ -15,7 +15,7 @@ const NotificationsSupport = ({ user }) => {
       try {
 
         const res = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/notifications/${user.id}`
+          `${process.env.REACT_APP_API_URL}/api/notifications/${user.userId}`
         );
 
         const data = await res.json();

@@ -5,6 +5,7 @@ const ApplicantDetails = ({ formData, handleInputChange }) => {
   return (
     <div className="form-step" style={{ display: "none" }}>
       <h3>Applicant Details</h3>
+       <input name="user id" value={formData.userId} readOnly />
       <input
         name="kycCode"
         value={formData.kycCode}
@@ -13,6 +14,7 @@ const ApplicantDetails = ({ formData, handleInputChange }) => {
       />
       <div className="form-grid">
         <input name="fullName" value={formData.fullName} readOnly />
+        
         <input name="phone" value={formData.phone} readOnly />
         <input name="email" value={formData.email} readOnly />
         <input type="date" name="dob" value={formData.dob} onChange={handleInputChange} required />

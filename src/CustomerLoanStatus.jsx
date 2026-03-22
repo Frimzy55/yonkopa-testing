@@ -1,45 +1,45 @@
 import React, { useEffect, useState } from "react";
-import { 
-  Card, 
-  Badge, 
-  Spinner, 
-  Alert, 
+import {
+  Card,
+  Badge,
+  Spinner,
+  Alert,
   ProgressBar,
   Button,
   Nav
 } from "react-bootstrap";
-import { 
-  CheckCircleFill, 
-  ClockFill, 
-  HourglassSplit, 
-  CheckLg, 
+import {
+  CheckCircleFill,
+  ClockFill,
+  HourglassSplit,
+  CheckLg,
   XCircleFill
 } from "react-bootstrap-icons";
 
 const STEPS = [
-  { 
-    name: "No Loan", 
+  {
+    name: "No Loan",
     icon: ClockFill,
     description: "You have not applied for any loan yet",
     color: "secondary",
     details: "Start by applying for a loan."
   },
-  { 
-    name: "Pending", 
-    icon: HourglassSplit, 
+  {
+    name: "Pending",
+    icon: HourglassSplit,
     description: "Application submitted and awaiting review",
     color: "warning",
     details: "Your application is being processed."
   },
-  { 
-    name: "Approved", 
-    icon: CheckLg, 
+  {
+    name: "Approved",
+    icon: CheckLg,
     description: "Loan approved",
     color: "success",
     details: "Your loan has been approved."
   },
-  { 
-    name: "Rejected", 
+  {
+    name: "Rejected",
     icon: XCircleFill,
     description: "Loan rejected",
     color: "danger",
@@ -47,90 +47,115 @@ const STEPS = [
   }
 ];
 
+// Extract user ID safely
+const extractUserId = (user) => {
+  if (!user) return null;
+
+  const idFields = ["id", "userId", "user_id", "ID", "uid", "_id"];
+
+  for (const field of idFields) {
+    if (user[field]) return user[field];
+  }
+
+  if (user.user?.id) return user.user.id;
+  if (user.user?.userId) return user.user.userId;
+  if (user.profile?.id) return user.profile.id;
+
+  return null;
+};
+
+// Normalize status (🔥 FIX HERE)
+const normalizeStatus = (status) => {
+  if (!status) return "No Loan";
+
+  const s = status.toLowerCase();
+
+  if (s === "pending") return "Pending";
+  if (s === "approved") return "Approved";
+  if (s === "rejected") return "Rejected";
+
+  return "No Loan";
+};
+
 const CustomerLoanStatus = ({ user, onStatusChange, showDetails = true }) => {
   const [currentStatus, setCurrentStatus] = useState("No Loan");
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [, setLoanDetails] = useState(null);
 
   useEffect(() => {
-    if (!user?.id) return;
+    if (!user) {
+      setError("User data is missing. Please log in again.");
+      setIsLoading(false);
+      return;
+    }
+
+    const userId = extractUserId(user);
+
+    if (!userId) {
+      setError("User ID not found.");
+      setIsLoading(false);
+      return;
+    }
 
     const fetchStatus = async () => {
       setIsLoading(true);
       setError(null);
-      
+
       try {
-        const res = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/loan-status/${user.id}`
+        const apiUrl =
+          process.env.REACT_APP_API_URL || "http://localhost:5001";
+
+        const response = await fetch(
+          `${apiUrl}/api/loan-status/${userId}`
         );
 
-        if (!res.ok) {
-          throw new Error(`HTTP error! status: ${res.status}`);
+        if (!response.ok) {
+          throw new Error(`HTTP error! ${response.status}`);
         }
 
-        const data = await res.json();
+        const data = await response.json();
 
-        // ✅ HANDLE NO LOAN
-        if (data.status === "No Loan") {
-          setCurrentStatus(prev => {
-            if (onStatusChange && prev !== "No Loan") {
-              onStatusChange("No Loan");
-            }
-            return "No Loan";
-          });
-          return;
-        }
+        console.log("API Response:", data);
 
-        // ✅ VALID STATUSES
-        const validStatuses = ["Pending", "Approved", "Rejected"];
+        const newStatus = normalizeStatus(data.status);
 
-        const newStatus = validStatuses.includes(data.status)
-          ? data.status
-          : "Pending";
-
-        // ✅ SAFE STATE UPDATE (NO ESLINT WARNING)
-        setCurrentStatus(prevStatus => {
-          if (onStatusChange && newStatus !== prevStatus) {
+        setCurrentStatus((prev) => {
+          if (onStatusChange && newStatus !== prev) {
             onStatusChange(newStatus);
           }
           return newStatus;
         });
-
-        setLoanDetails(data.details || null);
-
-      } catch (error) {
-        console.error("Error fetching loan status:", error);
-        setError("Failed to load loan status. Please try again later.");
+      } catch (err) {
+        console.error(err);
+        setError("Failed to load loan status");
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchStatus();
-  }, [user?.id, onStatusChange]); // ✅ CORRECT DEPENDENCIES
+  }, [user, onStatusChange]);
 
-  // ✅ LOADING UI
+  // Loading UI
   if (isLoading) {
     return (
       <Card className="shadow-sm border-0">
         <Card.Body className="text-center py-5">
-          <Spinner animation="border" variant="primary" />
+          <Spinner animation="border" />
           <p className="mt-3 text-muted">Loading loan status...</p>
         </Card.Body>
       </Card>
     );
   }
 
-  // ✅ ERROR UI
+  // Error UI
   if (error) {
     return (
       <Card className="shadow-sm border-0">
-        <Card.Body className="py-4">
+        <Card.Body>
           <Alert variant="danger">
-            <h5>Error Loading Status</h5>
             <p>{error}</p>
-            <Button onClick={() => window.location.reload()} size="sm">
+            <Button onClick={() => window.location.reload()}>
               Retry
             </Button>
           </Alert>
@@ -139,102 +164,101 @@ const CustomerLoanStatus = ({ user, onStatusChange, showDetails = true }) => {
     );
   }
 
-  // ✅ NO LOAN UI
+  // No Loan UI
   if (currentStatus === "No Loan") {
     return (
-      <Card className="shadow-sm border-0">
-        <Card.Body className="p-4 text-center">
-          <ClockFill size={40} className="mb-3 text-secondary" />
-          <h4>No Loan Application</h4>
-          <p className="text-muted">
-            You have not applied for a loan yet.
-          </p>
-          <Button variant="primary">
-            Apply for Loan
-          </Button>
-        </Card.Body>
+      <Card className="shadow-sm border-0 text-center p-4">
+        <ClockFill size={40} className="text-secondary mb-3" />
+        <h4>No Loan Application</h4>
+        <p className="text-muted">
+          You have not applied for a loan yet.
+        </p>
+        <Button href="/apply-loan">Apply for Loan</Button>
       </Card>
     );
   }
 
-  const currentIndex = STEPS.findIndex(step => step.name === currentStatus);
-  const progressPercentage = (currentIndex / (STEPS.length - 1)) * 100;
-  const currentStep = STEPS[currentIndex];
-  const CurrentIcon = currentStep?.icon || ClockFill;
+  // Active Loan UI
+  const currentIndex = STEPS.findIndex(
+    (step) => step.name === currentStatus
+  );
 
-  const getStatusVariant = () => {
-    switch(currentStatus) {
-      case "Pending": return "warning";
-      case "Approved": return "success";
-      case "Rejected": return "danger";
-      default: return "secondary";
-    }
+  const progress =
+    (currentIndex / (STEPS.length - 1)) * 100;
+
+  const currentStep = STEPS[currentIndex];
+  const CurrentIcon = currentStep.icon;
+
+  const getVariant = () => {
+    if (currentStatus === "Pending") return "warning";
+    if (currentStatus === "Approved") return "success";
+    if (currentStatus === "Rejected") return "danger";
+    return "secondary";
   };
 
   return (
     <Card className="shadow-sm border-0">
       <Card.Body className="p-4">
-
-        {/* HEADER */}
-        <div className="d-flex justify-content-between align-items-start mb-4">
-          <div>
-            <h2 className="h4 fw-bold">Loan Progress</h2>
-            <p className="text-muted mb-0">Track your loan journey</p>
-          </div>
-
-          <Badge bg={getStatusVariant()} className="px-3 py-2">
-            <CurrentIcon size={14} className="me-1" />
+        {/* Header */}
+        <div className="d-flex justify-content-between mb-3">
+          <h5>Loan Progress</h5>
+          <Badge bg={getVariant()}>
+            <CurrentIcon className="me-1" size={14} />
             {currentStatus}
           </Badge>
         </div>
 
-        {/* PROGRESS */}
-        <ProgressBar 
-          now={progressPercentage} 
-          variant={getStatusVariant()}
-          style={{ height: "8px", borderRadius: "5px" }}
-          className="mb-4"
-        />
+        {/* Progress */}
+        <ProgressBar now={progress} variant={getVariant()} className="mb-4" />
 
-        {/* STEPS */}
-        <Nav className="justify-content-between mb-4">
+        {/* Steps */}
+        <Nav className="justify-content-between">
           {STEPS.slice(1).map((step, index) => {
             const realIndex = index + 1;
             const isActive = realIndex === currentIndex;
-            const isCompleted = realIndex < currentIndex;
-            const StepIcon = step.icon;
+            const isDone = realIndex < currentIndex;
+            const Icon = step.icon;
 
             return (
-              <Nav.Item key={step.name} className="text-center" style={{ flex: 1 }}>
-                <div className={isCompleted ? 'text-success' : isActive ? 'text-warning' : 'text-secondary'}>
-                  <div 
-                    className={`
-                      rounded-circle d-flex align-items-center justify-content-center mx-auto mb-2
-                      ${isCompleted ? 'bg-success' : isActive ? 'bg-warning' : 'bg-light'}
-                    `}
-                    style={{ width: "40px", height: "40px" }}
+              <Nav.Item key={step.name} className="text-center flex-fill">
+                <div
+                  className={
+                    isDone
+                      ? "text-success"
+                      : isActive
+                      ? "text-warning"
+                      : "text-muted"
+                  }
+                >
+                  <div
+                    className={`rounded-circle mx-auto mb-2 d-flex align-items-center justify-content-center ${
+                      isDone
+                        ? "bg-success"
+                        : isActive
+                        ? "bg-warning"
+                        : "bg-light"
+                    }`}
+                    style={{ width: 40, height: 40 }}
                   >
-                    {isCompleted ? (
-                      <CheckCircleFill className="text-white" size={18} />
+                    {isDone ? (
+                      <CheckCircleFill className="text-white" />
                     ) : (
-                      <StepIcon size={18} />
+                      <Icon />
                     )}
                   </div>
-                  <div className="small fw-semibold">{step.name}</div>
+                  <small>{step.name}</small>
                 </div>
               </Nav.Item>
             );
           })}
         </Nav>
 
-        {/* DETAILS */}
-        {showDetails && currentStep && (
-          <Alert variant={getStatusVariant()}>
-            <h6 className="mb-1">Status: {currentStatus}</h6>
-            <p className="mb-0 small">{currentStep.details}</p>
+        {/* Details */}
+        {showDetails && (
+          <Alert variant={getVariant()} className="mt-3">
+            <strong>{currentStatus}</strong> — {currentStep.details}
           </Alert>
         )}
-
       </Card.Body>
     </Card>
   );

@@ -6,6 +6,7 @@ import ContactInfo from "./KycContactInfo";
 import EmploymentInfo from "./KycEmploymentInfos";
 import "./CustomerCompleteKyc.css";
 import ReferenceInfo from "./KycReferenceInfo";
+//import KycSummary from "./CustomerKycSummary";
 //mport { io } from "socket.io-client";
 
 const CustomerCompleteKyc = ({ user }) => {
@@ -14,11 +15,14 @@ const CustomerCompleteKyc = ({ user }) => {
   const [formErrors, setFormErrors] = useState({});
   const [checkingNationalId, setCheckingNationalId] = useState(false);
   const [submitMessage, setSubmitMessage] = useState(null);
+  //const [showSummary, setShowSummary] = useState(false);
 
   const [formData, setFormData] = useState({
      // userId: "", // ✅ ADD THIS
 
-  userId: user?.id || user?.userId || "", // ✅ ADD THIS
+  //userId: user?.id || user?.userId || "", // ✅ ADD THIS
+  userId:"",
+  
   kycCode:"",
     avatar: null,
     title: "",
@@ -84,8 +88,9 @@ const CustomerCompleteKyc = ({ user }) => {
        //userId: user.id, // ✅ VERY IMPORTANT
       // userId: user?.id || user?.userId || null, // ✅ safe fallback
         //userId: user?.id || user?.userId || "", // ✅ ADD THIS
-          userId: user?.id || user?.userId || "", // ✅ IMPORTANT
-           kycCode: user.kycCode || "",
+          //userId: user?.id || user?.userId || "", // ✅ IMPORTANT
+          kycCode: user.kycCode || "",
+         userId: user.userId || "",
       firstName: nameParts[0] || "",
       middleName: nameParts.length === 3 ? nameParts[1] : "",
       lastName: nameParts.length >= 2 ? nameParts[nameParts.length - 1] : "",
@@ -358,6 +363,8 @@ const validateStep4 = () => {
         text: "🎉 KYC Submitted Successfully!",
       });
 
+       //setShowSummary(true);
+
       // Optional: reset form or go to step 1
       // setCurrentStep(1);
 
@@ -421,8 +428,12 @@ const validateStep4 = () => {
     }
   };
 
+  
+
   return (
     <div className="content-section">
+
+      
       <h2>KYC forms</h2>
     
 

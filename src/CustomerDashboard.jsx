@@ -1,14 +1,14 @@
-// src/pages/CustomerDashboard/CustomerDashboard.jsx
-
 import React, { useEffect, useState } from 'react';
 import './CustomerDashboard.css';
 
 import DashboardHome from './CustomerDashboardHome';
 import NotificationsSupport from './CustomerNotificationsSupport';
 import CustomerCompleteKyc from './CustomerCompleteKyc';
+import CustomerKycDetails from './CustomerKycDetails'; // ✅ ADD THIS
 import CustomerApplyLoan from './CustomerApplyLoan';
 import CustomerLoanStatus from './CustomerLoanStatus';
 import CustomerRepayloan from './CustomerRepayloan';
+import AvatarDropdown from './AvatarDropdown';
 
 import {
   FaBell,
@@ -28,13 +28,14 @@ const CustomerDashboard = () => {
   const [activeMenu, setActiveMenu] = useState('kyc');
   const [notifications, setNotifications] = useState(0);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [avatar, setAvatar] = useState(null);
+  const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  // Close mobile menu when window resizes to desktop
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth > 768) {
@@ -45,84 +46,76 @@ const CustomerDashboard = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Fetch notifications
   useEffect(() => {
     if (!user) return;
 
     const fetchNotifications = async () => {
       try {
         const res = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/notifications/${user.id}`
+          `${process.env.REACT_APP_API_URL}/api/notifications/${user.userId}`
         );
-
         const data = await res.json();
         setNotifications(data.length);
-       // const unread = data.filter(n => n.isRead === 0);
-//setNotifications(unread.length);
       } catch (error) {
         console.error("Notification error:", error);
       }
     };
 
     fetchNotifications();
-
     const interval = setInterval(fetchNotifications, 1000);
-    return () => clearInterval(interval);
 
+    return () => clearInterval(interval);
+  }, [user]);
+
+  useEffect(() => {
+    if (!user?.userId) return;
+
+    const fetchAvatar = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/customer-kyc/${user.userId}`
+        );
+        const data = await res.json();
+
+        if (data?.avatar) {
+          setAvatar(data.avatar);
+        }
+      } catch (error) {
+        console.error("Error fetching avatar:", error);
+      }
+    };
+
+    fetchAvatar();
   }, [user]);
 
   const menuItems = [
-    {
-      id: 'kyc',
-      label: 'Complete KYC',
-      icon: <FaIdCard />,
-      description: 'Complete KYC And Profile',
-      color: '#e67e22'
-    },
-    {
-      id: 'loan',
-      label: 'Apply For Loan',
-      icon: <FaCheckCircle />,
-      description: 'Apply For Loan',
-      color: '#e67e22'
-    },
-    {
-      id: 'loanStatus',
-      label: 'Loan Status',
-      icon: <FaMoneyBillWave />,
-      description: 'View and manage loans',
-      color: '#e67e22'
-    },
-    {
-      id: 'loanrepay',
-      label: 'Repay Loan',
-      icon: <FaSyncAlt />,
-      description: 'Transaction history',
-      color: '#e67e22'
-    },
-    {
-      id: 'profile',
-      label: 'Notifications',
-      icon: <FaUserCog />,
-      description: 'Personal settings',
-      color: '#e67e22'
-    },
+    { id: 'kyc', label: 'Complete KYC', icon: <FaIdCard />, description: 'Complete KYC And Profile', color: '#e67e22' },
+    { id: 'loan', label: 'Apply For Loan', icon: <FaCheckCircle />, description: 'Apply For Loan', color: '#e67e22' },
+    { id: 'loanStatus', label: 'Loan Status', icon: <FaMoneyBillWave />, description: 'View and manage loans', color: '#e67e22' },
+    { id: 'loanrepay', label: 'Repay Loan', icon: <FaSyncAlt />, description: 'Transaction history', color: '#e67e22' },
+    { id: 'profile', label: 'Notifications', icon: <FaUserCog />, description: 'Personal settings', color: '#e67e22' },
   ];
 
   const renderContent = () => {
     switch (activeMenu) {
       case 'kyc':
         return <CustomerCompleteKyc user={user} />;
+
+      case 'viewKyc': // ✅ NEW VIEW PAGE
+        return <CustomerKycDetails user={user} />;
+
       case 'loan':
         return <CustomerApplyLoan user={user} />;
+
       case 'loanStatus':
-       return <CustomerLoanStatus user={user} />;
-       //case 'loanStatus':
-        // return <CustomerLoanStatus loanId={localStorage.getItem("loanId")} />;
+        return <CustomerLoanStatus user={user} />;
+
       case 'loanrepay':
         return <CustomerRepayloan user={user} />;
+
       case 'profile':
         return <NotificationsSupport user={user} />;
+
       default:
         return <DashboardHome user={user} />;
     }
@@ -138,57 +131,38 @@ const CustomerDashboard = () => {
     setMobileMenuOpen(false);
   };
 
-  // ✅ Handle notification click (RESET BADGE)
   const handleNotificationClick = async () => {
     try {
-      // Optional: mark as read in backend
       await fetch(
-        `${process.env.REACT_APP_API_URL}/api/notifications/mark-read/${user.id}`,
+        `${process.env.REACT_APP_API_URL}/api/notifications/mark-read/${user.userId}`,
         { method: "PUT" }
       );
     } catch (error) {
-      console.error("Error marking notifications as read:", error);
+      console.error("Error marking notifications:", error);
     }
 
-    // Reset UI count immediately
     setNotifications(0);
-
     setActiveMenu('profile');
     setMobileMenuOpen(false);
   };
 
-  const displayName = user?.fullName || 'User';
-  const firstName = displayName.split(' ')[0];
-
-
-
-
-
-
-
-  const [avatar, setAvatar] = useState(null);
-
-useEffect(() => {
-  if (!user?.id) return;
-
-  const fetchAvatar = async () => {
-    try {
-      const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/customer-kyc/${user.id}`
-      );
-
-      const data = await res.json();
-
-      if (data?.avatar) {
-        setAvatar(data.avatar);
-      }
-    } catch (error) {
-      console.error("Error fetching avatar:", error);
-    }
+  const handleAvatarClick = () => {
+    setShowDropdown(!showDropdown);
   };
 
-  fetchAvatar();
-}, [user]);
+  const handleChangePassword = () => {
+    alert("Navigate to Change Password Page");
+    setShowDropdown(false);
+  };
+
+  // ✅ FIXED
+  const handleViewKyc = () => {
+    setActiveMenu('viewKyc'); // <-- IMPORTANT CHANGE
+    setShowDropdown(false);
+  };
+
+  const displayName = user?.fullName || 'User';
+  const firstName = displayName.split(' ')[0];
 
   return (
     <div className="dashboard-container">
@@ -209,45 +183,49 @@ useEffect(() => {
           </h1>
         </div>
 
-       <div className="top-bar-right">
+        <div className="top-bar-right">
 
-  {/* 🔔 NOTIFICATION */}
-  <div
-    className="notification-bell"
-    onClick={handleNotificationClick}
-  >
-    <FaBell size={20} />
-    {notifications > 0 && (
-      <span className="notification-badge">
-        {notifications}
-      </span>
-    )}
-  </div>
+          {/* NOTIFICATION */}
+          <div className="notification-bell" onClick={handleNotificationClick}>
+            <FaBell size={20} />
+            {notifications > 0 && (
+              <span className="notification-badge">{notifications}</span>
+            )}
+          </div>
 
-  {/* 👤 AVATAR */}
-  <div className="user-avatar">
-    {avatar ? (
-     <img
-     src={`${process.env.REACT_APP_API_URL}/uploads/${avatar}`}
-      alt="avatar"
-     className="avatar-img"
-     />
-    ) : (
-      <div className="avatar-placeholder">
-        {firstName?.charAt(0)}
-      </div>
-    )}
-  </div>
+          {/* AVATAR */}
+          <div className="user-avatar" style={{ position: "relative" }}>
+            <div onClick={handleAvatarClick} style={{ cursor: "pointer" }}>
+              {avatar ? (
+                <img
+                  src={`${process.env.REACT_APP_API_URL}/uploads/${avatar}`}
+                  alt="avatar"
+                  className="avatar-img"
+                />
+              ) : (
+                <div className="avatar-placeholder">
+                  {firstName?.charAt(0)}
+                </div>
+              )}
+            </div>
 
-  <span className="welcome-text">
-    Hi, {firstName}
-  </span>
+            {showDropdown && (
+              <AvatarDropdown
+                userId={user.userId}
+                onClose={() => setShowDropdown(false)}
+                onChangePassword={handleChangePassword}
+                onViewKyc={handleViewKyc} // ✅ FIXED
+              />
+            )}
+          </div>
 
-  <button className="logout-btn" onClick={handleLogout}>
-    <FaSignOutAlt />
-    Logout
-  </button>
-</div>
+          <span className="welcome-text">Hi, {firstName}</span>
+
+          <button className="logout-btn" onClick={handleLogout}>
+            <FaSignOutAlt />
+            Logout
+          </button>
+        </div>
       </header>
 
       {/* CONTENT */}
@@ -255,10 +233,9 @@ useEffect(() => {
 
         {/* SIDEBAR */}
         <nav className={`sidebar-cards ${mobileMenuOpen ? 'mobile-open' : ''}`}>
-
           <div className="menu-cards-grid">
             {menuItems.map((item) => {
-              const isDisabled = [ 'loanrepay', 'profile'].includes(item.id);
+              const isDisabled = ['loanrepay', 'profile'].includes(item.id);
 
               return (
                 <div
@@ -281,7 +258,6 @@ useEffect(() => {
               );
             })}
           </div>
-
         </nav>
 
         {/* MAIN CONTENT */}

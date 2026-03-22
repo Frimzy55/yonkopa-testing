@@ -12,6 +12,7 @@ const CutomerLoanForm = ({ user, handleReset }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const [formData, setFormData] = useState({
+    userId:"",
     fullName: "",
     phone: "",
     email: "",
@@ -76,6 +77,7 @@ const CutomerLoanForm = ({ user, handleReset }) => {
         : "");
 
     const phone = user.phone || user.mobileNumber || "";
+    // const userId = user.userId || user.userId || "";
 
     let dob = "";
     if (user.dob || user.dateOfBirth) {
@@ -90,8 +92,10 @@ const CutomerLoanForm = ({ user, handleReset }) => {
       ...prev,
       fullName,
       phone,
+      
       dob,
       kycCode: user.kycCode || "",
+       userId: user.userId || "",
       email: user.email || "",
       nationalId: user.nationalId || "",
       employmentStatus: user.employmentStatus || "",

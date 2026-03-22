@@ -41,6 +41,7 @@ const PersonalInfo = ({
     <div className="form-step">
       <p className="welcome-text">
         Welcome, {user?.fullName || "User"}!
+        
       </p>
 
       <h3 className="form-title">Personal Information</h3>
@@ -104,6 +105,13 @@ const PersonalInfo = ({
           )}
         </div>
 
+        <div hidden>
+          <label>Id *</label>
+          <div  className="form-control bg-light">
+            {formData?.userId || "-"}
+          </div>
+        </div>
+
         {/* First Name */}
         <div>
           <label>First Name *</label>
@@ -111,6 +119,7 @@ const PersonalInfo = ({
             {formData?.firstName || "-"}
           </div>
         </div>
+
 
         {/* Middle Name */}
         <div>

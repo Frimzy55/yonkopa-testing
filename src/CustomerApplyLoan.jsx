@@ -3,7 +3,7 @@ import LoanForm from "./CutomerLoanForm";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const CustomerApplyLoan = ({ user }) => {
-  const [formData, setFormData] = useState({ phone: "", kycCode: "" });
+  const [formData, setFormData] = useState({ userId: "", kycCode: "" });
   const [status, setStatus] = useState("");
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState("verify");
@@ -11,8 +11,8 @@ const CustomerApplyLoan = ({ user }) => {
 
   // Autofill phone number on component mount
   useEffect(() => {
-    if (user?.phone) {
-      setFormData((prev) => ({ ...prev, phone: user.phone }));
+    if (user?.userId) {
+      setFormData((prev) => ({ ...prev, userId: user.userId }));
     }
   }, [user]);
 
@@ -57,7 +57,7 @@ const CustomerApplyLoan = ({ user }) => {
 
   const handleProceed = () => setStep("loan-form");
   const handleReset = () => {
-    setFormData({ phone: user?.phone || "", kycCode: "" }); // Reset keeps autofill
+    setFormData({ userId: user?.userId || "", kycCode: "" }); // Reset keeps autofill
     setStatus("");
     setStep("verify");
     setVerifiedCustomer(null);
@@ -71,7 +71,7 @@ const CustomerApplyLoan = ({ user }) => {
         <div className="card-body">
           <h2 className="card-title text-center mb-3">Apply for Loan</h2>
           <p className="text-center text-muted mb-4">
-            Enter your phone number and KYC code to proceed.
+            Enter your KYC code to proceed.
           </p>
 
           {/* Verification Form */}
@@ -82,7 +82,7 @@ const CustomerApplyLoan = ({ user }) => {
                 <input
                   name="phone"
                   type="tel"
-                  value={formData.phone}
+                  value={formData.userId}
                   onChange={handleInputChange}
                   required
                   disabled={loading} // Optional: keep disabled if you don't want edits
