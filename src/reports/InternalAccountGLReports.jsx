@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, Row, Col, Table, Badge, Button, Form, Spinner } from 'react-bootstrap';
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
 const InternalAccountGLReports = () => {
   const [loading, setLoading] = useState(false);
@@ -34,10 +34,6 @@ const InternalAccountGLReports = () => {
     { month: 'May', debits: 149000, credits: 121000 },
     { month: 'Jun', debits: 163000, credits: 135000 },
   ];
-
-  useEffect(() => {
-    fetchGLData();
-  }, []);
 
   const fetchGLData = () => {
     setLoading(true);

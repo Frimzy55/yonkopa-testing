@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, Row, Col, Table, Badge, Button, Form, Spinner } from 'react-bootstrap';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -23,9 +23,7 @@ const TellerReports = () => {
     { date: '2024-03-05', deposits: 31000, withdrawals: 17500 },
   ];
 
-  useEffect(() => {
-    fetchTellerData();
-  }, []);
+ 
 
   const fetchTellerData = () => {
     setLoading(true);

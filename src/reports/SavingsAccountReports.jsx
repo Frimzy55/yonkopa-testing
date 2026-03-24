@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, Row, Col, Table, Badge, Button, Form, Spinner,  } from 'react-bootstrap';
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
 
@@ -28,9 +28,7 @@ const SavingsAccountReports = () => {
     { range: '100k+', count: 15, color: '#dc3545' },
   ];
 
-  useEffect(() => {
-    fetchAccounts();
-  }, []);
+ 
 
   const fetchAccounts = () => {
     setLoading(true);

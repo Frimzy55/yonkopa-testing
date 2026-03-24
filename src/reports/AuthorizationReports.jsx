@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState} from 'react';
 import { Card, Row, Col, Table, Badge, Button, Form, Spinner } from 'react-bootstrap';
 
 const AuthorizationReports = () => {
@@ -14,10 +14,7 @@ const AuthorizationReports = () => {
     { id: 'AUTH004', requestor: 'Sarah Teller', type: 'Account Closure', amount: 0, requestedAt: '2024-03-03 11:45', authorizedBy: 'Supervisor', status: 'Rejected', authorizedAt: '2024-03-03 12:15' },
   ];
 
-  useEffect(() => {
-    fetchAuthorizations();
-  }, []);
-
+ 
   const fetchAuthorizations = () => {
     setLoading(true);
     setTimeout(() => {

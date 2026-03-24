@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, Row, Col, Table, Badge, Button, Form, Spinner } from 'react-bootstrap';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -22,10 +22,7 @@ const CollectionReports = () => {
     { month: 'May', expected: 190000, collected: 171000, overdue: 19000 },
   ];
 
-  useEffect(() => {
-    fetchCollections();
-  }, []);
-
+  
   const fetchCollections = () => {
     setLoading(true);
     setTimeout(() => {
