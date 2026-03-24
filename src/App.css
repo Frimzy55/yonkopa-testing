@@ -1,0 +1,208 @@
+/* ================== GLOBAL RESET ================== */
+html, body {
+  margin: 0;
+  padding: 0;
+  min-height: 100%;
+  overflow-y: auto;   /* ✅ ONLY ONE SCROLLBAR */
+  overflow-x: hidden;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ================== LAYOUT ================== */
+.d-flex.vh-100 {
+  height: auto !important;  /* allow full page scroll */
+  min-height: 100vh;
+}
+
+/* Sidebar + Content wrapper */
+.flex-grow-1 {
+  overflow: visible !important;
+}
+
+/* ================== SIDEBAR ================== */
+.sidebar,
+.bg-dark {
+  height: auto;
+  min-height: 100vh;
+  overflow: visible !important;
+  background-color: #1e293b !important;
+}
+
+/* Sidebar menu container */
+.sidebar-menu-container {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* ================== MENU ITEMS ================== */
+.menu-item,
+.submenu-item,
+.report-item,
+.nested-item {
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2px;
+  width: 100%;
+  text-align: left;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  border: none;
+}
+
+/* REMOVE DEFAULT BLUE HOVER */
+.menu-item:hover,
+.submenu-item:hover,
+.report-item:hover,
+.nested-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ACTIVE STATE */
+.menu-item.active,
+.submenu-item.active,
+.report-item.active,
+.nested-item.active {
+  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+  color: #fff;
+}
+
+/* Active indicator line */
+.menu-item.active::before,
+.submenu-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 50%;
+  width: 3px;
+  background: white;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ================== ICONS ================== */
+.menu-icon {
+  font-size: 0.95rem;
+  min-width: 24px;
+}
+
+.submenu-icon {
+  font-size: 0.85rem;
+  min-width: 22px;
+}
+
+.report-icon,
+.nested-icon {
+  font-size: 0.8rem;
+  min-width: 20px;
+}
+
+/* ================== TEXT ================== */
+.menu-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.submenu-text {
+  font-size: 0.82rem;
+}
+
+.report-text,
+.nested-text {
+  font-size: 0.78rem;
+}
+
+/* ================== SUBMENUS ================== */
+.submenu-container,
+.report-container,
+.nested-container {
+  margin-left: 8px;
+  padding-left: 6px;
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ================== SIDEBAR HEADER ================== */
+.sidebar-header {
+  padding: 0.75rem;
+}
+
+.sidebar-title {
+  font-size: 1rem;
+}
+
+/* ================== NAVBAR ================== */
+.top-navbar {
+  padding: 0.5rem 1rem;
+  background-color: #fff;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+/* ================== CONTENT AREA ================== */
+.dashboard-content-area {
+  overflow: visible !important; /* ❗ NO INNER SCROLL */
+  height: auto !important;
+  padding: 1rem;
+  background-color: #f8fafc;
+}
+
+/* ================== CARDS ================== */
+.card {
+  border-radius: 12px;
+}
+
+.welcome-card {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ================== BUTTONS ================== */
+button {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* ================== SCROLLBAR (ONLY PAGE) ================== */
+body::-webkit-scrollbar {
+  width: 8px;
+}
+
+body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+body::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ================== UTILS ================== */
+.text-secondary {
+  color: #64748b !important;
+}
+
+/* ================== RESPONSIVE ================== */
+@media (max-width: 768px) {
+  .menu-text {
+    font-size: 0.8rem;
+  }
+
+  .dashboard-content-area {
+    padding: 0.75rem;
+  }
+}

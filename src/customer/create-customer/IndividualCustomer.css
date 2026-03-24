@@ -1,0 +1,367 @@
+/* IndividualCustomer.css - With Independent Scroll for Form Content Only */
+
+.individual-customer-container {
+  background: #ffffff;
+  border-radius: 8px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* Header Styles - Fixed */
+.individual-customer-container .customer-panel-header {
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e7eb;
+  background: #f9fafb;
+  flex-shrink: 0;
+}
+
+.individual-customer-container .customer-panel-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #111827;
+}
+
+.individual-customer-container .customer-panel-header p {
+  margin: 4px 0 0;
+  font-size: 0.875rem;
+  color: #6b7280;
+}
+
+/* Body - Takes remaining space */
+.individual-customer-container .customer-panel-body {
+  padding: 24px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  min-height: 0;
+}
+
+/* Top Bar - Fixed */
+.individual-customer-container .form-topbar {
+  margin-bottom: 24px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.individual-customer-container .form-topbar label {
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.875rem;
+}
+
+.individual-customer-container .form-topbar select {
+  padding: 8px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  background: white;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.individual-customer-container .form-topbar select:hover {
+  border-color: #9ca3af;
+}
+
+.individual-customer-container .form-topbar select:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Step Bar - Fixed */
+.individual-customer-container .step-bar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid #e5e7eb;
+  overflow-x: auto;
+  flex-shrink: 0;
+  scrollbar-width: thin;
+}
+
+.individual-customer-container .step-bar::-webkit-scrollbar {
+  height: 4px;
+}
+
+.individual-customer-container .step-bar::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 2px;
+}
+
+.individual-customer-container .step-bar::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 2px;
+}
+
+.individual-customer-container .step-bar button {
+  padding: 8px 16px;
+  background: #f3f4f6;
+  border: none;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+}
+
+.individual-customer-container .step-bar button:hover {
+  background: #e5e7eb;
+  color: #374151;
+  transform: translateY(-1px);
+}
+
+.individual-customer-container .step-bar button.active {
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 2px 4px rgba(59, 130, 246, 0.2);
+}
+
+/* Form Content - ONLY THIS SCROLLS */
+.individual-customer-container .form-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding-right: 8px;
+  margin-bottom: 20px;
+  min-height: 0;
+  scroll-behavior: smooth;
+}
+
+/* Custom Scrollbar for Form Content Only */
+.individual-customer-container .form-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+.individual-customer-container .form-content::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 4px;
+}
+
+.individual-customer-container .form-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+
+.individual-customer-container .form-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Firefox scrollbar */
+.individual-customer-container .form-content {
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f1f1;
+}
+
+/* Form Sections */
+.individual-customer-container .form-section {
+  animation: fadeIn 0.3s ease-in-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.individual-customer-container .form-section h3 {
+  margin: 0 0 20px 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #111827;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #3b82f6;
+  display: inline-block;
+}
+
+/* Grid Layout for Form Fields */
+.individual-customer-container .form-section {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 16px;
+}
+
+.individual-customer-container .form-section h3 {
+  grid-column: 1 / -1;
+}
+
+.individual-customer-container .form-section input,
+.individual-customer-container .form-section select,
+.individual-customer-container .form-section textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.individual-customer-container .form-section input:focus,
+.individual-customer-container .form-section select:focus,
+.individual-customer-container .form-section textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.individual-customer-container .form-section input:hover,
+.individual-customer-container .form-section select:hover,
+.individual-customer-container .form-section textarea:hover {
+  border-color: #9ca3af;
+}
+
+.individual-customer-container .form-section textarea {
+  resize: vertical;
+  min-height: 80px;
+  grid-column: 1 / -1;
+}
+
+/* Upload Fields */
+.individual-customer-container .upload-field {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.individual-customer-container .upload-field label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: #374151;
+}
+
+.individual-customer-container .form-section input[type="file"] {
+  padding: 8px;
+  border: 1px dashed #d1d5db;
+  background: #f9fafb;
+  cursor: pointer;
+}
+
+.individual-customer-container .form-section input[type="file"]:hover {
+  background: #f3f4f6;
+  border-color: #9ca3af;
+}
+
+/* Form Actions - Fixed at Bottom */
+.individual-customer-container .form-actions {
+  display: flex;
+  gap: 12px;
+  justify-content: flex-end;
+  padding-top: 20px;
+  border-top: 1px solid #e5e7eb;
+  flex-shrink: 0;
+  background: white;
+  margin-top: auto;
+}
+
+.individual-customer-container .form-actions button {
+  padding: 10px 24px;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.individual-customer-container .form-actions button:first-child {
+  background: #f3f4f6;
+  color: #374151;
+}
+
+.individual-customer-container .form-actions button:first-child:hover:not(.disabled) {
+  background: #e5e7eb;
+  transform: translateY(-1px);
+}
+
+.individual-customer-container .form-actions button:first-child.disabled,
+.individual-customer-container .form-actions button:first-child:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.individual-customer-container .form-actions button:nth-child(2) {
+  background: #3b82f6;
+  color: white;
+}
+
+.individual-customer-container .form-actions button:nth-child(2):hover {
+  background: #2563eb;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.individual-customer-container .form-actions button.create-btn {
+  background: #10b981;
+}
+
+.individual-customer-container .form-actions button.create-btn:hover {
+  background: #059669;
+}
+
+.individual-customer-container .form-actions button:active {
+  transform: translateY(0);
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .individual-customer-container .customer-panel-header {
+    padding: 16px;
+  }
+  
+  .individual-customer-container .customer-panel-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .individual-customer-container .customer-panel-body {
+    padding: 16px;
+  }
+  
+  .individual-customer-container .step-bar {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .individual-customer-container .step-bar button {
+    padding: 6px 12px;
+    font-size: 0.7rem;
+  }
+  
+  .individual-customer-container .form-actions {
+    flex-direction: column;
+  }
+  
+  .individual-customer-container .form-actions button {
+    width: 100%;
+  }
+  
+  .individual-customer-container .form-section {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Optional: Add loading state styles */
+.individual-customer-container.loading {
+  opacity: 0.6;
+  pointer-events: none;
+}

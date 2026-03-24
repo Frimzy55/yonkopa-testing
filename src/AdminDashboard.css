@@ -1,440 +1,309 @@
-/* ============================================
-   ADMIN DASHBOARD LAYOUT
-   ============================================ */
-
-* {
+/* ================== GLOBAL RESET ================== */
+html, body {
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
+  height: 100vh;
+  overflow: hidden; /* ✅ PREVENT BODY SCROLLING */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
 
-.admin-layout {
+/* ================== LAYOUT ================== */
+.d-flex.vh-100 {
+  height: 100vh !important;
+  margin-top: 60px; /* Offset for fixed navbar */
+  overflow: hidden;
+}
+
+/* Sidebar + Content wrapper */
+.flex-grow-1 {
+  overflow: hidden !important;
+  width: 100%;
   display: flex;
   flex-direction: column;
-  height: 100vh;
-  width: 100%;
-  overflow: hidden;
 }
 
-/* ============================================
-   TOP BAR STYLES
-   ============================================ */
-
-.top-bar {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 0 20px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  height: 64px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 1000;
-  flex-shrink: 0;
-  position: relative;
-}
-
-.top-bar-left {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-}
-
-.top-bar-title {
-  margin: 0;
-  font-size: 1.5rem;
-  font-weight: 500;
-}
-
-/* Sidebar Toggle Button */
-.sidebar-toggle {
-  background: transparent;
-  border: none;
-  color: white;
-  font-size: 24px;
-  cursor: pointer;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 4px;
-  transition: background-color 0.3s;
-}
-
-.sidebar-toggle:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-/* Top Bar Right Section */
-.top-bar-right {
-  position: relative;
-  display: flex;
-  align-items: center;
-  gap: 20px;
-}
-
-/* ============================================
-   NOTIFICATION STYLES
-   ============================================ */
-
-.notification-icon {
-  position: relative;
-  cursor: pointer;
-  color: white;
-  padding: 8px;
-  border-radius: 50%;
-  transition: background-color 0.3s;
-}
-
-.notification-icon:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.notification-badge {
-  position: absolute;
-  top: -6px;
-  right: -8px;
-  background: red;
-  color: white;
-  font-size: 11px;
-  width: 18px;
-  height: 18px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-/* ============================================
-   AVATAR & DROPDOWN STYLES
-   ============================================ */
-
-.avatar-wrapper {
-  cursor: pointer;
-  padding: 4px;
-  border-radius: 50%;
-  transition: background-color 0.3s;
-}
-
-.avatar-wrapper:hover {
-  background-color: rgba(255, 255, 255, 0.1);
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background: linear-gradient(135deg, #ff6b6b 0%, #ff8e8e 100%);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 20px;
-  font-weight: 600;
-  color: white;
-  text-transform: uppercase;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-}
-
-.avatar-dropdown {
-  position: absolute;
-  top: 50px;
+/* ================== FULL-WIDTH NAVBAR ================== */
+.full-width-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
   right: 0;
-  background: white;
-  border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-  min-width: 200px;
-  z-index: 1000;
-  overflow: hidden;
-}
-
-.avatar-dropdown button {
   width: 100%;
-  padding: 12px 16px;
-  border: none;
-  background: none;
-  text-align: left;
-  font-size: 14px;
-  color: #333;
-  cursor: pointer;
-  transition: background-color 0.3s;
+  height: 60px;
+  z-index: 1030;
+  background-color: #656af8 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-.avatar-dropdown button:hover {
-  background-color: #f5f5f5;
-}
-
-.avatar-dropdown button:not(:last-child) {
-  border-bottom: 1px solid #e0e0e0;
-}
-
-/* ============================================
-   MAIN CONTAINER - CRITICAL FIX
-   ============================================ */
-
-.main-container {
-  display: flex;
-  flex: 1;
-  overflow: hidden;
-  background-color: #f8f9fa;
+.full-width-navbar .container-fluid {
   width: 100%;
-  position: relative;
+  padding-left: 1rem;
+  padding-right: 1rem;
 }
 
-/* ============================================
-   SIDEBAR STYLES - FIXED POSITIONING
-   ============================================ */
-
-.sidebar {
-  background: linear-gradient(135deg, #e6f3ff 0%, #b8e0ff 100%);
-  color: #333;
-  transition: width 0.3s ease;
-  overflow-y: auto;
+/* ================== SIDEBAR ================== */
+.sidebar,
+.bg-dark {
+  height: calc(100vh - 60px);
+  overflow-y: auto !important; /* Sidebar scrolls if needed */
   overflow-x: hidden;
-  height: 100%;
-  box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-  flex-shrink: 0;
+  background-color: #1e293b !important;
+  scrollbar-width: thin;
+}
+
+/* Sidebar custom scrollbar */
+.sidebar::-webkit-scrollbar,
+.bg-dark::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.bg-dark::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.bg-dark::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.bg-dark::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Sidebar menu container */
+.sidebar-menu-container {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* ================== MENU ITEMS ================== */
+.menu-item,
+.submenu-item,
+.report-item,
+.nested-item {
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2px;
+  width: 100%;
+  text-align: left;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  border: none;
   position: relative;
 }
 
-.sidebar.open {
-  width: 260px;
+/* REMOVE DEFAULT BLUE HOVER */
+.menu-item:hover,
+.submenu-item:hover,
+.report-item:hover,
+.nested-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
 }
 
-.sidebar.closed {
-  width: 80px;
+/* ACTIVE STATE */
+.menu-item.active,
+.submenu-item.active,
+.report-item.active,
+.nested-item.active {
+  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+  color: #fff;
 }
 
-/* Sidebar Navigation */
-.sidebar-nav {
-  padding: 20px 0;
-  width: 100%;
+/* Active indicator line */
+.menu-item.active::before,
+.submenu-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 50%;
+  width: 3px;
+  background: white;
+  border-radius: 0 2px 2px 0;
 }
 
-.sidebar-nav ul {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  width: 100%;
-}
-
-.sidebar-nav li {
-  margin: 4px 0;
-  width: 100%;
-}
-
-/* Sidebar Items */
-.sidebar-item {
-  width: 100%;
-  padding: 12px 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: transparent;
-  border: none;
-  color: #333;
-  font-size: 15px;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-align: left;
-  border-left: 3px solid transparent;
-  white-space: nowrap;
-}
-
-.sidebar-item:hover {
-  background-color: rgba(102, 126, 234, 0.1);
-  border-left-color: #667eea;
-}
-
-.sidebar-item.active {
-  background: linear-gradient(
-    135deg,
-    rgba(102, 126, 234, 0.2) 0%,
-    rgba(255, 255, 255, 0.4) 100%
-  );
-  border-left-color: #667eea;
-  font-weight: 600;
-}
-
-.sidebar-icon {
-  font-size: 20px;
+/* ================== ICONS ================== */
+.menu-icon {
+  font-size: 0.95rem;
   min-width: 24px;
-  text-align: center;
-  flex-shrink: 0;
 }
 
-.sidebar-label {
+.submenu-icon {
+  font-size: 0.85rem;
+  min-width: 22px;
+}
+
+.report-icon,
+.nested-icon {
+  font-size: 0.8rem;
+  min-width: 20px;
+}
+
+/* ================== TEXT ================== */
+.menu-text {
+  font-size: 0.85rem;
+  font-weight: 500;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
-/* Submenu Styles */
-.submenu {
-  list-style: none;
-  padding-left: 44px !important;
-  margin: 4px 0;
-  background: rgba(255, 255, 255, 0.3);
-  border-radius: 0 8px 8px 0;
+.submenu-text {
+  font-size: 0.82rem;
+}
+
+.report-text,
+.nested-text {
+  font-size: 0.78rem;
+}
+
+/* ================== SUBMENUS ================== */
+.submenu-container,
+.report-container,
+.nested-container {
+  margin-left: 8px;
+  padding-left: 6px;
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ================== SIDEBAR HEADER ================== */
+.sidebar-header {
+  padding: 0.75rem;
+}
+
+.sidebar-title {
+  font-size: 1rem;
+}
+
+/* ================== CONTENT AREA ================== */
+.dashboard-content-area {
+  overflow-y: auto !important; /* ✅ ONLY CONTENT AREA SCROLLS */
+  overflow-x: hidden;
+  height: calc(100vh - 60px);
+  background-color: #f8fafc;
   width: 100%;
+  padding: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
 }
 
-.sidebar-subitem {
-  width: 100%;
-  padding: 10px 16px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  background: transparent;
-  border: none;
-  color: #333;
-  font-size: 14px;
-  cursor: pointer;
-  transition: all 0.3s;
-  text-align: left;
-  border-left: 3px solid transparent;
-  white-space: nowrap;
-}
-
-.sidebar-subitem:hover {
-  background-color: rgba(102, 126, 234, 0.1);
-  border-left-color: #667eea;
-}
-
-.sidebar-subitem.active {
-  background: rgba(102, 126, 234, 0.15);
-  border-left-color: #667eea;
-  font-weight: 500;
-}
-
-/* ============================================
-   MAIN CONTENT AREA - FIXED
-   ============================================ */
-
-.main-content {
-  flex: 1;
-  overflow-y: auto;
-  overflow-x: auto;
-  background-color: #f8f9fa;
-  position: relative;
-  width: 100%;
-}
-
-.content-wrapper {
-  padding: 24px;
-  min-height: 100%;
-  width: 100%;
-  max-width: 100%;
-}
-
-/* Ensure content takes full width */
-.content-wrapper > * {
-  width: 100%;
-  max-width: 100%;
-}
-
-/* ============================================
-   CUSTOM SCROLLBAR STYLES
-   ============================================ */
-
-/* Sidebar Scrollbar */
-.sidebar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.sidebar::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.5);
-}
-
-.sidebar::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 3px;
-}
-
-/* Main Content Scrollbar */
-.main-content::-webkit-scrollbar {
+/* ✅ CONTENT AREA SCROLLBAR STYLES */
+.dashboard-content-area::-webkit-scrollbar {
   width: 8px;
   height: 8px;
 }
 
-.main-content::-webkit-scrollbar-track {
+.dashboard-content-area::-webkit-scrollbar-track {
   background: #f1f1f1;
+  border-radius: 10px;
 }
 
-.main-content::-webkit-scrollbar-thumb {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  border-radius: 4px;
+.dashboard-content-area::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
 }
 
-.main-content::-webkit-scrollbar-thumb:hover {
-  background: linear-gradient(135deg, #5a67d8 0%, #6b46a0 100%);
+.dashboard-content-area::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }
 
-/* ============================================
-   RESPONSIVE DESIGN
-   ============================================ */
+/* ================== CARDS ================== */
+.card {
+  border-radius: 12px;
+}
 
+.welcome-card {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ================== BUTTONS ================== */
+button {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* ================== UTILS ================== */
+.text-secondary {
+  color: #64748b !important;
+}
+
+/* ================== RESPONSIVE ================== */
 @media (max-width: 768px) {
-  .sidebar.open {
-    width: 220px;
+  .menu-text {
+    font-size: 0.8rem;
   }
 
-  .content-wrapper {
-    padding: 16px;
-  }
-
-  .top-bar-title {
-    font-size: 1.2rem;
-  }
-
-  .top-bar-left {
-    gap: 12px;
-  }
-
-  .avatar {
-    width: 36px;
-    height: 36px;
-    font-size: 18px;
-  }
-
-  .sidebar-item {
-    padding: 10px 16px;
+  .dashboard-content-area {
+    padding: 0.75rem;
   }
   
-  .submenu {
-    padding-left: 36px !important;
+  .full-width-navbar .container-fluid {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
   
-  .sidebar-subitem {
-    padding: 8px 12px;
+  .full-width-navbar .navbar-brand {
+    font-size: 1rem;
+  }
+  
+  /* Adjust heights for mobile */
+  .full-width-navbar {
+    height: 56px;
+  }
+  
+  .d-flex.vh-100 {
+    margin-top: 56px;
+  }
+  
+  .sidebar,
+  .bg-dark {
+    height: calc(100vh - 56px);
+  }
+  
+  .dashboard-content-area {
+    height: calc(100vh - 56px);
   }
 }
 
-/* Small Mobile Devices */
-@media (max-width: 480px) {
-  .top-bar-title {
-    display: none;
-  }
+/* ================== ADDITIONAL FIXES ================== */
+/* Ensure no extra scrollbars appear */
+* {
+  box-sizing: border-box;
+}
 
-  .sidebar.open {
-    width: 200px;
-  }
+/* Fix for any potential overflow issues */
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
 
-  .sidebar.closed {
-    width: 60px;
-  }
+/* Container fluid inside content area */
+.dashboard-content-area .container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
 
-  .content-wrapper {
-    padding: 12px;
-  }
-  
-  .sidebar-item {
-    padding: 10px 12px;
-  }
-  
-  .sidebar-icon {
-    font-size: 18px;
-    min-width: 20px;
-  }
+/* Ensure cards don't cause overflow */
+.card {
+  overflow-x: auto;
+}
+
+/* Table responsiveness inside content area */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 }
