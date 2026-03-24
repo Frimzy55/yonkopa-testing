@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState,  } from 'react';
 import { Card, Row, Col, Table, Badge, Button, Form, Spinner, ProgressBar } from 'react-bootstrap';
 
 const KYCComplianceReports = () => {
@@ -14,9 +14,7 @@ const KYCComplianceReports = () => {
     { id: 'C005', name: 'Bob Johnson', type: 'Individual', verificationStatus: 'Verified', documentStatus: 'Complete', lastUpdated: '2024-03-05', riskLevel: 'Low' },
   ];
 
-  useEffect(() => {
-    fetchComplianceData();
-  }, []);
+  
 
   const fetchComplianceData = () => {
     setLoading(true);
