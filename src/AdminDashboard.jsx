@@ -26,7 +26,8 @@ import InternalTransfers from './internal-account/InternalTransfers';
 
 import UserManagement from './UserManagement';
 import Roles from './Roles';
-//reports//
+
+// Reports
 import LoanReports from './reports/LoanReports';
 import CustomerReports from './reports/CustomerReports';
 import KYCComplianceReports from './reports/KYCComplianceReports';
@@ -38,13 +39,15 @@ import AuthorizationReports from './reports/AuthorizationReports';
 import FinancialReports from './reports/FinancialReports';
 import InternalAccountGLReports from './reports/InternalAccountGLReports';
 
-
+// KYC Reports
 import PendingKYCReport from './reports/kyc-reports/PendingKYCReport';
 import VerifiedKYCReport from './reports/kyc-reports/VerifiedKYCReport';
 import RejectedKYCReport from './reports/kyc-reports/RejectedKYCReport';
 import ExpiredIDReport from './reports/kyc-reports/ExpiredIDReport';
 import PEPScreeningReport from './reports/kyc-reports/PEPScreeningReport';
 import HighRiskCustomerReport from './reports/kyc-reports/HighRiskCustomerReport';
+
+// Loan Reports
 import LoanPortfolioReport from './reports/loan-reports/LoanPortfolioReport';
 import LoanDisbursementReport from './reports/loan-reports/LoanDisbursementReport';
 import LoanRepaymentReport from './reports/loan-reports/LoanRepaymentReport';
@@ -53,79 +56,132 @@ import PortfolioAtRiskReport from './reports/loan-reports/PortfolioAtRiskReport'
 import NonPerformingLoansReport from './reports/loan-reports/NonPerformingLoansReport';
 import LoanAgingAnalysisReport from './reports/loan-reports/LoanAgingAnalysisReport';
 import WrittenOffLoansReport from './reports/loan-reports/WrittenOffLoansReport';
+
+// Customer Reports
 import CustomerMasterList from './reports/customer-reports/CustomerMasterList';
 import NewCustomersReport from './reports/customer-reports/NewCustomersReport';
 import ActiveCustomersReport from './reports/customer-reports/ActiveCustomersReport';
 import DormantCustomersReport from './reports/customer-reports/DormantCustomersReport';
 import CustomerByBranchReport from './reports/customer-reports/CustomerByBranchReport';
 import CustomerByRelationshipOfficerReport from './reports/customer-reports/CustomerByRelationshipOfficerReport';
+
+// Teller Reports
 import DailyTellerTransactionsReport from './reports/teller-reports/DailyTellerTransactionsReport';
 import DepositReport from './reports/teller-reports/DepositReport';
 import WithdrawalReport from './reports/teller-reports/WithdrawalReport';
 import TellerBalancingReport from './reports/teller-reports/TellerBalancingReport';
 import BranchCashSummaryReport from './reports/teller-reports/BranchCashSummaryReport';
 
-// Import Savings Account Reports
+// Savings Account Reports
 import SavingsAccountListing from './reports/savings-reports/SavingsAccountListing';
 import NewAccountsOpenedReport from './reports/savings-reports/NewAccountsOpenedReport';
 import ClosedAccountsReport from './reports/savings-reports/ClosedAccountsReport';
 import DormantAccountsReport from './reports/savings-reports/DormantAccountsReport';
 import AccountBalanceReport from './reports/savings-reports/AccountBalanceReport';
 
-// Import Collection Reports
+// Collection Reports
 import CollectionPerformanceReport from './reports/collection-reports/CollectionPerformanceReport';
 import ExpectedVsActualCollections from './reports/collection-reports/ExpectedVsActualCollections';
 import DailyCollectionSheet from './reports/collection-reports/DailyCollectionSheet';
 import MissedPaymentReport from './reports/collection-reports/MissedPaymentReport';
 import RecoveryFollowUpReport from './reports/collection-reports/RecoveryFollowUpReport';
 
-// Import Risk Reports
+// Risk Reports
 import PortfolioAtRiskReportRisk from './reports/risk-reports/PortfolioAtRiskReport';
 import PARGreaterThan30DaysReport from './reports/risk-reports/PARGreaterThan30DaysReport';
 import DelinquencyTrendReport from './reports/risk-reports/DelinquencyTrendReport';
 import TopExposureCustomersReport from './reports/risk-reports/TopExposureCustomersReport';
 
-// Import Authorization Reports
+// Authorization Reports
 import PendingCustomerAuthorization from './reports/authorization-reports/PendingCustomerAuthorization';
 import PendingLoanAuthorization from './reports/authorization-reports/PendingLoanAuthorization';
 import PendingAccountAuthorization from './reports/authorization-reports/PendingAccountAuthorization';
 
-// Import Financial Reports
+// Financial Reports
 import RevenueReport from './reports/financial-reports/RevenueReport';
 import ExpenseReport from './reports/financial-reports/ExpenseReport';
 import RevenueVsExpenseReport from './reports/financial-reports/RevenueVsExpenseReport';
 
-// Import GL Transaction Report
+// GL Reports
 import GLTransactionReport from './reports/gl-reports/GLTransactionReport';
 
-// Import Batch Upload Components
+// My Approvals Components
+import ApproveUserCreation from './my-approvals/ApproveUserCreation';
+import ApproveUserEdit from './my-approvals/ApproveUserEdit';
+import ApproveRoleCreation from './my-approvals/ApproveRoleCreation';
+import ApproveRoleEdit from './my-approvals/ApproveRoleEdit';
+import ApproveUserRole from './my-approvals/ApproveUserRole';
+import ApproveUserToRoleEdit from './my-approvals/ApproveUserToRoleEdit';
+import ApproveUserPermissions from './my-approvals/ApproveUserPermissions';
+import ApproveRoleAssignment from './my-approvals/ApproveRoleAssignment';
+import ApproveTellerLimit from './my-approvals/ApproveTellerLimit';
+import ApproveLoanThreshold from './my-approvals/ApproveLoanThreshold';
+import ApproveNewLoanProduct from './my-approvals/ApproveNewLoanProduct';
+import ApproveLoanProductEdit from './my-approvals/ApproveLoanProductEdit';
+import ApproveNewBranch from './my-approvals/ApproveNewBranch';
+import ApproveBranchEdit from './my-approvals/ApproveBranchEdit';
+import ApproveNewCustomer from './my-approvals/ApproveNewCustomer';
+import ApproveCustomerMaintenance from './my-approvals/ApproveCustomerMaintenance';
+import ApproveROAssigning from './my-approvals/ApproveROAssigning';
+import ApproveBatchUpload from './my-approvals/ApproveBatchUpload';
+import ApproveNewAccounts from './my-approvals/ApproveNewAccounts';
+import ApproveAccountMaintenance from './my-approvals/ApproveAccountMaintenance';
+import ApproveLien from './my-approvals/ApproveLien';
+import ApproveWebLoanApplication from './my-approvals/ApproveWebLoanApplication';
+import ApproveNewIndividualLoan from './my-approvals/ApproveNewIndividualLoan';
+import ApproveCorporateLoan from './my-approvals/ApproveCorporateLoan';
+import ApproveGroupLoan from './my-approvals/ApproveGroupLoan';
+import ApproveLoanMaintenance from './my-approvals/ApproveLoanMaintenance';
+import ApproveLoanDisbursement from './my-approvals/ApproveLoanDisbursement';
+import ApproveDailyCollections from './my-approvals/ApproveDailyCollections';
+import ApproveTillTransfer from './my-approvals/ApproveTillTransfer';
+import ApproveBackdatedTillTransfer from './my-approvals/ApproveBackdatedTillTransfer';
+import ApproveCashDepositReversal from './my-approvals/ApproveCashDepositReversal';
+import ApproveCashWithdrawalReversal from './my-approvals/ApproveCashWithdrawalReversal';
+import ApproveTellerShortageOverage from './my-approvals/ApproveTellerShortageOverage';
+import ApproveGLAccountCreation from './my-approvals/ApproveGLAccountCreation';
+import ApproveGLAccountEdit from './my-approvals/ApproveGLAccountEdit';
+import ApproveInternalTransfers from './my-approvals/ApproveInternalTransfers';
+import ApproveManualGLPostings from './my-approvals/ApproveManualGLPostings';
+import ApproveCustomerUpload from './my-approvals/ApproveCustomerUpload';
+import ApproveAccountUpload from './my-approvals/ApproveAccountUpload';
+import ApproveLoanUpload from './my-approvals/ApproveLoanUpload';
+import ApproveDisbursementUpload from './my-approvals/ApproveDisbursementUpload';
+import ApproveRepaymentUpload from './my-approvals/ApproveRepaymentUpload';
+import ApproveChargesUpload from './my-approvals/ApproveChargesUpload';
+import ApproveGLAdjustments from './my-approvals/ApproveGLAdjustments';
+import ApproveBranchReassignment from './my-approvals/ApproveBranchReassignment';
+import ApproveROReassignment from './my-approvals/ApproveROReassignment';
+import ApprovePictureUploads from './my-approvals/ApprovePictureUploads';
+import ApproveIDUploads from './my-approvals/ApproveIDUploads';
+
+// Batch Upload Components
 import UploadCustomers from './batch-upload/UploadCustomers';
 import UploadLoans from './batch-upload/UploadLoans';
 
-// Import System Settings Components
+// System Settings Components
 import Branches from './system-settings/Branches';
 import Configurations from './system-settings/Configurations';
 
-// Import Portfolio Summary Components (create these if needed)
-// For now, we'll create placeholder components
+// Summary Components
 const PortfolioSummary = () => (
   <div className="p-4">
     <h4>Portfolio Summary</h4>
-    <p>Total Portfolio Value: $1,234,567</p>
-    <p>Active Loans: 456</p>
-    <p>Average Loan Size: $2,707</p>
-    <p>Total Customers: 1,234</p>
-    <p>Active Accounts: 987</p>
+    <p>Total Portfolio Value: GHS 12,480,000</p>
+    <p>Active Loans: 1,234</p>
+    <p>Average Loan Size: GHS 10,113</p>
+    <p>Total Customers: 12,480</p>
+    <p>Active Accounts: 8,315</p>
   </div>
 );
 
 const LoanSummary = () => (
   <div className="p-4">
     <h4>Loan Summary</h4>
-    <p>Total Disbursed: $987,654</p>
-    <p>Total Repaid: $654,321</p>
-    <p>Outstanding Balance: $333,333</p>
-    <p>Active Loans: 456</p>
+    <p>Total Disbursed: GHS 8,456,789</p>
+    <p>Total Repaid: GHS 5,234,567</p>
+    <p>Outstanding Balance: GHS 3,222,222</p>
+    <p>Active Loans: 1,234</p>
     <p>Default Rate: 3.2%</p>
   </div>
 );
@@ -133,9 +189,9 @@ const LoanSummary = () => (
 const TellerSummaryComponent = () => (
   <div className="p-4">
     <h4>Teller Summary</h4>
-    <p>Total Deposits Today: $45,678</p>
-    <p>Total Withdrawals Today: $23,456</p>
-    <p>Net Cash Flow: $22,222</p>
+    <p>Total Deposits Today: GHS 45,678</p>
+    <p>Total Withdrawals Today: GHS 23,456</p>
+    <p>Net Cash Flow: GHS 22,222</p>
     <p>Transactions Today: 156</p>
     <p>Active Tellers: 8</p>
   </div>
@@ -144,10 +200,10 @@ const TellerSummaryComponent = () => (
 const RiskSummary = () => (
   <div className="p-4">
     <h4>Risk Summary</h4>
-    <p>Portfolio at Risk: 12.5%</p>
+    <p>Portfolio at Risk: 4.8%</p>
     <p>Non-Performing Loans: 5.2%</p>
     <p>High Risk Customers: 23</p>
-    <p>PAR  30 Days: $45,678</p>
+    <p>PAR  30 Days: GHS 45,678</p>
     <p>Credit Risk Score: 78/100</p>
   </div>
 );
@@ -166,9 +222,9 @@ const AuthorizationSummary = () => (
 const RevenueVsExpenseSummary = () => (
   <div className="p-4">
     <h4>Revenue vs Expense Summary</h4>
-    <p>Total Revenue: $567,890</p>
-    <p>Total Expenses: $345,678</p>
-    <p>Net Profit: $222,212</p>
+    <p>Total Revenue: GHS 567,890</p>
+    <p>Total Expenses: GHS 345,678</p>
+    <p>Net Profit: GHS 222,212</p>
     <p>Profit Margin: 39.1%</p>
     <p>Revenue Growth: +12.5%</p>
   </div>
@@ -220,6 +276,7 @@ const AdminDashboard = () => {
     Loans: {},
     'Internal Accounts': {},
     Admin: {},
+    'My Approvals': {},
     Reports: {},
     'Batch Upload': {},
     'System Settings': {}
@@ -228,8 +285,9 @@ const AdminDashboard = () => {
   // Check if mobile view
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-      if (window.innerWidth >= 768) {
+      const mobile = window.innerWidth < 768;
+      setIsMobile(mobile);
+      if (!mobile) {
         setMobileMenuOpen(false);
       }
     };
@@ -620,6 +678,108 @@ const AdminDashboard = () => {
         { name: 'Roles', icon: 'bi-shield-check' }
       ]
     },
+    {
+      name: 'My Approvals',
+      icon: 'bi-check2-circle',
+      subMenus: [
+        { 
+          name: 'Admin', 
+          icon: 'bi-person-check',
+          nestedMenus: [
+            { name: 'Approve User Creation', icon: 'bi-person-plus' },
+            { name: 'Approve User Edit', icon: 'bi-pencil-square' },
+            { name: 'Approve Role Creation', icon: 'bi-shield-plus' },
+            { name: 'Approve Role Edit', icon: 'bi-shield-shaded' },
+            { name: 'Approve User Role', icon: 'bi-person-badge' },
+            { name: 'Approve User to Role Edit', icon: 'bi-person-gear' },
+            { name: 'Approve User Permissions', icon: 'bi-key' },
+            { name: 'Approve Role Assignment', icon: 'bi-person-check-fill' },
+            { name: 'Approve Teller Limit', icon: 'bi-cash-stack' },
+            { name: 'Approve Loan Threshold', icon: 'bi-piggy-bank' },
+            { name: 'Approve New Loan Product', icon: 'bi-file-plus' },
+            { name: 'Approve Loan Product Edit', icon: 'bi-pencil' },
+            { name: 'Approve New Branch', icon: 'bi-building-add' },
+            { name: 'Approve Branch Edit', icon: 'bi-building-gear' }
+          ]
+        },
+        { 
+          name: 'Customer', 
+          icon: 'bi-diagram-3',
+          nestedMenus: [
+            { name: 'Approve New Customer', icon: 'bi-person-plus' },
+            { name: 'Approve Customer Maintenance', icon: 'bi-tools' },
+            { name: 'Approve RO Assigning', icon: 'bi-person-badge' },
+            { name: 'Approve Batch Upload', icon: 'bi-cloud-upload' }
+          ]
+        },
+        { 
+          name: 'Account', 
+          icon: 'bi-file-check',
+          nestedMenus: [
+            { name: 'Approve New Accounts', icon: 'bi-plus-circle' },
+            { name: 'Approve Account Maintenance', icon: 'bi-tools' },
+            { name: 'Approve Lien', icon: 'bi-lock' }
+          ]
+        },
+        { 
+          name: 'Loans', 
+          icon: 'bi-shield-plus',
+          nestedMenus: [
+            { name: 'Approve Web Loan Application', icon: 'bi-globe' },
+            { name: 'Approve New Individual Loan', icon: 'bi-person' },
+            { name: 'Approve Corporate Loan', icon: 'bi-building' },
+            { name: 'Approve Group Loan', icon: 'bi-people-fill' },
+            { name: 'Approve Loan Maintenance', icon: 'bi-tools' },
+            { name: 'Approve Loan Disbursement', icon: 'bi-cash' }
+          ]
+        },
+        { 
+          name: 'Collections', 
+          icon: 'bi-shield-check',
+          nestedMenus: [
+            { name: 'Approve Daily Collections', icon: 'bi-calendar-check' }
+          ]
+        },
+        { 
+          name: 'Teller', 
+          icon: 'bi-person-gear',
+          nestedMenus: [
+            { name: 'Approve Till Transfer', icon: 'bi-arrow-left-right' },
+            { name: 'Approve Backdated Till Transfer', icon: 'bi-calendar-minus' },
+            { name: 'Approve Cash Deposit Reversal', icon: 'bi-arrow-return-left' },
+            { name: 'Approve Cash Withdrawal Reversal', icon: 'bi-arrow-return-right' },
+            { name: 'Approve Teller Shortage & Overage', icon: 'bi-exclamation-triangle' }
+          ]
+        },
+        { 
+          name: 'Internal Accounts', 
+          icon: 'bi-person-lines-fill',
+          nestedMenus: [
+            { name: 'Approve GL Account Creation', icon: 'bi-journal-plus' },
+            { name: 'Approve GL Account Edit', icon: 'bi-pencil-square' },
+            { name: 'Approve Internal Transfers', icon: 'bi-arrow-left-right' },
+            { name: 'Approve Manual GL Postings', icon: 'bi-journal-bookmark-fill' }
+          ]
+        },
+        { 
+          name: 'Batch Uploads', 
+          icon: 'bi-key',
+          nestedMenus: [
+            { name: 'Approve Customer Upload', icon: 'bi-person-plus' },
+            { name: 'Approve Account Upload', icon: 'bi-bank' },
+            { name: 'Approve Loan Upload', icon: 'bi-piggy-bank' },
+            { name: 'Approve Disbursement Upload', icon: 'bi-cash' },
+            { name: 'Approve Repayment Upload', icon: 'bi-arrow-return-left' },
+            { name: 'Approve Charges Upload', icon: 'bi-receipt' },
+            { name: 'Approve GL Adjustments', icon: 'bi-journal-bookmark-fill' },
+            { name: 'Approve Branch Reassignment', icon: 'bi-building' },
+            { name: 'Approve RO Reassignment', icon: 'bi-person-badge' },
+            { name: 'Approve Picture Uploads', icon: 'bi-image' },
+            { name: 'Approve ID Uploads', icon: 'bi-file-earmark-person' }
+          ]
+        },
+      ]
+    },
     { 
       name: 'Reports', 
       icon: 'bi-file-bar-graph',
@@ -830,7 +990,8 @@ const AdminDashboard = () => {
                   )}
                 </button>
                 
-                {(!sidebarCollapsed || isMobile) && item.subMenus && expandedMenus[item.name] && (
+                {/* Always render submenus when expanded, regardless of sidebar state */}
+                {item.subMenus && expandedMenus[item.name] && (
                   <ul className="nav flex-column ms-3 mt-1 submenu-container">
                     {item.subMenus.map((subItem) => {
                       const subItemId = getMenuItemId(subItem, 'sub', item.name);
@@ -1024,6 +1185,227 @@ const AdminDashboard = () => {
     );
   };
 
+  // ==================== RENDER MY APPROVALS CONTENT ====================
+  const renderMyApprovalsContent = useCallback(() => {
+    const { activeSubMenu, activeNestedMenu } = navigation;
+    
+    if (!activeSubMenu) {
+      return (
+        <div className="bg-light p-4 rounded-3 text-center">
+          <i className="bi bi-check2-circle fs-1 text-secondary"></i>
+          <p className="mt-2 mb-0">Please select an approval category from the menu.</p>
+        </div>
+      );
+    }
+
+    // Admin approvals
+    if (activeSubMenu === 'Admin') {
+      switch(activeNestedMenu) {
+        case 'Approve User Creation':
+          return <ApproveUserCreation />;
+        case 'Approve User Edit':
+          return <ApproveUserEdit />;
+        case 'Approve Role Creation':
+          return <ApproveRoleCreation />;
+        case 'Approve Role Edit':
+          return <ApproveRoleEdit />;
+        case 'Approve User Role':
+          return <ApproveUserRole />;
+        case 'Approve User to Role Edit':
+          return <ApproveUserToRoleEdit />;
+        case 'Approve User Permissions':
+          return <ApproveUserPermissions />;
+        case 'Approve Role Assignment':
+          return <ApproveRoleAssignment />;
+        case 'Approve Teller Limit':
+          return <ApproveTellerLimit />;
+        case 'Approve Loan Threshold':
+          return <ApproveLoanThreshold />;
+        case 'Approve New Loan Product':
+          return <ApproveNewLoanProduct />;
+        case 'Approve Loan Product Edit':
+          return <ApproveLoanProductEdit />;
+        case 'Approve New Branch':
+          return <ApproveNewBranch />;
+        case 'Approve Branch Edit':
+          return <ApproveBranchEdit />;
+        default:
+          return (
+            <div className="bg-light p-4 rounded-3 text-center">
+              <i className="bi bi-person-check fs-1 text-secondary"></i>
+              <p className="mt-2 mb-0">Please select an admin approval option.</p>
+            </div>
+          );
+      }
+    }
+
+    // Customer approvals
+    if (activeSubMenu === 'Customer') {
+      switch(activeNestedMenu) {
+        case 'Approve New Customer':
+          return <ApproveNewCustomer />;
+        case 'Approve Customer Maintenance':
+          return <ApproveCustomerMaintenance />;
+        case 'Approve RO Assigning':
+          return <ApproveROAssigning />;
+        case 'Approve Batch Upload':
+          return <ApproveBatchUpload />;
+        default:
+          return (
+            <div className="bg-light p-4 rounded-3 text-center">
+              <i className="bi bi-diagram-3 fs-1 text-secondary"></i>
+              <p className="mt-2 mb-0">Please select a customer approval option.</p>
+            </div>
+          );
+      }
+    }
+
+    // Account approvals
+    if (activeSubMenu === 'Account') {
+      switch(activeNestedMenu) {
+        case 'Approve New Accounts':
+          return <ApproveNewAccounts />;
+        case 'Approve Account Maintenance':
+          return <ApproveAccountMaintenance />;
+        case 'Approve Lien':
+          return <ApproveLien />;
+        default:
+          return (
+            <div className="bg-light p-4 rounded-3 text-center">
+              <i className="bi bi-file-check fs-1 text-secondary"></i>
+              <p className="mt-2 mb-0">Please select an account approval option.</p>
+            </div>
+          );
+      }
+    }
+
+    // Loans approvals
+    if (activeSubMenu === 'Loans') {
+      switch(activeNestedMenu) {
+        case 'Approve Web Loan Application':
+          return <ApproveWebLoanApplication />;
+        case 'Approve New Individual Loan':
+          return <ApproveNewIndividualLoan />;
+        case 'Approve Corporate Loan':
+          return <ApproveCorporateLoan />;
+        case 'Approve Group Loan':
+          return <ApproveGroupLoan />;
+        case 'Approve Loan Maintenance':
+          return <ApproveLoanMaintenance />;
+        case 'Approve Loan Disbursement':
+          return <ApproveLoanDisbursement />;
+        default:
+          return (
+            <div className="bg-light p-4 rounded-3 text-center">
+              <i className="bi bi-shield-plus fs-1 text-secondary"></i>
+              <p className="mt-2 mb-0">Please select a loan approval option.</p>
+            </div>
+          );
+      }
+    }
+
+    // Collections approvals
+    if (activeSubMenu === 'Collections') {
+      switch(activeNestedMenu) {
+        case 'Approve Daily Collections':
+          return <ApproveDailyCollections />;
+        default:
+          return (
+            <div className="bg-light p-4 rounded-3 text-center">
+              <i className="bi bi-shield-check fs-1 text-secondary"></i>
+              <p className="mt-2 mb-0">Please select a collection approval option.</p>
+            </div>
+          );
+      }
+    }
+
+    // Teller approvals
+    if (activeSubMenu === 'Teller') {
+      switch(activeNestedMenu) {
+        case 'Approve Till Transfer':
+          return <ApproveTillTransfer />;
+        case 'Approve Backdated Till Transfer':
+          return <ApproveBackdatedTillTransfer />;
+        case 'Approve Cash Deposit Reversal':
+          return <ApproveCashDepositReversal />;
+        case 'Approve Cash Withdrawal Reversal':
+          return <ApproveCashWithdrawalReversal />;
+        case 'Approve Teller Shortage & Overage':
+          return <ApproveTellerShortageOverage />;
+        default:
+          return (
+            <div className="bg-light p-4 rounded-3 text-center">
+              <i className="bi bi-person-gear fs-1 text-secondary"></i>
+              <p className="mt-2 mb-0">Please select a teller approval option.</p>
+            </div>
+          );
+      }
+    }
+
+    // Internal Accounts approvals
+    if (activeSubMenu === 'Internal Accounts') {
+      switch(activeNestedMenu) {
+        case 'Approve GL Account Creation':
+          return <ApproveGLAccountCreation />;
+        case 'Approve GL Account Edit':
+          return <ApproveGLAccountEdit />;
+        case 'Approve Internal Transfers':
+          return <ApproveInternalTransfers />;
+        case 'Approve Manual GL Postings':
+          return <ApproveManualGLPostings />;
+        default:
+          return (
+            <div className="bg-light p-4 rounded-3 text-center">
+              <i className="bi bi-person-lines-fill fs-1 text-secondary"></i>
+              <p className="mt-2 mb-0">Please select an internal accounts approval option.</p>
+            </div>
+          );
+      }
+    }
+
+    // Batch Uploads approvals
+    if (activeSubMenu === 'Batch Uploads') {
+      switch(activeNestedMenu) {
+        case 'Approve Customer Upload':
+          return <ApproveCustomerUpload />;
+        case 'Approve Account Upload':
+          return <ApproveAccountUpload />;
+        case 'Approve Loan Upload':
+          return <ApproveLoanUpload />;
+        case 'Approve Disbursement Upload':
+          return <ApproveDisbursementUpload />;
+        case 'Approve Repayment Upload':
+          return <ApproveRepaymentUpload />;
+        case 'Approve Charges Upload':
+          return <ApproveChargesUpload />;
+        case 'Approve GL Adjustments':
+          return <ApproveGLAdjustments />;
+        case 'Approve Branch Reassignment':
+          return <ApproveBranchReassignment />;
+        case 'Approve RO Reassignment':
+          return <ApproveROReassignment />;
+        case 'Approve Picture Uploads':
+          return <ApprovePictureUploads />;
+        case 'Approve ID Uploads':
+          return <ApproveIDUploads />;
+        default:
+          return (
+            <div className="bg-light p-4 rounded-3 text-center">
+              <i className="bi bi-key fs-1 text-secondary"></i>
+              <p className="mt-2 mb-0">Please select a batch upload approval option.</p>
+            </div>
+          );
+      }
+    }
+
+    return (
+      <div className="bg-light p-4 rounded-3 text-center">
+        <i className="bi bi-check2-circle fs-1 text-secondary"></i>
+        <p className="mt-2 mb-0">Please select an approval category from the menu.</p>
+      </div>
+    );
+  }, [navigation]);
+
   // ==================== RENDER CONTENT ====================
   const renderContent = useCallback(() => {
     const { activeMenu, activeSubMenu, activeNestedMenu, activeReportType, activeReportName } = navigation;
@@ -1148,6 +1530,10 @@ const AdminDashboard = () => {
             </div>
           );
       }
+    }
+
+    if (activeMenu === 'My Approvals') {
+      return renderMyApprovalsContent();
     }
 
     if (activeMenu === 'Reports') {
@@ -1377,75 +1763,74 @@ const AdminDashboard = () => {
     }
 
     if (activeMenu === 'Dashboard') {
-  return (
-    <div className="mt-4">
+      return (
+        <div className="mt-4">
+          {/* TOP METRICS */}
+          <div className="row g-3 mb-4">
+            <div className="col-md-3">
+              <div className="card p-3 text-center">
+                <h6>Total Portfolio Value</h6>
+                <h4 className="text-primary">GHS 12,480,000</h4>
+              </div>
+            </div>
 
-      {/* TOP METRICS */}
-      <div className="row g-3 mb-4">
-        <div className="col-md-3">
-          <div className="card p-3 text-center">
-            <h6>Total Portfolio Value</h6>
-            <h4 className="text-primary">GHS 12,480,000</h4>
-          </div>
-        </div>
+            <div className="col-md-3">
+              <div className="card p-3 text-center">
+                <h6>Active Customers</h6>
+                <h4>12,480</h4>
+              </div>
+            </div>
 
-        <div className="col-md-3">
-          <div className="card p-3 text-center">
-            <h6>Active Customers</h6>
-            <h4>12,480</h4>
-          </div>
-        </div>
+            <div className="col-md-3">
+              <div className="card p-3 text-center">
+                <h6>Active Accounts</h6>
+                <h4>8,315</h4>
+              </div>
+            </div>
 
-        <div className="col-md-3">
-          <div className="card p-3 text-center">
-            <h6>Active Accounts</h6>
-            <h4>8,315</h4>
-          </div>
-        </div>
-
-        <div className="col-md-3">
-          <div className="card p-3 text-center">
-            <h6>Portfolio At Risk (PAR)</h6>
-            <h4 className="text-danger">4.8%</h4>
-          </div>
-        </div>
-      </div>
-
-      {/* ANALYTICS + QUICK ACTION */}
-      <div className="row g-3 mb-4">
-        <div className="col-md-6">
-          <div className="card p-3">
-            <h6>Analytics Overview</h6>
-            <div style={{ height: "150px", background: "#f1f1f1" }}>
-              {/* Graph Area Placeholder */}
+            <div className="col-md-3">
+              <div className="card p-3 text-center">
+                <h6>Portfolio At Risk (PAR)</h6>
+                <h4 className="text-danger">4.8%</h4>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div className="col-md-6">
-          <div className="card p-3">
-            <h6>Quick Create Customer</h6>
-            <button className="btn btn-primary mt-2">
-              + New Customer
-            </button>
+          {/* ANALYTICS + QUICK ACTION */}
+          <div className="row g-3 mb-4">
+            <div className="col-md-6">
+              <div className="card p-3">
+                <h6>Analytics Overview</h6>
+                <div style={{ height: "150px", background: "#f1f1f1" }}>
+                  {/* Graph Area Placeholder */}
+                </div>
+              </div>
+            </div>
+
+            <div className="col-md-6">
+              <div className="card p-3">
+                <h6>Quick Create Customer</h6>
+                <button className="btn btn-primary mt-2">
+                  + New Customer
+                </button>
+              </div>
+            </div>
           </div>
+
+          {/* RECENT ACTIVITIES */}
+          <div className="card p-3">
+            <h6>Recent Activities</h6>
+            <ul className="list-unstyled mb-0">
+              <li>New customer created - IND000123</li>
+              <li>Loan approved - LN004512</li>
+              <li>Deposit posted - GHS 4,500</li>
+              <li>KYC pending review - 12 accounts</li>
+            </ul>
+          </div>
+
         </div>
-      </div>
-
-      {/* RECENT ACTIVITIES */}
-      <div className="card p-3">
-        <h6>Recent Activities</h6>
-        <ul className="list-unstyled mb-0">
-          <li>New customer created - IND000123</li>
-          <li>Loan approved - LN004512</li>
-          <li>Deposit posted - GHS 4,500</li>
-          <li>KYC pending review - 12 accounts</li>
-        </ul>
-      </div>
-
-    </div>
-  );
-}
+      );
+    }
 
     return (
       <div className="bg-light p-4 rounded-3 text-center">
@@ -1455,7 +1840,7 @@ const AdminDashboard = () => {
         </p>
       </div>
     );
-  }, [navigation, menuItems]);
+  }, [navigation, menuItems, renderMyApprovalsContent]);
 
   // ==================== MAIN RENDER ====================
   return (

@@ -8,6 +8,19 @@ const AccountList = () => {
   const [filterType, setFilterType] = useState('all');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage] = useState(10);
+  
+  // Modal states
+  const [showViewModal, setShowViewModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showLinkedAccountsModal, setShowLinkedAccountsModal] = useState(false);
+  const [selectedAccount, setSelectedAccount] = useState(null);
+  const [editFormData, setEditFormData] = useState({
+    fullName: '',
+    branch: '',
+    phoneNumber: '',
+    relationshipOfficer: '',
+    accountType: ''
+  });
 
   // Simulated data - replace with actual API call
   useEffect(() => {
@@ -20,63 +33,53 @@ const AccountList = () => {
         const mockAccounts = [
           {
             id: 1,
-            accountNumber: '1001234567',
-            accountName: 'John Doe',
-            accountType: 'Savings Account',
-            balance: 5000.00,
-            currency: 'USD',
-            status: 'Active',
             customerId: 'CUST001',
-            openedDate: '2024-01-15',
-            lastTransaction: '2024-03-20'
+            fullName: 'John Doe',
+            branch: 'Downtown Branch',
+            phoneNumber: '+1 (555) 123-4567',
+            relationshipOfficer: 'Sarah Johnson',
+            linkedAccounts: ['1001234567', '1001234568'],
+            accountType: 'Savings Account'
           },
           {
             id: 2,
-            accountNumber: '1001234568',
-            accountName: 'Jane Smith',
-            accountType: 'Current Account',
-            balance: 12500.50,
-            currency: 'USD',
-            status: 'Active',
             customerId: 'CUST002',
-            openedDate: '2024-01-20',
-            lastTransaction: '2024-03-19'
+            fullName: 'Jane Smith',
+            branch: 'Uptown Branch',
+            phoneNumber: '+1 (555) 234-5678',
+            relationshipOfficer: 'Michael Brown',
+            linkedAccounts: ['1001234569'],
+            accountType: 'Current Account'
           },
           {
             id: 3,
-            accountNumber: '1001234569',
-            accountName: 'ABC Corporation',
-            accountType: 'Business Account',
-            balance: 75000.00,
-            currency: 'USD',
-            status: 'Active',
             customerId: 'CUST003',
-            openedDate: '2024-01-10',
-            lastTransaction: '2024-03-18'
+            fullName: 'ABC Corporation',
+            branch: 'Business District',
+            phoneNumber: '+1 (555) 345-6789',
+            relationshipOfficer: 'Emily Davis',
+            linkedAccounts: ['1001234570', '1001234571', '1001234572'],
+            accountType: 'Business Account'
           },
           {
             id: 4,
-            accountNumber: '1001234570',
-            accountName: 'Mary Johnson',
-            accountType: 'Fixed Deposit',
-            balance: 100000.00,
-            currency: 'USD',
-            status: 'Inactive',
             customerId: 'CUST004',
-            openedDate: '2023-12-01',
-            lastTransaction: '2024-02-15'
+            fullName: 'Mary Johnson',
+            branch: 'Suburban Branch',
+            phoneNumber: '+1 (555) 456-7890',
+            relationshipOfficer: 'Robert Wilson',
+            linkedAccounts: ['1001234573'],
+            accountType: 'Fixed Deposit'
           },
           {
             id: 5,
-            accountNumber: '1001234571',
-            accountName: 'Robert Wilson',
-            accountType: 'Savings Account',
-            balance: 3250.75,
-            currency: 'USD',
-            status: 'Dormant',
             customerId: 'CUST005',
-            openedDate: '2023-11-15',
-            lastTransaction: '2024-01-10'
+            fullName: 'Robert Wilson',
+            branch: 'Downtown Branch',
+            phoneNumber: '+1 (555) 567-8901',
+            relationshipOfficer: 'Sarah Johnson',
+            linkedAccounts: ['1001234574', '1001234575'],
+            accountType: 'Savings Account'
           }
         ];
         
@@ -94,9 +97,10 @@ const AccountList = () => {
   // Filter and search accounts
   const filteredAccounts = accounts.filter(account => {
     const matchesSearch = 
-      account.accountNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.accountName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      account.customerId.toLowerCase().includes(searchTerm.toLowerCase());
+      account.customerId.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      account.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      account.phoneNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      account.relationshipOfficer.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesFilter = filterType === 'all' || account.accountType === filterType;
     
@@ -109,20 +113,63 @@ const AccountList = () => {
   const currentAccounts = filteredAccounts.slice(indexOfFirstItem, indexOfLastItem);
   const totalPages = Math.ceil(filteredAccounts.length / itemsPerPage);
 
-  const getStatusBadge = (status) => {
-    const statusColors = {
-      'Active': 'success',
-      'Inactive': 'secondary',
-      'Dormant': 'warning'
-    };
-    return `badge bg-${statusColors[status] || 'secondary'}`;
+  // View account details
+  const handleViewDetails = (account) => {
+    setSelectedAccount(account);
+    setShowViewModal(true);
   };
 
-  const formatCurrency = (amount, currency) => {
-    return new Intl.NumberFormat('en-US', {
-      style: 'currency',
-      currency: currency
-    }).format(amount);
+  // View linked accounts
+  const handleViewLinkedAccounts = (account) => {
+    setSelectedAccount(account);
+    setShowLinkedAccountsModal(true);
+  };
+
+  // Edit account - open modal with current data
+  const handleEditAccount = (account) => {
+    setSelectedAccount(account);
+    setEditFormData({
+      fullName: account.fullName,
+      branch: account.branch,
+      phoneNumber: account.phoneNumber,
+      relationshipOfficer: account.relationshipOfficer,
+      accountType: account.accountType
+    });
+    setShowEditModal(true);
+  };
+
+  // Save edited account
+  const handleSaveEdit = async () => {
+    try {
+      // Simulate API call to update account
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      // Update the account in the local state
+      const updatedAccounts = accounts.map(account => 
+        account.id === selectedAccount.id 
+          ? { ...account, ...editFormData }
+          : account
+      );
+      
+      setAccounts(updatedAccounts);
+      setShowEditModal(false);
+      setSelectedAccount(null);
+      
+      // Show success message
+      alert('Account updated successfully!');
+    } catch (error) {
+      console.error('Error updating account:', error);
+      alert('Error updating account. Please try again.');
+    }
+  };
+
+  // Handle input changes in edit form
+  const handleEditInputChange = (e) => {
+    const { name, value } = e.target;
+    setEditFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
   };
 
   if (loading) {
@@ -161,7 +208,7 @@ const AccountList = () => {
               <input
                 type="text"
                 className="form-control"
-                placeholder="Search by account number, name, or customer ID..."
+                placeholder="Search by customer ID, name, phone number, or relationship officer..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
               />
@@ -182,7 +229,7 @@ const AccountList = () => {
           </div>
           <div className="col-md-3">
             <div className="text-muted small py-2">
-              Total: {filteredAccounts.length} accounts
+              Total: {filteredAccounts.length} customers
             </div>
           </div>
         </div>
@@ -193,14 +240,13 @@ const AccountList = () => {
         <table className="table table-hover">
           <thead className="table-light">
             <tr>
-              <th>Account Number</th>
-              <th>Account Name</th>
-              <th>Account Type</th>
-              <th>Balance</th>
-              <th>Status</th>
               <th>Customer ID</th>
-              <th>Opened Date</th>
-              <th>Actions</th>
+              <th>Full Name</th>
+              <th>Branch</th>
+              <th>Phone Number</th>
+              <th>Relationship Officer</th>
+              <th>Linked Accounts</th>
+              <th>Action</th>
             </tr>
           </thead>
           <tbody>
@@ -208,34 +254,40 @@ const AccountList = () => {
               currentAccounts.map(account => (
                 <tr key={account.id}>
                   <td>
-                    <strong>{account.accountNumber}</strong>
-                  </td>
-                  <td>{account.accountName}</td>
-                  <td>{account.accountType}</td>
-                  <td className="fw-semibold">
-                    {formatCurrency(account.balance, account.currency)}
-                  </td>
-                  <td>
-                    <span className={getStatusBadge(account.status)}>
-                      {account.status}
-                    </span>
-                  </td>
-                  <td>
                     <code>{account.customerId}</code>
                   </td>
                   <td>
-                    <small>{new Date(account.openedDate).toLocaleDateString()}</small>
+                    <strong>{account.fullName}</strong>
+                    <br />
+                    <small className="text-muted">{account.accountType}</small>
+                  </td>
+                  <td>{account.branch}</td>
+                  <td>{account.phoneNumber}</td>
+                  <td>{account.relationshipOfficer}</td>
+                  <td>
+                    <button 
+                      className="btn btn-sm btn-info text-white"
+                      onClick={() => handleViewLinkedAccounts(account)}
+                    >
+                      <i className="bi bi-eye me-1"></i>
+                      View ({account.linkedAccounts.length})
+                    </button>
                   </td>
                   <td>
                     <div className="btn-group btn-group-sm">
-                      <button className="btn btn-outline-primary" title="View Details">
+                      <button 
+                        className="btn btn-outline-primary" 
+                        title="View Details"
+                        onClick={() => handleViewDetails(account)}
+                      >
                         <i className="bi bi-eye"></i>
                       </button>
-                      <button className="btn btn-outline-secondary" title="Edit">
+                      <button 
+                        className="btn btn-outline-secondary" 
+                        title="Edit"
+                        onClick={() => handleEditAccount(account)}
+                      >
                         <i className="bi bi-pencil"></i>
-                      </button>
-                      <button className="btn btn-outline-danger" title="Close Account">
-                        <i className="bi bi-x-circle"></i>
                       </button>
                     </div>
                   </td>
@@ -243,9 +295,9 @@ const AccountList = () => {
               ))
             ) : (
               <tr>
-                <td colSpan="8" className="text-center py-5">
+                <td colSpan="7" className="text-center py-5">
                   <i className="bi bi-inbox fs-1 text-muted"></i>
-                  <p className="mt-2 text-muted">No accounts found</p>
+                  <p className="mt-2 text-muted">No customers found</p>
                 </td>
               </tr>
             )}
@@ -285,6 +337,185 @@ const AccountList = () => {
             </li>
           </ul>
         </nav>
+      )}
+
+      {/* View Details Modal */}
+      {showViewModal && selectedAccount && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Account Details</h5>
+                <button type="button" className="btn-close" onClick={() => setShowViewModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="text-muted small">Customer ID</label>
+                    <div className="fw-bold">{selectedAccount.customerId}</div>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="text-muted small">Full Name</label>
+                    <div className="fw-bold">{selectedAccount.fullName}</div>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="text-muted small">Account Type</label>
+                    <div>{selectedAccount.accountType}</div>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="text-muted small">Branch</label>
+                    <div>{selectedAccount.branch}</div>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="text-muted small">Phone Number</label>
+                    <div>{selectedAccount.phoneNumber}</div>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="text-muted small">Relationship Officer</label>
+                    <div>{selectedAccount.relationshipOfficer}</div>
+                  </div>
+                  <div className="col-12 mb-3">
+                    <label className="text-muted small">Linked Accounts</label>
+                    <div>
+                      {selectedAccount.linkedAccounts.map((acc, idx) => (
+                        <span key={idx} className="badge bg-secondary me-1 mb-1">
+                          {acc}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowViewModal(false)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Linked Accounts Modal */}
+      {showLinkedAccountsModal && selectedAccount && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">
+                  Linked Accounts - {selectedAccount.fullName}
+                </h5>
+                <button type="button" className="btn-close" onClick={() => setShowLinkedAccountsModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <div className="list-group">
+                  {selectedAccount.linkedAccounts.length > 0 ? (
+                    selectedAccount.linkedAccounts.map((account, idx) => (
+                      <div key={idx} className="list-group-item">
+                        <div className="d-flex justify-content-between align-items-center">
+                          <div>
+                            <i className="bi bi-bank me-2"></i>
+                            <strong>Account Number:</strong> {account}
+                          </div>
+                          <button className="btn btn-sm btn-outline-primary">
+                            <i className="bi bi-arrow-right"></i> View
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  ) : (
+                    <p className="text-center text-muted py-3">No linked accounts found</p>
+                  )}
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowLinkedAccountsModal(false)}>
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Edit Modal */}
+      {showEditModal && selectedAccount && (
+        <div className="modal show d-block" tabIndex="-1" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}>
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h5 className="modal-title">Edit Account - {selectedAccount.customerId}</h5>
+                <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
+              </div>
+              <div className="modal-body">
+                <div className="row">
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Full Name *</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="fullName"
+                      value={editFormData.fullName}
+                      onChange={handleEditInputChange}
+                    />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Account Type *</label>
+                    <select
+                      className="form-select"
+                      name="accountType"
+                      value={editFormData.accountType}
+                      onChange={handleEditInputChange}
+                    >
+                      <option value="Savings Account">Savings Account</option>
+                      <option value="Current Account">Current Account</option>
+                      <option value="Business Account">Business Account</option>
+                      <option value="Fixed Deposit">Fixed Deposit</option>
+                    </select>
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Branch *</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="branch"
+                      value={editFormData.branch}
+                      onChange={handleEditInputChange}
+                    />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Phone Number *</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="phoneNumber"
+                      value={editFormData.phoneNumber}
+                      onChange={handleEditInputChange}
+                    />
+                  </div>
+                  <div className="col-md-6 mb-3">
+                    <label className="form-label">Relationship Officer *</label>
+                    <input
+                      type="text"
+                      className="form-control"
+                      name="relationshipOfficer"
+                      value={editFormData.relationshipOfficer}
+                      onChange={handleEditInputChange}
+                    />
+                  </div>
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button className="btn btn-secondary" onClick={() => setShowEditModal(false)}>
+                  Cancel
+                </button>
+                <button className="btn btn-primary" onClick={handleSaveEdit}>
+                  Save Changes
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );
