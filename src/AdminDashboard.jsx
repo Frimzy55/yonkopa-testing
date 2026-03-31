@@ -155,6 +155,14 @@ import ApproveROReassignment from './my-approvals/ApproveROReassignment';
 import ApprovePictureUploads from './my-approvals/ApprovePictureUploads';
 import ApproveIDUploads from './my-approvals/ApproveIDUploads';
 
+
+
+import ApproveBackdatedDeposit from './my-approvals/ApproveBackdatedDeposit';
+import ApproveBackdatedWithdrawals from './my-approvals/ApproveBackdatedWithdrawals';
+
+import ApproveFundTransfer from './my-approvals/ApproveFundTransfer';
+import ApproveBackdatedFts from './my-approvals/ApproveBackdatedFts';
+//ApproveBackdatedDeposit
 // Batch Upload Components
 import UploadCustomers from './batch-upload/UploadCustomers';
 import UploadLoans from './batch-upload/UploadLoans';
@@ -748,7 +756,10 @@ const AdminDashboard = () => {
             { name: 'Approve Backdated Till Transfer', icon: 'bi-calendar-minus' },
             { name: 'Approve Cash Deposit Reversal', icon: 'bi-arrow-return-left' },
             { name: 'Approve Cash Withdrawal Reversal', icon: 'bi-arrow-return-right' },
-            { name: 'Approve Teller Shortage & Overage', icon: 'bi-exclamation-triangle' }
+            { name: 'Approve Teller Shortage & Overage', icon: 'bi-exclamation-triangle' },
+
+            { name: 'Approve Backdated deposit', icon: 'bi-arrow-return-right' },
+            { name: 'Approve Backdated withdrawals', icon: 'bi-exclamation-triangle' }
           ]
         },
         { 
@@ -758,7 +769,10 @@ const AdminDashboard = () => {
             { name: 'Approve GL Account Creation', icon: 'bi-journal-plus' },
             { name: 'Approve GL Account Edit', icon: 'bi-pencil-square' },
             { name: 'Approve Internal Transfers', icon: 'bi-arrow-left-right' },
-            { name: 'Approve Manual GL Postings', icon: 'bi-journal-bookmark-fill' }
+            { name: 'Approve Manual GL Postings', icon: 'bi-journal-bookmark-fill' },
+
+            { name: 'Approve Fund Transfer', icon: 'bi-arrow-left-right' },
+            { name: 'Approve Backdated FTs', icon: 'bi-journal-bookmark-fill' }
           ]
         },
         { 
@@ -1332,6 +1346,10 @@ const AdminDashboard = () => {
           return <ApproveCashWithdrawalReversal />;
         case 'Approve Teller Shortage & Overage':
           return <ApproveTellerShortageOverage />;
+        case 'Approve Backdated deposit':
+          return <ApproveBackdatedDeposit/>;
+        case 'Approve Backdated withdrawals':
+         return <ApproveBackdatedWithdrawals />;
         default:
           return (
             <div className="bg-light p-4 rounded-3 text-center">
@@ -1353,6 +1371,14 @@ const AdminDashboard = () => {
           return <ApproveInternalTransfers />;
         case 'Approve Manual GL Postings':
           return <ApproveManualGLPostings />;
+
+
+          case 'Approve Fund Transfer':
+          return <ApproveFundTransfer />;
+        case 'Approve Backdated FTs':
+          return <ApproveBackdatedFts />;
+
+
         default:
           return (
             <div className="bg-light p-4 rounded-3 text-center">
