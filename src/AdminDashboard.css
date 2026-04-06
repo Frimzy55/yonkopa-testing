@@ -1,0 +1,324 @@
+/* ================== GLOBAL RESET ================== */
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100vh;
+  overflow: hidden; /* ✅ PREVENT BODY SCROLLING */
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* ================== LAYOUT ================== */
+.d-flex.vh-100 {
+  height: 100vh !important;
+  margin-top: 60px; /* Offset for fixed navbar */
+  overflow: hidden;
+}
+
+/* Sidebar + Content wrapper */
+.flex-grow-1 {
+  overflow: hidden !important;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ================== FULL-WIDTH NAVBAR ================== */
+.full-width-navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  width: 100%;
+  height: 60px;
+  z-index: 1030;
+  background-color: #656af8 !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.full-width-navbar .container-fluid {
+  width: 100%;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+/* ================== SIDEBAR ================== */
+.sidebar,
+.bg-dark {
+  height: calc(100vh - 60px);
+  overflow-y: auto !important; /* Sidebar scrolls if needed */
+  overflow-x: hidden;
+  background-color: #1e293b !important;
+  scrollbar-width: thin;
+}
+
+/* Sidebar custom scrollbar */
+.sidebar::-webkit-scrollbar,
+.bg-dark::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sidebar::-webkit-scrollbar-track,
+.bg-dark::-webkit-scrollbar-track {
+  background: #2d3748;
+}
+
+.sidebar::-webkit-scrollbar-thumb,
+.bg-dark::-webkit-scrollbar-thumb {
+  background: #4a5568;
+  border-radius: 4px;
+}
+
+.sidebar::-webkit-scrollbar-thumb:hover,
+.bg-dark::-webkit-scrollbar-thumb:hover {
+  background: #718096;
+}
+
+/* Sidebar menu container */
+.sidebar-menu-container {
+  overflow: visible !important;
+  height: auto !important;
+}
+
+/* ================== MENU ITEMS ================== */
+.menu-item,
+.submenu-item,
+.report-item,
+.nested-item {
+  border-radius: 6px;
+  padding: 6px 10px;
+  cursor: pointer;
+  background-color: transparent;
+  color: rgba(255, 255, 255, 0.8);
+  margin-bottom: 2px;
+  width: 100%;
+  text-align: left;
+  transition: all 0.2s ease;
+  font-size: 0.85rem;
+  border: none;
+  position: relative;
+}
+
+/* REMOVE DEFAULT BLUE HOVER */
+.menu-item:hover,
+.submenu-item:hover,
+.report-item:hover,
+.nested-item:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+  color: #fff;
+}
+
+/* ACTIVE STATE */
+.menu-item.active,
+.submenu-item.active,
+.report-item.active,
+.nested-item.active {
+  background: linear-gradient(135deg, #0d6efd, #0b5ed7);
+  color: #fff;
+}
+
+/* Active indicator line */
+.menu-item.active::before,
+.submenu-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  height: 50%;
+  width: 3px;
+  background: white;
+  border-radius: 0 2px 2px 0;
+}
+
+/* ================== ICONS ================== */
+.menu-icon {
+  font-size: 0.95rem;
+  min-width: 24px;
+}
+
+.submenu-icon {
+  font-size: 0.85rem;
+  min-width: 22px;
+}
+
+.report-icon,
+.nested-icon {
+  font-size: 0.8rem;
+  min-width: 20px;
+}
+
+/* ================== TEXT ================== */
+.menu-text {
+  font-size: 0.85rem;
+  font-weight: 500;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.submenu-text {
+  font-size: 0.82rem;
+}
+
+.report-text,
+.nested-text {
+  font-size: 0.78rem;
+}
+
+/* ================== SUBMENUS ================== */
+.submenu-container,
+.report-container,
+.nested-container {
+  margin-left: 8px;
+  padding-left: 6px;
+  border-left: 1px solid rgba(255,255,255,0.1);
+}
+
+/* ================== SIDEBAR HEADER ================== */
+.sidebar-header {
+  padding: 0.75rem;
+}
+
+.sidebar-title {
+  font-size: 1rem;
+}
+
+/* ================== CONTENT AREA ================== */
+.dashboard-content-area {
+  overflow-y: auto !important; /* ✅ ONLY CONTENT AREA SCROLLS */
+  overflow-x: hidden;
+  height: calc(100vh - 60px);
+  background-color: #f8fafc;
+  width: 100%;
+  padding: 1rem;
+  scrollbar-width: thin;
+  scrollbar-color: #888 #f1f1f1;
+}
+
+/* ✅ CONTENT AREA SCROLLBAR STYLES */
+.dashboard-content-area::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+.dashboard-content-area::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.dashboard-content-area::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.dashboard-content-area::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* ================== CARDS ================== */
+.card {
+  border-radius: 12px;
+}
+
+.welcome-card {
+  padding: 0.75rem 1rem;
+  margin-bottom: 0.75rem;
+}
+
+/* ================== BUTTONS ================== */
+button {
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+button:focus {
+  outline: none;
+  box-shadow: none;
+}
+
+/* ================== UTILS ================== */
+.text-secondary {
+  color: #64748b !important;
+}
+
+/* ================== RESPONSIVE ================== */
+@media (max-width: 768px) {
+  .menu-text {
+    font-size: 0.8rem;
+  }
+
+  .dashboard-content-area {
+    padding: 0.75rem;
+  }
+  
+  .full-width-navbar .container-fluid {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+  
+  .full-width-navbar .navbar-brand {
+    font-size: 1rem;
+  }
+  
+  /* Adjust heights for mobile */
+  .full-width-navbar {
+    height: 56px;
+  }
+  
+  .d-flex.vh-100 {
+    margin-top: 56px;
+  }
+  
+  .sidebar,
+  .bg-dark {
+    height: calc(100vh - 56px);
+  }
+  
+  .dashboard-content-area {
+    height: calc(100vh - 56px);
+  }
+}
+
+/* ================== ADDITIONAL FIXES ================== */
+/* Ensure no extra scrollbars appear */
+* {
+  box-sizing: border-box;
+}
+
+/* Fix for any potential overflow issues */
+.row {
+  margin-left: 0;
+  margin-right: 0;
+}
+
+/* Container fluid inside content area */
+.dashboard-content-area .container-fluid {
+  padding-left: 0;
+  padding-right: 0;
+}
+
+/* Ensure cards don't cause overflow */
+.card {
+  overflow-x: auto;
+}
+
+/* Table responsiveness inside content area */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
