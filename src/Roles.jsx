@@ -95,7 +95,7 @@ const Roles = () => {
     setFormData(prev => {
       let newPermissions;
       if (allSelected) {
-        // Deselect all in category
+      
         newPermissions = prev.permissions.filter(p => !categoryPermissions.includes(p));
       } else {
         // Select all in category
