@@ -1,0 +1,372 @@
+/* LoanForm.css */
+.content-section {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+.form-step {
+  margin-top: 20px;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 15px;
+}
+
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 20px;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.nav-btn.submit-btn {
+  background-color: #0d6efd;
+  color: white;
+}
+
+.nav-btn.next-btn {
+  background-color: #198754;
+  color: white;
+}
+
+.nav-btn.prev-btn {
+  background-color: #6c757d;
+  color: white;
+}
+
+.progress-container {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.progress-step-wrapper {
+  display: flex;
+  align-items: center;
+}
+
+.progress-step-circle {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: #ddd;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+}
+
+.progress-step-circle.active {
+  background: #0d6efd;
+  color: white;
+}
+
+.progress-step-circle.completed {
+  background: #198754;
+  color: white;
+}
+
+.progress-line {
+  flex: 1;
+  height: 4px;
+  background: #ddd;
+}
+
+.progress-line.completed {
+  background: #198754;
+}
+
+.progress-step-label {
+  display: flex;
+  flex-direction: column;
+  margin-left: 5px;
+  margin-right: 15px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Progress Bar Styles */
+.progress-section {
+  margin-bottom: 2.5rem;
+}
+
+.progress-bar-container {
+  height: 8px;
+  background-color: #e9ecef;
+  border-radius: 4px;
+  overflow: hidden;
+  margin-bottom: 1.5rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #4f46e5, #7c3aed);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+.step-indicators {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  position: relative;
+}
+
+.step-indicators::before {
+  content: '';
+  position: absolute;
+  top: 20px;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background-color: #e9ecef;
+  z-index: 1;
+}
+
+.step-indicator {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  z-index: 2;
+  flex: 1;
+}
+
+.step-number {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background-color: #e9ecef;
+  color: #6c757d;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  border: 3px solid white;
+  transition: all 0.3s ease;
+}
+
+.step-indicator.active .step-number {
+  background-color: #4f46e5;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+}
+
+.step-indicator.current .step-number {
+  background-color: #7c3aed;
+  transform: scale(1.1);
+}
+
+.step-title {
+  font-size: 0.85rem;
+  color: #6c757d;
+  text-align: center;
+  padding: 0 5px;
+  max-width: 100px;
+}
+
+.step-indicator.active .step-title {
+  color: #4f46e5;
+  font-weight: 500;
+}
+
+.progress-text {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.95rem;
+  color: #495057;
+  padding: 0.5rem 0;
+}
+
+.progress-percentage {
+  font-weight: 600;
+  color: #4f46e5;
+  background-color: #eef2ff;
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+}
+
+/* Form Navigation Buttons */
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #dee2e6;
+}
+
+.btn-prev,
+.btn-next,
+.btn-submit {
+  padding: 0.75rem 1.5rem;
+  border-radius: 6px;
+  font-weight: 500;
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.btn-prev {
+  background-color: #e9ecef;
+  color: #495057;
+}
+
+.btn-prev:hover {
+  background-color: #dee2e6;
+}
+
+.btn-next {
+  background-color: #4f46e5;
+  color: white;
+  margin-left: auto;
+}
+
+.btn-next:hover {
+  background-color: #4338ca;
+}
+
+.btn-submit {
+  background-color: #10b981;
+  color: white;
+  margin-left: auto;
+}
+
+.btn-submit:hover {
+  background-color: #059669;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .step-indicators {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .step-indicators::before {
+    display: none;
+  }
+
+  .step-indicator {
+    flex: 0 0 calc(50% - 0.5rem);
+    margin-bottom: 1rem;
+  }
+
+  .step-title {
+    font-size: 0.8rem;
+    max-width: none;
+  }
+
+  .form-navigation {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .btn-prev,
+  .btn-next,
+  .btn-submit {
+    width: 100%;
+  }
+
+  .btn-next,
+  .btn-submit {
+    margin-left: 0;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999;
+}
+
+.modal-box {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  text-align: center;
+  width: 300px;
+}
+
+.modal-box.success {
+  border-top: 5px solid green;
+}
+
+.modal-box.error {
+  border-top: 5px solid red;
+}
+
+.modal-box button {
+  margin-top: 15px;
+  padding: 8px 15px;
+  border: none;
+  background: #007bff;
+  color: white;
+  border-radius: 5px;
+  cursor: pointer;
+}
+
+.spinner {
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #007bff;
+  border-radius: 50%;
+  width: 35px;
+  height: 35px;
+  animation: spin 1s linear infinite;
+  margin: auto;
+}
+
+@keyframes spin {
+  100% {
+    transform: rotate(360deg);
+  }
+}

@@ -9,9 +9,8 @@ const ApproveWebLoanApplication = () => {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
-  const [entries, setEntries] = useState(10); // Default rows per page
+  const [entries, setEntries] = useState(10);
 
-  // Fetch data from backend
   useEffect(() => {
     const fetchLoanData = async () => {
       try {
@@ -32,13 +31,10 @@ const ApproveWebLoanApplication = () => {
     fetchLoanData();
   }, []);
 
-  // Handle action click
   const handleAction = (action, loanId) => {
     console.log(`Action: ${action} for Loan ID: ${loanId}`);
-    // TODO: Make API call to approve/reject or view details
   };
 
-  // Handle search
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -51,12 +47,10 @@ const ApproveWebLoanApplication = () => {
     setFilteredData(filtered);
   };
 
-  // Handle entries change
   const handleEntriesChange = (e) => {
     setEntries(Number(e.target.value));
   };
 
-  // Function to return badge color based on status
   const getStatusBadge = (status) => {
     switch (status.toLowerCase()) {
       case "approved":
@@ -88,7 +82,6 @@ const ApproveWebLoanApplication = () => {
     <div className="loan-table-container">
       <h2 className="mb-4">Full Loan KYC Applications</h2>
 
-      {/* Search and Entries */}
       <Row className="mb-3 align-items-center">
         <Col md={6} sm={12} className="mb-2">
           <Form.Control

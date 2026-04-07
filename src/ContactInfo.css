@@ -1,0 +1,6 @@
+.form-step label {
+  color: #5bc0de; /* light blue */
+  font-weight: 500;
+  margin-bottom: 0.25rem;
+  display: block;
+}

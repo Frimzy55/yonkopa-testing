@@ -1,0 +1,27 @@
+.avatar-dropdown {
+  position: absolute;
+  top: 60px;
+  right: 20px;
+  width: 180px;
+  background: rgb(58, 70, 236);
+  border-radius: 8px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  overflow: hidden;
+}
+
+.dropdown-item {
+  padding: 12px;
+  cursor: pointer;
+  font-size: 14px;
+  border-bottom: 1px solid #eee;
+}
+
+.dropdown-item:hover {
+  background-color: #6156fa;
+}
+
+.dropdown-item.logout {
+  color: red;
+  font-weight: bold;
+}
