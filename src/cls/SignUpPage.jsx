@@ -44,7 +44,7 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
         }
         break;
 
-      case "identifier":
+     /* case "identifier":
         if (!value) {
           newErrors.identifier = "Email or phone number is required";
         } else {
@@ -58,7 +58,25 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
             delete newErrors.identifier;
           }
         }
-        break;
+        break;*/
+
+        case "identifier":
+  if (!value) {
+    newErrors.identifier = "Email or phone number is required";
+  } else {
+    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+    // Accept numbers with optional +country code, and 10-12 digits
+    const cleaned = value.replace(/\D/g, "");
+    const isPhone = /^\d{10,12}$/.test(cleaned);
+
+    if (!isEmail && !isPhone) {
+      newErrors.identifier =
+        "Enter a valid email or phone number (10-12 digits)";
+    } else {
+      delete newErrors.identifier;
+    }
+  }
+  break;
 
       case "password":
         if (!value) newErrors.password = "Password is required";
