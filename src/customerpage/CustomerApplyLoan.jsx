@@ -80,7 +80,7 @@ const CustomerApplyLoan = ({ user }) => {
               <div className="mb-3">
                 <label  hidden className="form-label">Phone Number</label>
                 <input
-                  name="phone"
+                  name="userId"
                   type="tel"
                   value={formData.userId}
                   onChange={handleInputChange}
