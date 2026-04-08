@@ -25,7 +25,7 @@ const LoginPage = ({ onClose }) => {
   const validateField = (name, value) => {
     const newErrors = { ...errors };
     switch (name) {
-      case 'identifier':
+      /*case 'identifier':
         if (!value.trim()) newErrors.identifier = 'Email or phone is required';
         else if (
           !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && // not valid email
@@ -33,7 +33,18 @@ const LoginPage = ({ onClose }) => {
         ) {
           newErrors.identifier = 'Enter a valid email or 10-digit phone';
         } else delete newErrors.identifier;
-        break;
+        break; */
+
+        case 'identifier':
+  const trimmedValue = value.trim();
+  const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmedValue);
+  const digitsOnly = trimmedValue.replace(/\D/g, '');
+  const isPhone = digitsOnly.length === 10; // or adjust for country code if needed
+
+  if (!trimmedValue) newErrors.identifier = 'Email or phone is required';
+  else if (!isEmail && !isPhone) newErrors.identifier = 'Enter a valid email or 10-digit phone';
+  else delete newErrors.identifier;
+  break;
 
       case 'password':
         if (!value) newErrors.password = 'Password is required';

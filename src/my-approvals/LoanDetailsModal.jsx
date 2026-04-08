@@ -22,32 +22,48 @@ const LoanDetailsModal = ({ show, onClose, loan, onApprove, onReject, onViewKyc 
 
       <Modal.Body>
         {/* Step 1: Personal Information */}
-        {step === 1 && (
-          <>
-            <h5>Personal Information</h5>
-            <Table bordered size="sm" className="mb-4">
-              <tbody>
-                <tr>
-                  <td style={{ width: "30%", fontWeight: "bold" }}>Customer ID:</td>
-                  <td>{loan.kyc_code}</td>
-                </tr>
-                <tr>
-                  <td style={{ fontWeight: "bold" }}>Full Name:</td>
-                  <td>{loan.applicant_fullName}</td>
-                </tr>
-                <tr>
-                  <td style={{ fontWeight: "bold" }}>Email:</td>
-                  <td>{loan.applicant_email}</td>
-                </tr>
-                <tr>
-                  <td style={{ fontWeight: "bold" }}>Phone:</td>
-                  <td>{loan.applicant_phone}</td>
-                </tr>
-              </tbody>
-            </Table>
-          </>
-        )}
-
+       {/* Step 1: Personal Information */}
+{step === 1 && (
+  <>
+    <h5>Personal Information</h5>
+    <Table bordered size="sm" className="mb-4">
+      <tbody>
+        <tr>
+          <td style={{ width: "30%", fontWeight: "bold" }}>Customer ID:</td>
+          <td>{loan.kyc_code}</td>
+        </tr>
+        <tr>
+          <td style={{ fontWeight: "bold" }}>Full Name:</td>
+          <td>{loan.applicant_fullName}</td>
+        </tr>
+        <tr>
+          <td style={{ fontWeight: "bold" }}>Email:</td>
+          <td>{loan.applicant_email}</td>
+        </tr>
+        <tr>
+          <td style={{ fontWeight: "bold" }}>Phone:</td>
+          <td>{loan.applicant_phone}</td>
+        </tr>
+        <tr>
+          <td style={{ fontWeight: "bold" }}>Date of Birth:</td>
+          <td>{loan.personal_dob ? new Date(loan.applicant_dob).toLocaleDateString() : "—"}</td>
+        </tr>
+        <tr>
+          <td style={{ fontWeight: "bold" }}>Gender:</td>
+          <td>{loan.applicant_gender || "—"}</td>
+        </tr>
+        <tr>
+          <td style={{ fontWeight: "bold" }}>National ID:</td>
+          <td>{loan.applicant_national_id || "—"}</td>
+        </tr>
+        <tr>
+          <td style={{ fontWeight: "bold" }}>Marital Status:</td>
+          <td>{loan.applicant_marital_status || "—"}</td>
+        </tr>
+      </tbody>
+    </Table>
+  </>
+)}
         {/* Step 2: Loan Details */}
         {step === 2 && (
           <>

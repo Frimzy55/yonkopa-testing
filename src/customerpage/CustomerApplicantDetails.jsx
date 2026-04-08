@@ -3,7 +3,7 @@ import React from "react";
 
 const ApplicantDetails = ({ formData, handleInputChange }) => {
   return (
-    <div className="form-step" style={{ display: "none" }}>
+    <div className="form-step" style={{ display: "" }}>
       <h3>Applicant Details</h3>
        <input name="user id" value={formData.userId} readOnly />
       <input
