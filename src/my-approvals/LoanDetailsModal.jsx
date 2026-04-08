@@ -33,7 +33,7 @@ const LoanDetailsModal = ({ show, onClose, loan, onApprove, onReject, onViewKyc 
                 </tr>
                 <tr>
                   <td style={{ fontWeight: "bold" }}>Full Name:</td>
-                  <td>{loan.fullName}</td>
+                  <td>{loan.applicant_fullName}</td>
                 </tr>
                 <tr>
                   <td style={{ fontWeight: "bold" }}>Email:</td>
@@ -41,7 +41,7 @@ const LoanDetailsModal = ({ show, onClose, loan, onApprove, onReject, onViewKyc 
                 </tr>
                 <tr>
                   <td style={{ fontWeight: "bold" }}>Phone:</td>
-                  <td>{loan.phone}</td>
+                  <td>{loan.applicant_phone}</td>
                 </tr>
               </tbody>
             </Table>
