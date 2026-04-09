@@ -203,19 +203,44 @@ const CustomerCompleteKyc = ({ user }) => {
   // RENDER PREVIEW AFTER SUBMIT
   // ==========================
   const renderPreview = () => (
-    <div className="kyc-preview">
-      <h3>✅ KYC Submitted Successfully!</h3>
-      <p><strong>Name:</strong> {formData.firstName} {formData.middleName} {formData.lastName}</p>
-      <p><strong>Email:</strong> {formData.email}</p>
-      <p><strong>Phone:</strong> {formData.mobileNumber}</p>
-      <p><strong>Employment Status:</strong> {formData.employmentStatus}</p>
-      <p><strong>Employer / Business:</strong> {formData.employerName || formData.businessName}</p>
-      <p><strong>References:</strong></p>
-      <ul>
-        <li>{formData.referenceName1} - {formData.referencePhone1} ({formData.referenceRelationship1})</li>
-        <li>{formData.referenceName2} - {formData.referencePhone2} ({formData.referenceRelationship2})</li>
-      </ul>
+    <div className="kyc-preview-card">
+  <h3 className="kyc-title">✅ KYC Submitted Successfully!</h3>
+
+  <div className="kyc-grid">
+    <div className="kyc-item">
+      <span className="kyc-label">Name:</span>
+      <span className="kyc-value">{formData.firstName} {formData.middleName} {formData.lastName}</span>
     </div>
+
+    <div className="kyc-item">
+      <span className="kyc-label">Email:</span>
+      <span className="kyc-value">{formData.email}</span>
+    </div>
+
+    <div className="kyc-item">
+      <span className="kyc-label">Phone:</span>
+      <span className="kyc-value">{formData.mobileNumber}</span>
+    </div>
+
+    <div className="kyc-item">
+      <span className="kyc-label">Employment Status:</span>
+      <span className="kyc-value">{formData.employmentStatus}</span>
+    </div>
+
+    <div className="kyc-item">
+      <span className="kyc-label">Employer / Business:</span>
+      <span className="kyc-value">{formData.employerName || formData.businessName}</span>
+    </div>
+  </div>
+
+  <div className="kyc-references">
+    <h4>References</h4>
+    <ul>
+      <li>{formData.referenceName1} - {formData.referencePhone1} ({formData.referenceRelationship1})</li>
+      <li>{formData.referenceName2} - {formData.referencePhone2} ({formData.referenceRelationship2})</li>
+    </ul>
+  </div>
+</div>
   );
 
   // ==========================

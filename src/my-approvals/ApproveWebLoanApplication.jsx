@@ -13,6 +13,7 @@ import {
 } from "react-bootstrap";
 import axios from "axios";
 import LoanDetailsModal from "./LoanDetailsModal";
+import KycDetailsModal from "./KycDetailsModal";
 
 const ApproveWebLoanApplication = () => {
   const [loanData, setLoanData] = useState([]);
@@ -24,6 +25,9 @@ const ApproveWebLoanApplication = () => {
 
   const [showModal, setShowModal] = useState(false);
   const [selectedLoan, setSelectedLoan] = useState(null);
+
+  const [showKycModal, setShowKycModal] = useState(false);
+  const [selectedKyc, setSelectedKyc] = useState(null);
 
   // ✅ Fetch all loans
   useEffect(() => {
@@ -49,7 +53,7 @@ const ApproveWebLoanApplication = () => {
     fetchLoanData();
   }, []);
 
-  // ✅ Handle actions
+  // ✅ Handle actions (Approve, Reject, View)
   const handleAction = async (action, loan) => {
     if (action === "view") {
       try {
@@ -57,13 +61,39 @@ const ApproveWebLoanApplication = () => {
           `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.userId}`
         );
 
-        setSelectedLoan(res.data); // full details
+        setSelectedLoan(res.data);
         setShowModal(true);
       } catch (err) {
         console.error("Error fetching details:", err);
       }
-    } else {
-      console.log(`Action: ${action} for Loan ID: ${loan.userId}`);
+    }
+
+    if (action === "approve") {
+      console.log("Approved:", loan);
+      // 👉 connect API later
+    }
+
+    if (action === "reject") {
+      console.log("Rejected:", loan);
+      // 👉 connect API later
+    }
+  };
+
+  // ✅ 🔥 VIEW KYC HANDLER (MAIN FIX)
+  const handleViewKyc = async (loan) => {
+    try {
+      const res = await axios.get(
+        `${process.env.REACT_APP_API_URL}/api/admin/kyc/${loan.kyc_code}`
+      );
+
+      setSelectedKyc(res.data);
+      setShowKycModal(true);
+    } catch (err) {
+      console.error("Error fetching KYC:", err);
+
+      // fallback if already included
+      setSelectedKyc(loan);
+      setShowKycModal(true);
     }
   };
 
@@ -217,12 +247,22 @@ const ApproveWebLoanApplication = () => {
         </tbody>
       </Table>
 
-      {/* ✅ Modal */}
-     <LoanDetailsModal
-  show={showModal}
-  onClose={() => setShowModal(false)}   // ✅ FIX HERE
-  loan={selectedLoan}
-/>
+      {/* ✅ Loan Modal */}
+      <LoanDetailsModal
+        show={showModal}
+        onClose={() => setShowModal(false)}
+        loan={selectedLoan}
+        onApprove={(loan) => handleAction("approve", loan)}
+        onReject={(loan) => handleAction("reject", loan)}
+        onViewKyc={handleViewKyc}   // 🔥 FIX CONNECTED
+      />
+
+      {/* ✅ KYC Modal */}
+      <KycDetailsModal
+        show={showKycModal}
+        onClose={() => setShowKycModal(false)}
+        kyc={selectedKyc}
+      />
     </div>
   );
 };
