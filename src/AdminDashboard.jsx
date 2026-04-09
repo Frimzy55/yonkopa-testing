@@ -42,6 +42,25 @@ import LoanApproval from './loans/LoanApproval';
 import LoanDisbursement from './loans/LoanDisbursement';
 import LoanRepayment from './loans/LoanRepayment';
 
+// New Loan imports to add
+import EditLoanApplication from './loans/EditLoanApplication';
+import EditLoanEvaluation from './loans/EditLoanEvaluation';
+import DisburseLoanList from './loans/DisburseLoanList';
+import ExpectedRepayments from './loans/ExpectedRepayments';
+import DueRepayments from './loans/DueRepayments';
+import ViewLoan from './loans/ViewLoan';
+import ReverseLoan from './loans/ReverseLoan';
+import TerminateLoan from './loans/TerminateLoan';
+import LoanReschedule from './loans/LoanReschedule';
+
+
+
+// Investment imports
+import NewInvestment from './investment/NewInvestment';
+import ManageInvestment from './investment/ManageInvestment';
+import InvestmentRedemption from './investment/InvestmentRedemption';
+import InvestmentEnquiries from './investment/InvestmentEnquiries';
+
 import GLAccounts from './internal-account/GLAccounts';
 import InternalTransfers from './internal-account/InternalTransfers';
 
@@ -719,16 +738,38 @@ const menuItems = useMemo(() => [
        { name: 'Teller Summary', icon: 'bi-bar-chart' }  // Added Teller Summary here
     ]
   },
-  { 
-    name: 'Loans', 
-    icon: 'bi-piggy-bank',
-    subMenus: [
-      { name: 'Loan Application', icon: 'bi-file-text' },
-      { name: 'Loan Approval', icon: 'bi-check-circle' },
-      { name: 'Loan Disbursement', icon: 'bi-cash' },
-      { name: 'Loan Repayment', icon: 'bi-arrow-return-left' }
-    ]
-  },
+ { 
+  name: 'Loans', 
+  icon: 'bi-piggy-bank',
+  subMenus: [
+    { name: 'Loan Application', icon: 'bi-file-text' },
+    { name: 'Edit Loan Application', icon: 'bi-pencil-square' },
+    { name: 'Edit Loan Evaluation', icon: 'bi-clipboard-check' },
+    { name: 'Loan Approval', icon: 'bi-check-circle' },
+    { name: 'Loan Disbursement', icon: 'bi-cash' },
+    { name: 'Disburse Loan List', icon: 'bi-list-check' },
+    { name: 'Loan Repayment', icon: 'bi-arrow-return-left' },
+    { name: 'Expected Repayments', icon: 'bi-calendar-check' },
+    { name: 'Due Repayments', icon: 'bi-calendar-exclamation' },
+    { name: 'View Loan', icon: 'bi-eye' },
+    { name: 'Reverse Loan', icon: 'bi-arrow-return-right' },
+    { name: 'Terminate Loan', icon: 'bi-x-octagon' },
+    { name: 'Loan Reschedule', icon: 'bi-calendar-week' }
+  ]
+},
+
+{ 
+  name: 'Investment', 
+  icon: 'bi-graph-up',
+  subMenus: [
+    { name: 'New Investment', icon: 'bi-plus-circle' },
+    { name: 'Manage Investment', icon: 'bi-gear' },
+    { name: 'Investment Redemption', icon: 'bi-cash-stack' },
+    { name: 'Enquiries', icon: 'bi-question-circle' }
+  ]
+},
+
+
   { 
     name: 'Internal Accounts', 
     icon: 'bi-diagram-3',
@@ -1622,24 +1663,63 @@ if (activeMenu === 'Teller') {
 }
 
     if (activeMenu === 'Loans') {
-      switch(activeSubMenu) {
-        case 'Loan Application':
-          return <LoanApplication />;
-        case 'Loan Approval':
-          return <LoanApproval />;
-        case 'Loan Disbursement':
-          return <LoanDisbursement />;
-        case 'Loan Repayment':
-          return <LoanRepayment />;
-        default:
-          return (
-            <div className="bg-light p-4 rounded-3 text-center">
-              <i className="bi bi-piggy-bank fs-1 text-secondary"></i>
-              <p className="mt-2 mb-0">Please select a loan management option from the menu.</p>
-            </div>
-          );
-      }
-    }
+  switch(activeSubMenu) {
+    case 'Loan Application':
+      return <LoanApplication />;
+    case 'Edit Loan Application':
+      return <EditLoanApplication />;  // You'll need to create/import this component
+    case 'Edit Loan Evaluation':
+      return <EditLoanEvaluation />;   // You'll need to create/import this component
+    case 'Loan Approval':
+      return <LoanApproval />;
+    case 'Loan Disbursement':
+      return <LoanDisbursement />;
+    case 'Disburse Loan List':
+      return <DisburseLoanList />;     // You'll need to create/import this component
+    case 'Loan Repayment':
+      return <LoanRepayment />;
+    case 'Expected Repayments':
+      return <ExpectedRepayments />;   // You'll need to create/import this component
+    case 'Due Repayments':
+      return <DueRepayments />;        // You'll need to create/import this component
+    case 'View Loan':
+      return <ViewLoan />;             // You'll need to create/import this component
+    case 'Reverse Loan':
+      return <ReverseLoan />;          // You'll need to create/import this component
+    case 'Terminate Loan':
+      return <TerminateLoan />;        // You'll need to create/import this component
+    case 'Loan Reschedule':
+      return <LoanReschedule />;       // You'll need to create/import this component
+    default:
+      return (
+        <div className="bg-light p-4 rounded-3 text-center">
+          <i className="bi bi-piggy-bank fs-1 text-secondary"></i>
+          <p className="mt-2 mb-0">Please select a loan management option from the menu.</p>
+        </div>
+      );
+  }
+}
+
+
+if (activeMenu === 'Investment') {
+  switch(activeSubMenu) {
+    case 'New Investment':
+      return <NewInvestment />;
+    case 'Manage Investment':
+      return <ManageInvestment />;
+    case 'Investment Redemption':
+      return <InvestmentRedemption />;
+    case 'Enquiries':
+      return <InvestmentEnquiries />;
+    default:
+      return (
+        <div className="bg-light p-4 rounded-3 text-center">
+          <i className="bi bi-graph-up fs-1 text-secondary"></i>
+          <p className="mt-2 mb-0">Please select an investment option from the menu.</p>
+        </div>
+      );
+  }
+}
 
     if (activeMenu === 'Internal Accounts') {
       switch(activeSubMenu) {
