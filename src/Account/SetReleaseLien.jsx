@@ -66,60 +66,60 @@ const SetReleaseLien = () => {
     const { name, value } = e.target;
     setLienData(prev => ({ ...prev, [name]: value }));
   };
+const handleSubmit = async (e) => {
+  e.preventDefault();
+  setLoading(true);
+  setError('');
+  setSuccess('');
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    setError('');
-    setSuccess('');
-
-    try {
-      const token = localStorage.getItem('token');
-      let response;
-      
-      if (lienType === 'Set') {
-        response = await axios.post(`/api/accounts/${searchTerm}/lien`, lienData, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setSuccess('Lien set successfully!');
-      } else {
-        response = await axios.delete(`/api/accounts/${searchTerm}/lien`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        setSuccess('Lien released successfully!');
-      }
-      
-      // Refresh account data
-      const updatedAccount = await axios.get(`/api/accounts/${searchTerm}`, {
+  try {
+    const token = localStorage.getItem('token');
+    
+    if (lienType === 'Set') {
+      await axios.post(`/api/accounts/${searchTerm}/lien`, lienData, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setAccount(updatedAccount.data);
-      
-      if (updatedAccount.data.lien) {
-        setLienType('Release');
-        setLienData({
-          amount: updatedAccount.data.lien.amount || '',
-          reason: updatedAccount.data.lien.reason || '',
-          expiryDate: updatedAccount.data.lien.expiryDate || '',
-          reference: updatedAccount.data.lien.reference || ''
-        });
-      } else {
-        setLienType('Set');
-        setLienData({
-          amount: '',
-          reason: '',
-          expiryDate: '',
-          reference: ''
-        });
-      }
-      
-      setTimeout(() => setSuccess(''), 3000);
-    } catch (err) {
-      setError(err.response?.data?.message || `Failed to ${lienType === 'Set' ? 'set' : 'release'} lien`);
-    } finally {
-      setLoading(false);
+      setSuccess('Lien set successfully!');
+    } else {
+      await axios.delete(`/api/accounts/${searchTerm}/lien`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setSuccess('Lien released successfully!');
     }
-  };
+
+    // Refresh account data
+    const updatedAccount = await axios.get(`/api/accounts/${searchTerm}`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+
+    setAccount(updatedAccount.data);
+
+    if (updatedAccount.data.lien) {
+      setLienType('Release');
+      setLienData({
+        amount: updatedAccount.data.lien.amount || '',
+        reason: updatedAccount.data.lien.reason || '',
+        expiryDate: updatedAccount.data.lien.expiryDate || '',
+        reference: updatedAccount.data.lien.reference || ''
+      });
+    } else {
+      setLienType('Set');
+      setLienData({
+        amount: '',
+        reason: '',
+        expiryDate: '',
+        reference: ''
+      });
+    }
+
+    setTimeout(() => setSuccess(''), 3000);
+
+  } catch (err) {
+    setError(err.response?.data?.message || `Failed to ${lienType === 'Set' ? 'set' : 'release'} lien`);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const getAvailableBalance = () => {
     if (!account) return 0;

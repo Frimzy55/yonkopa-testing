@@ -715,7 +715,8 @@ const menuItems = useMemo(() => [
           { name: 'Backdated Entry Reversal', icon: 'bi-calendar-x' }
         ]
       },
-      { name: 'Call Over', icon: 'bi-megaphone' }
+      { name: 'Call Over', icon: 'bi-megaphone' },
+       { name: 'Teller Summary', icon: 'bi-bar-chart' }  // Added Teller Summary here
     ]
   },
   { 
@@ -1606,6 +1607,11 @@ if (activeMenu === 'Teller') {
   if (activeSubMenu === 'Call Over') {
     return <CallOver />;
   }
+
+  if (activeSubMenu === 'Teller Summary') {  // Added Teller Summary case
+    return <TellerSummary />;
+  }
+  
   
   return (
     <div className="bg-light p-4 rounded-3 text-center">

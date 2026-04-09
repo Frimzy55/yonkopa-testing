@@ -6,7 +6,7 @@ const TillStatus = () => {
   const [tills, setTills] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [selectedTill, setSelectedTill] = useState(null);
+  //const [selectedTill, setSelectedTill] = useState(null);
 
   useEffect(() => {
     fetchTills();
