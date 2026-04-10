@@ -63,6 +63,13 @@ import InvestmentEnquiries from './investment/InvestmentEnquiries';
 
 import GLAccounts from './internal-account/GLAccounts';
 import InternalTransfers from './internal-account/InternalTransfers';
+import InternalAccountStatement from './internal-account/InternalAccountStatement';
+import CreateFundTransfer from './internal-account/CreateFundTransfer';
+import CreateBackdatedFT from './internal-account/CreateBackdatedFT';
+import ListFundTransfers from './internal-account/ListFundTransfers';
+import SetLien from './internal-account/SetLien';
+import ReleaseLien from './internal-account/ReleaseLien';
+import LienEnquiries from './internal-account/LienEnquiries';
 
 import UserManagement from './UserManagement';
 import Roles from './Roles';
@@ -745,12 +752,12 @@ const menuItems = useMemo(() => [
     { name: 'Loan Application', icon: 'bi-file-text' },
     { name: 'Edit Loan Application', icon: 'bi-pencil-square' },
     { name: 'Edit Loan Evaluation', icon: 'bi-clipboard-check' },
-    { name: 'Loan Approval', icon: 'bi-check-circle' },
+    { name: ' Loan Evaluation', icon: 'bi-check-circle' },
     { name: 'Loan Disbursement', icon: 'bi-cash' },
     { name: 'Disburse Loan List', icon: 'bi-list-check' },
-    { name: 'Loan Repayment', icon: 'bi-arrow-return-left' },
+    { name: 'Due Repayment', icon: 'bi-arrow-return-left' },
     { name: 'Expected Repayments', icon: 'bi-calendar-check' },
-    { name: 'Due Repayments', icon: 'bi-calendar-exclamation' },
+    //{ name: 'Due Repayments', icon: 'bi-calendar-exclamation' },
     { name: 'View Loan', icon: 'bi-eye' },
     { name: 'Reverse Loan', icon: 'bi-arrow-return-right' },
     { name: 'Terminate Loan', icon: 'bi-x-octagon' },
@@ -775,7 +782,26 @@ const menuItems = useMemo(() => [
     icon: 'bi-diagram-3',
     subMenus: [
       { name: 'GL Accounts', icon: 'bi-journal-bookmark-fill' },
-      { name: 'Internal Transfers', icon: 'bi-arrow-left-right' }
+      { name: 'Internal Transfers', icon: 'bi-arrow-left-right' },
+      { name: 'Internal Account Statement', icon: 'bi-receipt' },
+      { 
+        name: 'Fund Transfer', 
+        icon: 'bi-send',
+        nestedMenus: [
+          { name: 'Create Fund Transfer', icon: 'bi-plus-circle' },
+          { name: 'Create Backdated FT', icon: 'bi-calendar-minus' },
+          { name: 'List of Fund Transfers', icon: 'bi-list-ul' }
+        ]
+      },
+      { 
+        name: 'Lien', 
+        icon: 'bi-lock',
+        nestedMenus: [
+          { name: 'Set Lien', icon: 'bi-lock-fill' },
+          { name: 'Release Lien', icon: 'bi-unlock-fill' },
+          { name: 'Enquiries', icon: 'bi-question-circle' }
+        ]
+      }
     ]
   },
   { 
@@ -1722,11 +1748,39 @@ if (activeMenu === 'Investment') {
 }
 
     if (activeMenu === 'Internal Accounts') {
+      if (activeSubMenu === 'Fund Transfer') {
+        switch(activeNestedMenu) {
+          case 'Create Fund Transfer':
+            return <CreateFundTransfer />;
+          case 'Create Backdated FT':
+            return <CreateBackdatedFT />;
+          case 'List of Fund Transfers':
+            return <ListFundTransfers />;
+          default:
+            return <CreateFundTransfer />;
+        }
+      }
+      
+      if (activeSubMenu === 'Lien') {
+        switch(activeNestedMenu) {
+          case 'Set Lien':
+            return <SetLien />;
+          case 'Release Lien':
+            return <ReleaseLien />;
+          case 'Enquiries':
+            return <LienEnquiries />;
+          default:
+            return <SetLien />;
+        }
+      }
+      
       switch(activeSubMenu) {
         case 'GL Accounts':
           return <GLAccounts />;
         case 'Internal Transfers':
           return <InternalTransfers />;
+        case 'Internal Account Statement':
+          return <InternalAccountStatement />;
         default:
           return (
             <div className="bg-light p-4 rounded-3 text-center">
