@@ -6,8 +6,6 @@ const ContactInfo = ({
   formData = {},
   handleInputChange,
   formErrors = {},
-  isMobileLocked = false,
-  isEmailLocked = false,
 }) => {
   return (
     <div className="form-step">
@@ -16,7 +14,7 @@ const ContactInfo = ({
       <div className="form-grid">
 
         {/* Mobile Number */}
-        <div>
+        <div className="form-group">
           <label>Mobile Number *</label>
           <input
             type="tel"
@@ -25,8 +23,7 @@ const ContactInfo = ({
             onChange={handleInputChange}
             placeholder="Enter Mobile Number *"
             required
-            disabled={isMobileLocked} // ✅ controlled locking
-            className={isMobileLocked ? "bg-light" : ""}
+            className={formErrors?.mobileNumber ? "error-input" : ""}
           />
           {formErrors?.mobileNumber && (
             <span className="error-message">{formErrors.mobileNumber}</span>
@@ -34,7 +31,7 @@ const ContactInfo = ({
         </div>
 
         {/* Email */}
-        <div>
+        <div className="form-group">
           <label>Email Address *</label>
           <input
             type="email"
@@ -43,8 +40,7 @@ const ContactInfo = ({
             onChange={handleInputChange}
             placeholder="Enter Email Address *"
             required
-            disabled={isEmailLocked} // ✅ controlled locking
-            className={isEmailLocked ? "bg-light" : ""}
+            className={formErrors?.email ? "error-input" : ""}
           />
           {formErrors?.email && (
             <span className="error-message">{formErrors.email}</span>
@@ -52,7 +48,7 @@ const ContactInfo = ({
         </div>
 
         {/* Residential GPS Address */}
-        <div>
+        <div className="form-group">
           <label>Residential GPS Address *</label>
           <input
             type="text"
@@ -60,6 +56,7 @@ const ContactInfo = ({
             value={formData.residentialAddress || ""}
             onChange={handleInputChange}
             placeholder="Residential GPS Address"
+            className={formErrors?.residentialAddress ? "error-input" : ""}
           />
           {formErrors?.residentialAddress && (
             <span className="error-message">
@@ -69,7 +66,7 @@ const ContactInfo = ({
         </div>
 
         {/* Residential Landmark */}
-        <div>
+        <div className="form-group">
           <label>Residential Landmark</label>
           <input
             type="text"
@@ -77,6 +74,7 @@ const ContactInfo = ({
             value={formData.residentialLandmark || ""}
             onChange={handleInputChange}
             placeholder="Residential Landmark"
+            className={formErrors?.residentialLandmark ? "error-input" : ""}
           />
           {formErrors?.residentialLandmark && (
             <span className="error-message">
@@ -86,7 +84,7 @@ const ContactInfo = ({
         </div>
 
         {/* City/Town */}
-        <div>
+        <div className="form-group">
           <label>City/Town *</label>
           <input
             type="text"
@@ -94,6 +92,7 @@ const ContactInfo = ({
             value={formData.city || ""}
             onChange={handleInputChange}
             placeholder="City/Town"
+            className={formErrors?.city ? "error-input" : ""}
           />
           {formErrors?.city && (
             <span className="error-message">{formErrors.city}</span>
@@ -101,7 +100,7 @@ const ContactInfo = ({
         </div>
 
         {/* Suburb/Area */}
-        <div>
+        <div className="form-group">
           <label>Suburb/Area *</label>
           <input
             type="text"
@@ -109,6 +108,7 @@ const ContactInfo = ({
             value={formData.state || ""}
             onChange={handleInputChange}
             placeholder="Suburb/Area"
+            className={formErrors?.state ? "error-input" : ""}
           />
           {formErrors?.state && (
             <span className="error-message">{formErrors.state}</span>
@@ -116,14 +116,15 @@ const ContactInfo = ({
         </div>
 
         {/* Alternate Phone Number */}
-        <div>
-          <label>Alternate Phone Number *</label>
+        <div className="form-group">
+          <label>Alternate Phone Number</label>
           <input
-            type="text"
+            type="tel"
             name="alternatePhone"
             value={formData.alternatePhone || ""}
             onChange={handleInputChange}
             placeholder="Alternate Phone Number"
+            className={formErrors?.alternatePhone ? "error-input" : ""}
           />
           {formErrors?.alternatePhone && (
             <span className="error-message">

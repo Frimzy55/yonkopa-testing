@@ -1,392 +1,44 @@
-/* ================= Container ================= */
-.content-section {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-  font-family: Arial, sans-serif;
-}
+/* CustomerCompleteKyc.css - Mobile First */
 
-/* ================= Progress Bar - Card/Box Style (Option 5) ================= */
-.kyc-progress {
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  margin-bottom: 2rem;
-}
-
-.step {
-  flex: 1;
-  text-align: center;
-  cursor: pointer;
-}
-
-.step-circle {
-  display: none;
-}
-
-.step-label {
-  padding: 1rem;
-  background: white;
-  border: 1px solid #e0e0e0;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: #666;
-  transition: all 0.3s ease;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-.step.active .step-label {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  border-color: transparent;
-  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
-  transform: translateY(-2px);
-}
-
-.step:hover .step-label {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-/* Disabled step (future steps that can't be clicked) */
-.step[style*="cursor: not-allowed"] {
-  cursor: not-allowed;
-  opacity: 0.6;
-}
-
-.step[style*="cursor: not-allowed"]:hover .step-label {
-  transform: none;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-}
-
-/* ================= Form Grid ================= */
-.form-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 15px;
-}
-
-.form-step h3 {
-  margin-bottom: 15px;
-  color: #28a745;
-}
-
-input, select, textarea {
-  padding: 8px 12px;
-  border-radius: 5px;
-  border: 1px solid #ccc;
-  width: 100%;
-  font-size: 0.9rem;
+* {
   box-sizing: border-box;
 }
 
-textarea {
-  resize: vertical;
+.content-section {
+  max-width: 100%;
+  padding: 15px;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-/* ================= Navigation Buttons ================= */
-.form-navigation {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 30px;
-  gap: 10px;
+.content-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 20px;
+  color: #333;
 }
 
-.form-navigation button {
-  padding: 10px 22px;
-  border: none;
-  border-radius: 6px;
-  font-size: 14px;
-  cursor: pointer;
-  transition: 0.3s ease;
-  font-weight: 500;
-}
-
-.btn-prev {
-  background-color: #6c757d;
-  color: white;
-}
-
-.btn-prev:hover {
-  background-color: #5a6268;
-}
-
-.btn-next {
-  background-color: #007bff;
-  color: white;
-}
-
-.btn-next:hover {
-  background-color: #0069d9;
-}
-
-.btn-submit {
-  background-color: #28a745;
-  color: white;
-}
-
-.btn-submit:hover {
-  background-color: #218838;
-}
-
-.btn-submit:disabled {
-  background-color: #94d3a2;
-  cursor: not-allowed;
-}
-
-/* ================= File Uploads ================= */
-input[type="file"] {
-  padding: 5px;
-  font-size: 0.85rem;
-}
-
-/* ================= Document Upload Grid ================= */
-.doc-grid {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  margin-top: 1rem;
-}
-
-.doc-card {
-  background-color: #fff;
-  border: 2px dashed #28a745;
-  border-radius: 50%;
-  width: 150px;
-  height: 150px;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  transition: all 0.3s ease;
-  position: relative;
-  cursor: pointer;
-}
-
-.doc-card:hover {
-  transform: scale(1.05);
-  box-shadow: 0 4px 15px rgba(0,0,0,0.2);
-  border-color: #218838;
-}
-
-.doc-card img {
-  border-radius: 50%;
-  width: 70px;
-  height: 70px;
-  object-fit: cover;
-  margin-bottom: 0.5rem;
-}
-
-.pdf-placeholder {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  margin-bottom: 0.5rem;
-}
-
-.pdf-placeholder i {
-  font-size: 2rem;
-  color: #28a745;
-}
-
-.pdf-placeholder span {
-  font-size: 0.75rem;
-  font-weight: 600;
-}
-
-.doc-card .btn {
-  font-size: 0.75rem;
-  padding: 0.25rem 0.5rem;
-}
-
-.doc-card small {
-  font-size: 0.65rem;
-  color: #6c757d;
-  margin-top: 0.25rem;
-}
-
-.doc-card input[type="file"] {
-  display: none;
-}
-
-/* ================= Avatar Upload ================= */
-.avatar-upload-container {
-  position: relative;
-  width: 100px;
-  height: 100px;
-  margin-bottom: 1rem;
-  border-radius: 50%;
-  overflow: hidden;
-  cursor: pointer;
-}
-
-.avatar-upload-container img.avatar-preview {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  border-radius: 50%;
-  border: 2px solid #ccc;
-}
-
-.avatar-upload-container .avatar-overlay {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  background: rgba(0, 0, 0, 0.5);
-  color: white;
-  text-align: center;
-  font-size: 12px;
-  padding: 4px 0;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
-
-.avatar-upload-container:hover .avatar-overlay {
-  opacity: 1;
-}
-
-/* ================= Error & Success Messages ================= */
-.error-message {
-  color: #dc3545;
-  font-size: 0.8rem;
-}
-
-.submit-message {
-  padding: 12px;
-  margin-bottom: 15px;
-  border-radius: 6px;
-  font-weight: 500;
-}
-
-.success-message {
-  background-color: #e6ffed;
-  color: #1a7f37;
-  border: 1px solid #1a7f37;
-}
-
-.error-message {
-  background-color: #ffe6e6;
-  color: #b00020;
-  border: 1px solid #b00020;
-}
-
-.info-message {
-  background-color: #17a2b8;
-  color: white;
-  padding: 10px;
-  border-radius: 4px;
-  margin-top: 1rem;
-  text-align: center;
-  animation: fadeIn 0.3s ease;
-}
-
-@keyframes fadeIn {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-/* ================= Mobile Responsive ================= */
-@media (max-width: 768px) {
-  /* Progress bar responsive */
-  .kyc-progress {
-    flex-direction: column;
-    gap: 0.75rem;
-  }
-  
-  .step-label {
-    font-size: 0.75rem;
-    padding: 0.75rem;
-  }
-  
-  /* Make form fields single column */
-  .form-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  /* Document cards responsive */
-  .doc-card {
-    width: 120px;
-    height: 120px;
-  }
-  
-  .doc-card img {
-    width: 60px;
-    height: 60px;
-  }
-  
-  /* Navigation buttons responsive */
-  .form-navigation {
-    flex-direction: column;
-  }
-  
-  .form-navigation button {
-    width: 100%;
-  }
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+/* Step Cards */
 .step-cards-container {
   display: flex;
-  gap: 12px;
-  margin-bottom: 20px;
-  justify-content: center;
-  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 24px;
+  overflow-x: auto;
+  padding-bottom: 8px;
 }
 
 .step-card {
-  padding: 10px 15px;
-  border-radius: 10px;
-  background: #f1f1f1;
-  cursor: pointer;
-  min-width: 120px;
+  flex: 1;
+  min-width: 70px;
+  background: #f5f5f5;
+  padding: 10px 5px;
   text-align: center;
-  transition: 0.3s;
-  border: 2px solid transparent;
-}
-
-.step-card:hover {
-  transform: translateY(-2px);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.3s;
 }
 
 .step-card.active {
   background: #007bff;
   color: white;
-  border-color: #0056b3;
 }
 
 .step-card.completed {
@@ -395,249 +47,501 @@ input[type="file"] {
 }
 
 .step-number {
+  font-size: 14px;
   font-weight: bold;
-  font-size: 16px;
 }
 
 .step-title {
-  font-size: 12px;
+  font-size: 10px;
   margin-top: 4px;
 }
 
-
-
-
-
-
-
-
-
-.kyc-preview {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-top: 40px;
+/* Form Step Container */
+.form-step {
+  background: white;
+  padding: 16px;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
 }
 
-.kyc-card {
+.form-step h3 {
+  font-size: 18px;
+  margin-bottom: 16px;
+  color: #28a745;
+  border-bottom: 2px solid #28a745;
+  padding-bottom: 8px;
+}
+
+/* Form Groups - Each field takes full width */
+.form-group {
+  margin-bottom: 16px;
   width: 100%;
-  max-width: 420px;
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 30px;
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
-  text-align: center;
 }
 
-.kyc-header {
+.form-group label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 600;
+  font-size: 13px;
+  color: #333;
+}
+
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0,123,255,0.1);
+}
+
+/* Form Grid - Make everything stack vertically on mobile */
+.form-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.form-grid > div {
+  width: 100%;
+}
+
+/* Avatar Section */
+.avatar-container {
   display: flex;
   flex-direction: column;
   align-items: center;
-  margin-bottom: 20px;
+  margin-bottom: 24px;
+  padding-bottom: 16px;
+  border-bottom: 1px solid #eee;
 }
 
-.kyc-icon {
+.avatar-title {
+  font-weight: 600;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+
+.avatar-upload-wrapper {
+  position: relative;
+  width: 100px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.avatar-preview {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
+  border: 3px solid #007bff;
+}
+
+.avatar-overlay {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background: rgba(0,0,0,0.7);
+  color: white;
+  text-align: center;
+  font-size: 10px;
+  padding: 4px;
+  border-radius: 0 0 50% 50%;
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.avatar-upload-wrapper:hover .avatar-overlay {
+  opacity: 1;
+}
+
+/* Document Upload */
+.doc-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.doc-card {
+  background: #f9f9f9;
+  border: 2px dashed #28a745;
+  border-radius: 12px;
+  padding: 16px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.doc-card:hover {
+  background: #f0f9f0;
+  transform: translateY(-2px);
+}
+
+.doc-card img {
   width: 60px;
   height: 60px;
-  background: #e6f9f0;
-  color: #1bbf73;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28px;
-  font-weight: bold;
-  margin-bottom: 10px;
-}
-
-.kyc-header h3 {
-  font-size: 20px;
-  color: #1a1a1a;
-}
-
-.kyc-body p {
-  font-size: 14px;
-  color: #555;
-  margin-bottom: 15px;
-}
-
-.kyc-code-box {
-  background: #f5f7fa;
-  padding: 15px;
-  border-radius: 10px;
-  margin: 15px 0;
-}
-
-.kyc-code-box span {
-  display: block;
-  font-size: 12px;
-  color: #888;
-  margin-bottom: 5px;
-}
-
-.kyc-code-box h2 {
-  font-size: 22px;
-  letter-spacing: 2px;
-  color: #333;
-}
-
-.kyc-note {
-  font-size: 12px;
-  color: #888;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-/* Add to CustomerCompleteKyc.css */
-.kyc-preview {
-  background: white;
+  object-fit: cover;
   border-radius: 8px;
-  padding: 2rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-  margin-top: 1rem;
+  margin-bottom: 8px;
 }
 
-.kyc-preview h3 {
-  color: #4caf50;
-  margin-bottom: 1.5rem;
-  text-align: center;
+.pdf-placeholder {
+  margin-bottom: 8px;
 }
 
-.preview-section {
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid #e0e0e0;
+.pdf-placeholder i {
+  font-size: 48px;
+  color: #28a745;
 }
 
-.preview-section h4 {
-  color: #333;
-  margin-bottom: 0.75rem;
-  font-size: 1.1rem;
+.pdf-placeholder span {
+  font-size: 11px;
+  font-weight: 600;
 }
 
-.preview-section p {
-  margin: 0.5rem 0;
-  line-height: 1.5;
-}
-
-.preview-section ul {
-  margin: 0.5rem 0;
-  padding-left: 1.5rem;
-}
-
-.preview-section li {
-  margin: 0.25rem 0;
-  line-height: 1.5;
-}
-
-.kyc-code-section {
-  background: #f5f5f5;
-  padding: 1rem;
-  border-radius: 8px;
-  border-bottom: none;
-  text-align: center;
-}
-
-.kyc-code {
-  font-size: 1.5rem;
-  font-weight: bold;
-  color: #4caf50;
-  margin: 0.5rem 0;
-}
-
-.kyc-note {
-  font-size: 0.85rem;
+.doc-card small {
+  font-size: 10px;
   color: #666;
-  margin-top: 0.5rem;
+  display: block;
+  margin-top: 8px;
 }
 
+/* Error Styles */
+.error-message {
+  color: #dc3545;
+  font-size: 11px;
+  margin-top: 4px;
+  display: block;
+}
 
+.error-input {
+  border-color: #dc3545 !important;
+  background-color: #fff8f8 !important;
+}
 
+.error-summary {
+  background: #f8d7da;
+  border: 1px solid #f5c6cb;
+  border-radius: 8px;
+  padding: 12px;
+  margin-bottom: 16px;
+}
 
+.error-summary h4 {
+  color: #721c24;
+  font-size: 13px;
+  margin: 0 0 8px 0;
+}
 
+.error-summary ul {
+  margin: 0;
+  padding-left: 20px;
+}
 
+.error-summary li {
+  color: #721c24;
+  font-size: 12px;
+  margin-bottom: 4px;
+}
 
+/* Navigation Buttons */
+.form-navigation {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 24px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
 
+.form-navigation button {
+  width: 100%;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
 
+.btn-secondary {
+  background: #6c757d;
+  color: white;
+}
 
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
 
+.btn-success {
+  background: #28a745;
+  color: white;
+}
 
+.form-navigation button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Alert Messages */
+.alert {
+  padding: 12px;
+  border-radius: 8px;
+  margin-top: 16px;
+  font-size: 13px;
+}
+
+.alert-success {
+  background: #d4edda;
+  color: #155724;
+  border: 1px solid #c3e6cb;
+}
+
+.alert-danger {
+  background: #f8d7da;
+  color: #721c24;
+  border: 1px solid #f5c6cb;
+}
+
+/* Preview Card */
 .kyc-preview-card {
-  max-width: 600px;
-  margin: 20px auto;
-  padding: 25px;
-  background-color: #fff;
+  background: white;
   border-radius: 12px;
-  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  padding: 16px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
 }
 
 .kyc-title {
-  text-align: center;
   color: #28a745;
+  text-align: center;
   margin-bottom: 20px;
+  font-size: 18px;
 }
 
 .kyc-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr; /* 2 columns */
-  gap: 15px 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-bottom: 20px;
 }
 
 .kyc-item {
-  display: flex;
-  flex-direction: column;
+  background: #f8f9fa;
+  padding: 10px;
+  border-radius: 8px;
 }
 
 .kyc-label {
-  font-weight: 600;
-  color: #555;
+  font-size: 11px;
+  font-weight: bold;
+  color: #666;
+  text-transform: uppercase;
+  display: block;
   margin-bottom: 4px;
 }
 
 .kyc-value {
+  font-size: 14px;
   color: #333;
+  word-break: break-word;
 }
 
 .kyc-references {
-  margin-top: 25px;
+  border-top: 1px solid #eee;
+  padding-top: 16px;
 }
 
 .kyc-references h4 {
-  margin-bottom: 10px;
-  color: #333;
+  font-size: 14px;
+  margin-bottom: 12px;
 }
 
 .kyc-references ul {
   padding-left: 20px;
-  list-style-type: disc;
-  color: #555;
+  margin: 0;
+}
+
+.kyc-references li {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+
+/* Existing KYC Card */
+.kyc-preview {
+  padding: 16px;
+}
+
+.kyc-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.kyc-header {
+  margin-bottom: 16px;
+}
+
+.kyc-icon {
+  width: 50px;
+  height: 50px;
+  background: #e6f9f0;
+  color: #28a745;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+  margin: 0 auto 10px;
+}
+
+.kyc-header h3 {
+  font-size: 18px;
+  color: #333;
+}
+
+.kyc-body p {
+  color: #666;
+  font-size: 13px;
+  margin-bottom: 16px;
+}
+
+.kyc-code-box {
+  background: #f5f5f5;
+  padding: 12px;
+  border-radius: 8px;
+  margin: 16px 0;
+}
+
+.kyc-code-box span {
+  font-size: 11px;
+  color: #666;
+}
+
+.kyc-code-box h2 {
+  font-size: 20px;
+  color: #28a745;
+  margin: 4px 0 0;
+  word-break: break-word;
+}
+
+.kyc-note {
+  font-size: 11px;
+  color: #999;
+}
+
+/* Helper Classes */
+.bg-light {
+  background: #e9ecef;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid #ced4da;
+}
+
+.checking-message {
+  font-size: 11px;
+  color: #666;
+  margin-top: 4px;
+  display: block;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.mt-3 {
+  margin-top: 16px;
+}
+
+.mb-3 {
+  margin-bottom: 16px;
+}
+
+.welcome-text {
+  font-size: 16px;
+  margin-bottom: 16px;
+  color: #666;
+}
+
+/* Tablet and Desktop Styles */
+@media (min-width: 768px) {
+  .content-section {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 20px;
+  }
+  
+  .step-cards-container {
+    gap: 12px;
+  }
+  
+  .step-card {
+    min-width: 100px;
+    padding: 12px;
+  }
+  
+  .step-number {
+    font-size: 16px;
+  }
+  
+  .step-title {
+    font-size: 12px;
+  }
+  
+  .form-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .form-navigation {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .form-navigation button {
+    width: auto;
+    min-width: 120px;
+  }
+  
+  .doc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .kyc-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  
+  .kyc-preview-card {
+    padding: 24px;
+  }
+}
+
+@media (min-width: 1024px) {
+  .content-section {
+    max-width: 900px;
+  }
+  
+  .doc-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
