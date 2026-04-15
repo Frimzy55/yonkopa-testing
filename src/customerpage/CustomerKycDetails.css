@@ -1,33 +1,68 @@
 .kyc-container {
   padding: 20px;
+  background: #f5f5f5;
+  min-height: 100vh;
 }
 
 .kyc-title {
   margin-bottom: 20px;
   font-size: 24px;
   font-weight: bold;
+  color: #333;
 }
 
 .kyc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   gap: 20px;
 }
 
 .kyc-card {
-  background: #fff;
+  background: white;
   border-radius: 12px;
   padding: 20px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
 }
 
 .kyc-card h3 {
-  margin-bottom: 10px;
+  margin: 0 0 15px 0;
   color: #e67e22;
+  font-size: 18px;
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 2px solid #e67e22;
 }
 
-.kyc-card p {
-  margin: 6px 0;
+/* Improved alignment for all rows */
+.info-row {
+  display: flex;
+  margin-bottom: 12px;
+  line-height: 1.5;
+  align-items: flex-start;
+}
+
+.info-label {
+  font-weight: 600;
+  color: #555;
+  width: 130px;  /* Fixed width for all labels */
+  flex-shrink: 0;
+  min-width: 130px; /* Ensures consistency */
+}
+
+.info-value {
+  color: #333;
+  flex: 1;
+  word-break: break-word;
+}
+
+/* Special handling for avatar to maintain alignment */
+.avatar-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 150px;
 }
 
 .kyc-avatar {
@@ -35,17 +70,18 @@
   height: 120px;
   border-radius: 10px;
   object-fit: cover;
-  margin-top: 10px;
+  display: block;
+  margin: 0 auto;
 }
 
 .spinner {
   border: 4px solid #f3f3f3;
   border-top: 4px solid #e67e22;
   border-radius: 50%;
-  width: 30px;
-  height: 30px;
+  width: 40px;
+  height: 40px;
   animation: spin 1s linear infinite;
-  margin-bottom: 10px;
+  margin: 20px auto;
 }
 
 @keyframes spin {
@@ -54,6 +90,22 @@
 }
 
 .error {
-  color: red;
+  color: #d32f2f;
   text-align: center;
+  padding: 20px;
+}
+
+@media (max-width: 768px) {
+  .kyc-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .info-label {
+    width: 110px;
+    min-width: 110px;
+  }
+  
+  .kyc-container {
+    padding: 10px;
+  }
 }

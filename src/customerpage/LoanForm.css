@@ -15,96 +15,6 @@
   gap: 15px;
 }
 
-.form-navigation {
-  display: flex;
-  justify-content: space-between;
-  margin-top: 20px;
-}
-
-.nav-btn {
-  padding: 10px 20px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-}
-
-.nav-btn.submit-btn {
-  background-color: #0d6efd;
-  color: white;
-}
-
-.nav-btn.next-btn {
-  background-color: #198754;
-  color: white;
-}
-
-.nav-btn.prev-btn {
-  background-color: #6c757d;
-  color: white;
-}
-
-.progress-container {
-  display: flex;
-  align-items: center;
-  margin-bottom: 20px;
-}
-
-.progress-step-wrapper {
-  display: flex;
-  align-items: center;
-}
-
-.progress-step-circle {
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: #ddd;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-}
-
-.progress-step-circle.active {
-  background: #0d6efd;
-  color: white;
-}
-
-.progress-step-circle.completed {
-  background: #198754;
-  color: white;
-}
-
-.progress-line {
-  flex: 1;
-  height: 4px;
-  background: #ddd;
-}
-
-.progress-line.completed {
-  background: #198754;
-}
-
-.progress-step-label {
-  display: flex;
-  flex-direction: column;
-  margin-left: 5px;
-  margin-right: 15px;
-}
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 /* Progress Bar Styles */
 .progress-section {
   margin-bottom: 2.5rem;
@@ -208,12 +118,13 @@
   border-radius: 20px;
 }
 
-/* Form Navigation Buttons */
+/* Form Navigation Buttons - Cleaned up */
 .form-navigation {
   display: flex;
   justify-content: space-between;
+  gap: 1rem;
   margin-top: 2rem;
-  padding-top: 1.5rem;
+  padding-top: 1rem;
   border-top: 1px solid #dee2e6;
 }
 
@@ -221,20 +132,21 @@
 .btn-next,
 .btn-submit {
   padding: 0.75rem 1.5rem;
-  border-radius: 6px;
+  font-size: 1rem;
   font-weight: 500;
   border: none;
+  border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.2s ease;
 }
 
 .btn-prev {
-  background-color: #e9ecef;
-  color: #495057;
+  background-color: #6c757d;
+  color: white;
 }
 
 .btn-prev:hover {
-  background-color: #dee2e6;
+  background-color: #5a6268;
 }
 
 .btn-next {
@@ -253,46 +165,13 @@
   margin-left: auto;
 }
 
-.btn-submit:hover {
+.btn-submit:hover:not(:disabled) {
   background-color: #059669;
 }
 
-/* Responsive Design */
-@media (max-width: 768px) {
-  .step-indicators {
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-
-  .step-indicators::before {
-    display: none;
-  }
-
-  .step-indicator {
-    flex: 0 0 calc(50% - 0.5rem);
-    margin-bottom: 1rem;
-  }
-
-  .step-title {
-    font-size: 0.8rem;
-    max-width: none;
-  }
-
-  .form-navigation {
-    flex-direction: column;
-    gap: 1rem;
-  }
-
-  .btn-prev,
-  .btn-next,
-  .btn-submit {
-    width: 100%;
-  }
-
-  .btn-next,
-  .btn-submit {
-    margin-left: 0;
-  }
+.btn-submit:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
 }
 
 
@@ -316,57 +195,206 @@
 
 
 
-.modal-overlay {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0,0,0,0.6);
+
+
+/* Enhanced Error Styles */
+.error-summary-bottom {
+  margin-top: 2rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, #fff5f5 0%, #ffe8e8 100%);
+  border-left: 4px solid #dc3545;
+  border-radius: 0.5rem;
+  animation: slideUp 0.3s ease-out;
+  box-shadow: 0 2px 8px rgba(220, 53, 69, 0.1);
+}
+
+.error-summary-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  z-index: 999;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(220, 53, 69, 0.2);
 }
 
-.modal-box {
-  background: #fff;
-  padding: 25px;
-  border-radius: 10px;
+.error-icon {
+  font-size: 1.5rem;
+}
+
+.error-summary-bottom h4 {
+  margin: 0;
+  color: #dc3545;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.error-summary-content {
+  margin-bottom: 1rem;
+}
+
+.error-category {
+  margin-bottom: 1rem;
+  padding: 0.5rem;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 0.375rem;
+}
+
+.error-category strong {
+  color: #721c24;
+  font-size: 0.875rem;
+  display: block;
+  margin-bottom: 0.5rem;
+}
+
+.error-category ul {
+  margin: 0;
+  padding-left: 1.25rem;
+}
+
+.error-category li {
+  color: #721c24;
+  font-size: 0.875rem;
+  margin: 0.25rem 0;
+  line-height: 1.4;
+}
+
+.error-summary-footer {
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(220, 53, 69, 0.2);
   text-align: center;
-  width: 300px;
 }
 
-.modal-box.success {
-  border-top: 5px solid green;
+.error-summary-footer small {
+  color: #6c757d;
+  font-size: 0.75rem;
 }
 
-.modal-box.error {
-  border-top: 5px solid red;
+/* Individual Field Error Styles */
+.form-group {
+  margin-bottom: 1.25rem;
+  position: relative;
 }
 
-.modal-box button {
-  margin-top: 15px;
-  padding: 8px 15px;
-  border: none;
-  background: #007bff;
-  color: white;
-  border-radius: 5px;
-  cursor: pointer;
+.form-group label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #495057;
+  font-size: 0.875rem;
 }
 
-.spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #007bff;
-  border-radius: 50%;
-  width: 35px;
-  height: 35px;
-  animation: spin 1s linear infinite;
-  margin: auto;
+.form-group input,
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #495057;
+  background-color: #fff;
+  border: 1px solid #ced4da;
+  border-radius: 0.375rem;
+  transition: all 0.2s ease;
 }
 
-@keyframes spin {
-  100% {
-    transform: rotate(360deg);
+.form-group input:focus,
+.form-group select:focus,
+.form-group textarea:focus {
+  border-color: #4f46e5;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+}
+
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  border-color: #dc3545;
+  background-color: #fff8f8;
+  padding-right: 2rem;
+}
+
+.form-group input.error:focus,
+.form-group select.error:focus,
+.form-group textarea.error:focus {
+  border-color: #dc3545;
+  box-shadow: 0 0 0 3px rgba(220, 53, 69, 0.1);
+}
+
+.error-message {
+  color: #dc3545;
+  font-size: 0.75rem;
+  margin-top: 0.375rem;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+}
+
+.error-message::before {
+  content: "⚠️";
+  font-size: 0.7rem;
+}
+
+/* Error icon inside input for text fields */
+.form-group {
+  position: relative;
+}
+
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23dc3545' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='10'%3E%3C/circle%3E%3Cline x1='12' y1='8' x2='12' y2='12'%3E%3C/line%3E%3Cline x1='12' y1='16' x2='12.01' y2='16'%3E%3C/line%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+}
+
+.required-field::after {
+  content: " *";
+  color: #dc3545;
+  font-weight: bold;
+}
+
+/* Animation for error messages */
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.form-group input.error,
+.form-group select.error,
+.form-group textarea.error {
+  animation: shake 0.3s ease-in-out;
+}
+
+/* Success input styles (optional) */
+.form-group input.valid,
+.form-group select.valid,
+.form-group textarea.valid {
+  border-color: #28a745;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%2328a745' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='20 6 9 17 4 12'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 0.75rem center;
+  background-size: 1rem;
+  padding-right: 2rem;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .error-summary-bottom {
+    margin-top: 1.5rem;
+    padding: 1rem;
+  }
+  
+  .error-summary-bottom h4 {
+    font-size: 0.875rem;
+  }
+  
+  .error-category li {
+    font-size: 0.75rem;
+  }
+  
+  .error-message {
+    font-size: 0.7rem;
   }
 }
