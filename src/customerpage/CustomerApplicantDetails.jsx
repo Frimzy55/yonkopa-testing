@@ -3,7 +3,7 @@ import React from "react";
 
 const ApplicantDetails = ({ formData, handleInputChange }) => {
   return (
-    <div className="form-step" style={{ display: "none" }}>
+    <div className="form-step" style={{ display: "" }}>
       <h3>Applicant Details</h3>
        <input name="user id" value={formData.userId} readOnly />
       <input
@@ -30,12 +30,18 @@ const ApplicantDetails = ({ formData, handleInputChange }) => {
           <option value="female">Female</option>
         </select>
         <input name="nationalId" placeholder="National ID / Passport" value={formData.nationalid} readOnly />
-         <input
-          name="maritalstatus" // must match formData key
-          value={formData.maritalstatus || ""}
-          onChange={handleInputChange}
-          readOnly
-        />
+         <select
+  name="maritalstatus"
+  value={formData.maritalstatus || ""}
+  onChange={handleInputChange}
+  required
+>
+  <option value="">Select Marital Status</option>
+  <option value="single">Single</option>
+  <option value="married">Married</option>
+  <option value="divorced">Divorced</option>
+  <option value="widowed">Widowed</option>
+</select>
           
           
        

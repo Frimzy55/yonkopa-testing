@@ -144,17 +144,21 @@ const KycDetailsModal = ({ show, onClose, kyc }) => {
                 </tr>
                 <tr>
                   <td><b>Marital Status</b></td>
-                  <td>{kyc.maritalstatus || kyc.maritalStatus || "—"}</td>
+                  <td>{kyc.applicant_marital_status || kyc.maritalStatus || "—"}</td>
                 </tr>
                 
-                <tr>
-                  <td><b>Spouse Name</b></td>
-                  <td>{kyc.spousename || kyc.spouseName || "—"}</td>
-                </tr>
-                <tr>
-                  <td><b>Spouse Contact</b></td>
-                  <td>{kyc.spousecontact || kyc.spouseContact || "—"}</td>
-                </tr>
+                {(kyc.applicant_marital_status || kyc.maritalStatus) === "married" && (
+  <>
+    <tr>
+      <td><b>Spouse Name</b></td>
+      <td>{kyc.spousename || kyc.spouseName || "—"}</td>
+    </tr>
+    <tr>
+      <td><b>Spouse Contact</b></td>
+      <td>{kyc.spousecontact || kyc.spouseContact || "—"}</td>
+    </tr>
+  </>
+)}
               </tbody>
             </Table>
           </>
