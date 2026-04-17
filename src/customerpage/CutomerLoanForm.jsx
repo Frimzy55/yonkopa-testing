@@ -6,11 +6,34 @@ import GuarantorInfo from "./CustomerGuarantorInfo";
 import CustomerMomoDetails from "./CustomerMomoDetails";
 import "./LoanForm.css";
 
+// Toast Notification Component
+const Toast = ({ message, type, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      onClose();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className={`toast-notification toast-${type}`}>
+      <div className="toast-content">
+        <span className="toast-icon">
+          {type === 'success' ? '✅' : type === 'error' ? '❌' : '⚠️'}
+        </span>
+        <span className="toast-message">{message}</span>
+        <button className="toast-close" onClick={onClose}>×</button>
+      </div>
+    </div>
+  );
+};
+
 const CustomerLoanForm = ({ user, handleReset }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
+  const [toast, setToast] = useState(null);
 
   const [formData, setFormData] = useState({
     userId: "",
@@ -62,6 +85,15 @@ const CustomerLoanForm = ({ user, handleReset }) => {
     momoAccountName: "",
   });
 
+  const showToast = (message, type = 'error') => {
+    console.log(`Showing toast: ${message} (${type})`);
+    setToast({ message, type });
+  };
+
+  const hideToast = () => {
+    setToast(null);
+  };
+
   useEffect(() => {
     if (!user?.userId) return;
 
@@ -102,6 +134,7 @@ const CustomerLoanForm = ({ user, handleReset }) => {
         }
       } catch (err) {
         console.error("Failed to fetch KYC:", err);
+        showToast("Failed to load KYC information", "error");
       }
     };
 
@@ -239,12 +272,10 @@ const CustomerLoanForm = ({ user, handleReset }) => {
   const handleInputChange = (e) => {
     const { name, value, files, type, checked } = e.target;
     
-    // Mark field as touched
     if (!touchedFields[name]) {
       setTouchedFields(prev => ({ ...prev, [name]: true }));
     }
     
-    // Clear error for this field when user starts typing
     if (errors[name]) {
       setErrors(prev => ({ ...prev, [name]: "" }));
     }
@@ -282,13 +313,13 @@ const CustomerLoanForm = ({ user, handleReset }) => {
       setErrors({});
       setTouchedFields({});
     } else {
-      // Mark all fields as touched to show errors
       const allFields = {};
       Object.keys(formData).forEach(key => {
         allFields[key] = true;
       });
       setTouchedFields(allFields);
       window.scrollTo({ top: 0, behavior: 'smooth' });
+      showToast("Please fix all errors on this page before continuing", "error");
     }
   };
 
@@ -308,14 +339,13 @@ const CustomerLoanForm = ({ user, handleReset }) => {
     const isStep4Valid = validateStep4();
     
     if (!isStep1Valid || !isStep2Valid || !isStep3Valid || !isStep4Valid) {
-      // Mark all fields as touched
       const allFields = {};
       Object.keys(formData).forEach(key => {
         allFields[key] = true;
       });
       setTouchedFields(allFields);
       
-      alert("Please fix all errors before submitting");
+      showToast("Please fix all errors before submitting", "error");
       if (!isStep1Valid) setCurrentStep(1);
       else if (!isStep2Valid) setCurrentStep(2);
       else if (!isStep3Valid) setCurrentStep(3);
@@ -346,18 +376,27 @@ const CustomerLoanForm = ({ user, handleReset }) => {
 
       const data = await res.json();
 
+      console.log("Server response:", data);
+
       if (data.success) {
-        alert("✅ Loan Application Completed Successfully!");
-        handleReset?.();
+        // Show success toast
+        showToast("Loan Application Completed Successfully! 🎉", "success");
+        
+        // Reset form state
         setCurrentStep(1);
         setErrors({});
         setTouchedFields({});
+        
+        // Call handleReset after a short delay to ensure toast is visible
+        setTimeout(() => {
+          handleReset?.();
+        }, 1500);
       } else {
-        alert(`❌ Failed: ${data.error || "Unknown error"}`);
+        showToast(`Failed: ${data.error || "Unknown error"}`, "error");
       }
     } catch (err) {
-      console.error(err);
-      alert("❌ Server error. Please try again later.");
+      console.error("Submission error:", err);
+      showToast("Server error. Please try again later.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -388,7 +427,6 @@ const CustomerLoanForm = ({ user, handleReset }) => {
     }
   };
 
-  // Group errors by category for better summary
   const getErrorSummary = () => {
     const summary = {
       applicant: [],
@@ -418,6 +456,11 @@ const CustomerLoanForm = ({ user, handleReset }) => {
   return (
     <div className="content-section">
       <h2>Loan Application</h2>
+
+      {/* Toast Notification */}
+      {toast && (
+        <Toast message={toast.message} type={toast.type} onClose={hideToast} />
+      )}
 
       {isSubmitting && (
         <div className="modal-overlay">
@@ -484,7 +527,6 @@ const CustomerLoanForm = ({ user, handleReset }) => {
           )}
         </div>
 
-        {/* Enhanced Error Summary at the Bottom */}
         {hasErrors && (
           <div className="error-summary-bottom">
             <div className="error-summary-header">
