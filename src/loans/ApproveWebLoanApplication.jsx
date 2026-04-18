@@ -72,14 +72,12 @@ const ApproveWebLoanApplication = () => {
       console.log("Approved:", loan);
       // 👉 connect API later
     }*/
-
 if (action === "approve") {
   try {
     await axios.post(
       `${process.env.REACT_APP_API_URL}/loan/approve`,
       {
-        
-               id: loan.applicant_id, // ✅ FIX HERE  // ✅ use loan ID (NOT userId)
+        id: loan.id, // ✅ correct ID
       }
     );
 
