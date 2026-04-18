@@ -9,18 +9,36 @@ const CustomerApplyLoan = ({ user }) => {
   const [step, setStep] = useState("verify");
   const [verifiedCustomer, setVerifiedCustomer] = useState(null);
 
-  // Autofill phone number on component mount
+  const [alreadyApplied, setAlreadyApplied] = useState(false);
+  const [checking, setChecking] = useState(true);
+
   useEffect(() => {
     if (user?.userId) {
       setFormData((prev) => ({ ...prev, userId: user.userId }));
     }
   }, [user]);
 
-  const statusMessages = {
-    verified: { type: "success", message: "✔ Your details have been VERIFIED." },
-    "not-found": { type: "danger", message: "✖ Invalid  KYC code." },
-    error: { type: "warning", message: "⚠ Server error. Please try again later." },
-  };
+  useEffect(() => {
+    const checkLoan = async () => {
+      if (!user?.userId) return;
+
+      try {
+        setChecking(true);
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/loan-check/${user.userId}`
+        );
+        const data = await res.json();
+
+        if (data.exists) setAlreadyApplied(true);
+      } catch (err) {
+        console.error(err);
+      } finally {
+        setChecking(false);
+      }
+    };
+
+    checkLoan();
+  }, [user]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -33,14 +51,16 @@ const CustomerApplyLoan = ({ user }) => {
     setStatus("");
 
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/verify-customer`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/verify-customer`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(formData),
+        }
+      );
 
-      if (!response.ok) throw new Error("Server error");
-      const data = await response.json();
+      const data = await res.json();
 
       if (data.verified) {
         setVerifiedCustomer(data.customer);
@@ -56,97 +76,138 @@ const CustomerApplyLoan = ({ user }) => {
   };
 
   const handleProceed = () => setStep("loan-form");
+
+  const handleBack = () => {
+    setStep("verify");
+    setStatus("");
+  };
+
   const handleReset = () => {
-    setFormData({ userId: user?.userId || "", kycCode: "" }); // Reset keeps autofill
+    setFormData({ userId: user?.userId || "", kycCode: "" });
     setStatus("");
     setStep("verify");
     setVerifiedCustomer(null);
   };
 
-  const currentStatus = statusMessages[status];
+  if (checking) {
+    return (
+      <div className="container my-5 text-center">
+        <div className="card shadow-sm p-5">
+          <div className="spinner-border text-primary mb-3" />
+          <h5>Checking eligibility...</h5>
+        </div>
+      </div>
+    );
+  }
+
+  if (alreadyApplied) {
+    return (
+      <div className="container my-5">
+        <div className="card shadow-sm border-0 p-5 text-center">
+          <h3 className="text-danger mb-2">Application Restricted</h3>
+          <p className="text-muted">
+            You already have an active loan application.
+          </p>
+          <button className="btn btn-outline-secondary mt-3" onClick={handleReset}>
+            Refresh
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container my-5">
-      <div className="card shadow-sm">
-        <div className="card-body">
-          <h2 className="card-title text-center mb-3">Apply for Loan</h2>
-          <p className="text-center text-muted mb-4">
-            Enter your KYC code to proceed.
-          </p>
+      <div className="card shadow-lg border-0 rounded-4">
+        <div className="card-body p-4 p-md-5">
 
-          {/* Verification Form */}
+          {/* Header */}
+          <div className="text-center mb-4">
+            <h2 className="fw-bold">Loan Application</h2>
+            <p className="text-muted">Verify your KYC before proceeding</p>
+          </div>
+
+          {/* VERIFY FORM */}
           {step === "verify" && status !== "verified" && (
             <form onSubmit={handleSubmit}>
-              <div className="mb-3">
-                <label  hidden className="form-label">Phone Number</label>
-                <input
-                  name="userId"
-                  type="tel"
-                  value={formData.userId}
-                  onChange={handleInputChange}
-                  required
-                  disabled={loading} // Optional: keep disabled if you don't want edits
-                  className="form-control"
-                  placeholder="e.g. 0551234567"
-                  readOnly
-                  hidden
-                  
-                />
-              </div>
+              <input name="userId" value={formData.userId} hidden readOnly />
 
               <div className="mb-3">
-                <label className="form-label">KYC Code</label>
+                <label className="form-label fw-semibold">
+                  Enter Your KYC Code
+                </label>
                 <input
                   name="kycCode"
-                  type="text"
+                  className="form-control form-control-lg"
                   value={formData.kycCode}
                   onChange={handleInputChange}
+                  placeholder="e.g. 00001"
                   required
                   disabled={loading}
-                  className="form-control"
-                  placeholder="e.g. 00001"
                 />
               </div>
-                {/* Message for user */}
-  <small className="text-muted">
-    Please fill your Kyc Forms to get Your Kyc code
-  </small>
 
-              <button type="submit" className="btn btn-primary w-100">
-                {loading ? "Verifying..." : "Verify Details"}
+              <button
+                className="btn btn-primary w-100 py-2"
+                disabled={loading}
+              >
+                {loading ? (
+                  <>
+                    <span className="spinner-border spinner-border-sm me-2" />
+                    Verifying...
+                  </>
+                ) : (
+                  "Verify KYC"
+                )}
+              </button>
+
+              <button
+                type="button"
+                className="btn btn-outline-secondary w-100 mt-2"
+                onClick={handleReset}
+              >
+                Cancel
               </button>
             </form>
           )}
 
-  {/* Verification Success */}
-{step === "verify" && status === "verified" && (
-  <div className="text-center mt-4">
-    <div className="display-4 text-success mb-3">✅</div>
-    <h4 className="text-success mb-2">Verification Successful!</h4>
-    <p>You can now proceed with your loan application.</p>
+          {/* VERIFIED */}
+          {step === "verify" && status === "verified" && (
+            <div className="text-center">
+              <div className="display-4 text-success mb-3">✔</div>
+              <h4 className="text-success">Verification Successful</h4>
+              <p className="text-muted">
+                You can now proceed with your loan application.
+              </p>
 
-    <div className="d-flex justify-content-center gap-2 mt-3 flex-wrap">
-      <button onClick={handleProceed} className="btn btn-success">
-        Proceed to Loan Application
-      </button>
-      <button
-        onClick={() => setStatus("")} // Reset status to go back to form
-        className="btn btn-secondary"
-      >
-        Back
-      </button>
-    </div>
-  </div>
-)}
+              <div className="d-flex gap-2 justify-content-center mt-4">
+                <button
+                  className="btn btn-success px-4"
+                  onClick={handleProceed}
+                >
+                  Proceed
+                </button>
 
-          {/* Status Messages */}
-          {status && status !== "verified" && step === "verify" && currentStatus && (
-            <div className={`alert alert-${currentStatus.type} mt-3`} role="alert">
-              {currentStatus.message}
+                <button
+                  className="btn btn-outline-secondary px-4"
+                  onClick={handleBack}
+                >
+                  Back
+                </button>
+              </div>
             </div>
           )}
 
-          {/* Loan Form */}
+          {/* STATUS MESSAGE */}
+          {status && status !== "verified" && (
+            <div className="alert alert-danger mt-4 text-center">
+              {status === "not-found"
+                ? "Invalid KYC Code"
+                : "Server error. Please try again."}
+            </div>
+          )}
+
+          {/* LOAN FORM */}
           {step === "loan-form" && (
             <LoanForm user={verifiedCustomer} handleReset={handleReset} />
           )}
@@ -156,4 +217,4 @@ const CustomerApplyLoan = ({ user }) => {
   );
 };
 
-export default CustomerApplyLoan;  
+export default CustomerApplyLoan;
