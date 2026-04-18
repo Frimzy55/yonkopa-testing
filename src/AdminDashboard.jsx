@@ -46,6 +46,7 @@ import CallOver from './teller/CallOver';
 
 // Loan Components
 import LoanApplication from './loans/LoanApplication';
+import ApproveWebLoanApplication from './loans/ApproveWebLoanApplication';
 import LoanApproval from './loans/LoanApproval';
 import LoanDisbursement from './loans/LoanDisbursement';
 import LoanRepayment from './loans/LoanRepayment';
@@ -102,7 +103,8 @@ import ApproveBatchUpload from './my-approvals/ApproveBatchUpload';
 import ApproveNewAccounts from './my-approvals/ApproveNewAccounts';
 import ApproveAccountMaintenance from './my-approvals/ApproveAccountMaintenance';
 import ApproveLien from './my-approvals/ApproveLien';
-import ApproveWebLoanApplication from './my-approvals/ApproveWebLoanApplication';
+//import ApproveWebLoanApplication from './my-approvals/ApproveWebLoanApplication';
+import ApprovedWebLoan from './my-approvals/ApprovedWebLoan';
 import ApproveNewIndividualLoan from './my-approvals/ApproveNewIndividualLoan';
 import ApproveCorporateLoan from './my-approvals/ApproveCorporateLoan';
 import ApproveGroupLoan from './my-approvals/ApproveGroupLoan';
@@ -442,6 +444,7 @@ const AdminDashboard = () => {
       name: 'Loans', icon: 'bi-piggy-bank',
       subMenus: [
         { name: 'Loan Application', icon: 'bi-file-text' },
+          { name: 'Approve Web Loan', icon: 'bi-globe' },  // Add this line
         { name: 'Edit Loan Application', icon: 'bi-pencil-square' },
         { name: 'Edit Loan Evaluation', icon: 'bi-clipboard-check' },
         { name: 'Loan Evaluation', icon: 'bi-check-circle' },
@@ -531,7 +534,7 @@ const AdminDashboard = () => {
         },
         { name: 'Loans', icon: 'bi-shield-plus',
           nestedMenus: [
-            { name: 'Approve Web Loan Application', icon: 'bi-globe' },
+            { name: 'Approved Web Loans', icon: 'bi-globe' },
             { name: 'Approve New Individual Loan', icon: 'bi-person' },
             { name: 'Approve Corporate Loan', icon: 'bi-building' },
             { name: 'Approve Group Loan', icon: 'bi-people-fill' },
@@ -731,7 +734,7 @@ const AdminDashboard = () => {
     };
 
     const loanApprovals = {
-      'Approve Web Loan Application': ApproveWebLoanApplication,
+      'Approved Web Loans': ApprovedWebLoan,
       'Approve New Individual Loan': ApproveNewIndividualLoan,
       'Approve Corporate Loan': ApproveCorporateLoan,
       'Approve Group Loan': ApproveGroupLoan,
@@ -943,6 +946,7 @@ const AdminDashboard = () => {
     if (activeMenu === 'Loans') {
       const loanComponents = {
         'Loan Application': LoanApplication,
+        'Approve Web Loan': ApproveWebLoanApplication,  // Add this line
         'Edit Loan Application': EditLoanApplication,
         'Edit Loan Evaluation': EditLoanEvaluation,
         'Loan Evaluation': LoanApproval,
