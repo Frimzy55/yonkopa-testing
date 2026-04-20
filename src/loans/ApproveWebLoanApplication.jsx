@@ -77,12 +77,12 @@ if (action === "approve") {
     await axios.post(
       `${process.env.REACT_APP_API_URL}/loan/approve`,
       {
-        id: loan.id, // ✅ correct ID
+        kyc_code: loan.kyc_code,
       }
     );
 
     const updated = loanData.map((item) =>
-      item.id === loan.id
+      item.kyc_code === loan.kyc_code
         ? { ...item, loan_status: "approved" }
         : item
     );
