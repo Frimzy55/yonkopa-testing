@@ -53,8 +53,25 @@ const ApproveWebLoanApplication = () => {
     fetchLoanData();
   }, []);
 
-  // ✅ Handle actions (Approve, Reject, View)
+  // ✅ Handle actions
   const handleAction = async (action, loan) => {
+
+    // 🔍 REVIEW (open modal)
+    if (action === "review") {
+      try {
+        const res = await axios.get(
+          `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.userId}`
+        );
+
+        setSelectedLoan(res.data);
+        setShowModal(true);
+
+      } catch (err) {
+        console.error("Error fetching review:", err);
+      }
+    }
+
+    // 👁 VIEW
     if (action === "view") {
       try {
         const res = await axios.get(
@@ -68,39 +85,37 @@ const ApproveWebLoanApplication = () => {
       }
     }
 
-    /*if (action === "approve") {
-      console.log("Approved:", loan);
-      // 👉 connect API later
-    }*/
-if (action === "approve") {
-  try {
-    await axios.post(
-      `${process.env.REACT_APP_API_URL}/loan/approve`,
-      {
-        kyc_code: loan.kyc_code,
+    // ✅ APPROVE
+    if (action === "approve") {
+      try {
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/loan/approve`,
+          {
+            kyc_code: loan.kyc_code,
+          }
+        );
+
+        const updated = loanData.map((item) =>
+          item.kyc_code === loan.kyc_code
+            ? { ...item, loan_status: "approved" }
+            : item
+        );
+
+        setLoanData(updated);
+        setFilteredData(updated);
+
+      } catch (err) {
+        console.error("Approve failed:", err);
       }
-    );
+    }
 
-    const updated = loanData.map((item) =>
-      item.kyc_code === loan.kyc_code
-        ? { ...item, loan_status: "approved" }
-        : item
-    );
-
-    setLoanData(updated);
-    setFilteredData(updated);
-
-  } catch (err) {
-    console.error("Approve failed:", err);
-  }
-}
+    // ❌ REJECT (placeholder)
     if (action === "reject") {
       console.log("Rejected:", loan);
-      // 👉 connect API later
     }
   };
 
-  // ✅ 🔥 VIEW KYC HANDLER (MAIN FIX)
+  // ✅ VIEW KYC
   const handleViewKyc = async (loan) => {
     try {
       const res = await axios.get(
@@ -112,13 +127,12 @@ if (action === "approve") {
     } catch (err) {
       console.error("Error fetching KYC:", err);
 
-      // fallback if already included
       setSelectedKyc(loan);
       setShowKycModal(true);
     }
   };
 
-  // ✅ Search
+  // 🔍 Search
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
@@ -133,12 +147,12 @@ if (action === "approve") {
     setFilteredData(filtered);
   };
 
-  // ✅ Entries
+  // 📄 Entries
   const handleEntriesChange = (e) => {
     setEntries(Number(e.target.value));
   };
 
-  // ✅ Status Badge
+  // 🎨 Status Badge
   const getStatusBadge = (status) => {
     switch (status.toLowerCase()) {
       case "approved":
@@ -156,7 +170,7 @@ if (action === "approve") {
     }
   };
 
-  // ✅ Loading
+  // ⏳ Loading
   if (loading)
     return (
       <div className="text-center mt-5">
@@ -164,7 +178,7 @@ if (action === "approve") {
       </div>
     );
 
-  // ✅ Error
+  // ❌ Error
   if (error)
     return (
       <div className="text-center mt-5">
@@ -243,6 +257,12 @@ if (action === "approve") {
 
                     <Dropdown.Menu>
                       <Dropdown.Item
+                        onClick={() => handleAction("review", loan)}
+                      >
+                        Review
+                      </Dropdown.Item>
+
+                      <Dropdown.Item
                         onClick={() => handleAction("approve", loan)}
                       >
                         Approve
@@ -275,7 +295,7 @@ if (action === "approve") {
         loan={selectedLoan}
         onApprove={(loan) => handleAction("approve", loan)}
         onReject={(loan) => handleAction("reject", loan)}
-        onViewKyc={handleViewKyc}   // 🔥 FIX CONNECTED
+        onViewKyc={handleViewKyc}
       />
 
       {/* ✅ KYC Modal */}

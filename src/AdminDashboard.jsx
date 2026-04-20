@@ -444,7 +444,7 @@ const AdminDashboard = () => {
       name: 'Loans', icon: 'bi-piggy-bank',
       subMenus: [
         { name: 'Loan Application', icon: 'bi-file-text' },
-          { name: 'Approve Web Loan', icon: 'bi-globe' },  // Add this line
+          { name: 'Web Loan', icon: 'bi-globe' },  // Add this line
         { name: 'Edit Loan Application', icon: 'bi-pencil-square' },
         { name: 'Edit Loan Evaluation', icon: 'bi-clipboard-check' },
         { name: 'Loan Evaluation', icon: 'bi-check-circle' },
@@ -946,7 +946,7 @@ const AdminDashboard = () => {
     if (activeMenu === 'Loans') {
       const loanComponents = {
         'Loan Application': LoanApplication,
-        'Approve Web Loan': ApproveWebLoanApplication,  // Add this line
+        'Web Loan': ApproveWebLoanApplication,  // Add this line
         'Edit Loan Application': EditLoanApplication,
         'Edit Loan Evaluation': EditLoanEvaluation,
         'Loan Evaluation': LoanApproval,
