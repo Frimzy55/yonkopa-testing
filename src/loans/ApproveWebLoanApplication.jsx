@@ -85,6 +85,29 @@ const ApproveWebLoanApplication = () => {
       }
     }
 
+    /*if (action === "approve") {
+  try {
+    await axios.post(
+      `${process.env.REACT_APP_API_URL}/loan/approve`,
+      {
+        loan_id: loan.loan_id,   // ✅ CHANGE HERE
+      }
+    );
+
+    const updated = loanData.map((item) =>
+      item.loan_id === loan.loan_id
+        ? { ...item, loan_status: "approved" }
+        : item
+    );
+
+    setLoanData(updated);
+    setFilteredData(updated);
+
+  } catch (err) {
+    console.error("Approve failed:", err);
+  }
+}*/
+
     // ✅ APPROVE
     if (action === "approve") {
       try {
@@ -215,6 +238,7 @@ const ApproveWebLoanApplication = () => {
       <Table striped bordered hover>
         <thead>
           <tr>
+             <th>Loan ID</th>
             <th>Customer ID</th>
             <th>Full Name</th>
             <th>Phone</th>
@@ -235,6 +259,7 @@ const ApproveWebLoanApplication = () => {
           ) : (
             filteredData.slice(0, entries).map((loan) => (
               <tr key={loan.applicant_id}>
+                <td>{loan.loan_id}</td>
                 <td>{loan.kyc_code}</td>
                 <td>{loan.applicant_fullName}</td>
                 <td>{loan.mobileNumber}</td>
