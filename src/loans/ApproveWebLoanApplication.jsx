@@ -29,7 +29,7 @@ const ApproveWebLoanApplication = () => {
   const [showKycModal, setShowKycModal] = useState(false);
   const [selectedKyc, setSelectedKyc] = useState(null);
 
-  // ✅ Fetch all loans
+  // ✅ Fetch all loan
   useEffect(() => {
     const fetchLoanData = async () => {
       try {
