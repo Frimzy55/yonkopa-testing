@@ -170,14 +170,14 @@ const CustomerView = () => {
       <audio ref={notificationAudio} src="/sounds/notifications.mp3" />
 
       {/* TOP BAR */}
-      <header className="top-bar">
+      <header className="top-bar" style={{ textDecoration: 'none' }}>
         <div className="top-bar-left">
           <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-          <h1 className="dashboard-title">
+          <h1 className="dashboard-title" style={{ textDecoration: 'none' }}>
             <FaHome className="home-icon" />
-            <span className="user-name">{displayName}</span>
+            <span className="user-name">{firstName}</span>
           </h1>
         </div>
 
@@ -210,7 +210,7 @@ const CustomerView = () => {
             )}
           </div>
 
-          <span className="welcome-text">Hi, {firstName}</span>
+          <span className="welcome-text">{firstName}</span>
           <button className="logout-btn" onClick={handleLogout}><FaSignOutAlt /> Logout</button>
         </div>
       </header>

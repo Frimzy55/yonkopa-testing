@@ -1,9 +1,9 @@
-// CreateAccount.jsx
 import React, { useState } from "react";
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
-    customerNumber: "",
+//customerNumber: "",
+    kyc_code: ""  ,  
     firstName: "",
     lastName: "",
     otherName: "",
@@ -22,8 +22,11 @@ const CreateAccount = () => {
   const [accountNumber, setAccountNumber] = useState("");
 
   const [loading, setLoading] = useState(false);
+  const [fetchingCustomer, setFetchingCustomer] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
+
+  const [locked, setLocked] = useState(false); // lock after fetch
 
   const branches = [
     "Head Office",
@@ -34,12 +37,15 @@ const CreateAccount = () => {
   ];
 
   const handleChange = (e) => {
+    if (locked) return;
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // IMAGE HANDLER
+  // IMAGE HANDLER (manual upload still allowed if needed)
   const handleImageChange = (e) => {
+    if (locked) return;
+
     const file = e.target.files[0];
     if (!file) return;
 
@@ -57,6 +63,55 @@ const CreateAccount = () => {
     reader.readAsDataURL(file);
   };
 
+  // FETCH CUSTOMER FROM BACKEND
+ const fetchCustomer = async () => {
+  if (!formData.kyc_code) {
+    setError("Enter KYC code");
+    return;
+  }
+
+  setFetchingCustomer(true);
+  setError("");
+  setSuccess("");
+
+  try {
+    const res = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/customer/${formData.kyc_code}`
+    );
+
+    const data = await res.json();
+
+    if (!data.success) {
+      setError(data.message);
+      return;
+    }
+
+    const c = data.customer;
+
+    setFormData((prev) => ({
+      ...prev,
+      firstName: c.firstname || "",
+      lastName: c.lastname || "",
+      otherName: c.middlename || "",
+      dob: c.personal_dob ? c.personal_dob.split("T")[0] : "",
+      gender: c.personal_gender || "",
+    }));
+
+    if (c.avatar) {
+      setPreview(
+        `${process.env.REACT_APP_API_URL.replace(/\/$/, "")}/uploads/${c.avatar}`
+      );
+    }
+
+    setLocked(true);
+    setSuccess("Approved KYC loaded successfully");
+
+  } catch (err) {
+    setError("Failed to fetch customer");
+  } finally {
+    setFetchingCustomer(false);
+  }
+};
   // GENERATE ACCOUNT NUMBER
   const generateAccountNumber = () => {
     const random = Math.floor(1000000000 + Math.random() * 9000000000);
@@ -69,41 +124,10 @@ const CreateAccount = () => {
     setError("");
     setSuccess("");
 
-    if (
-      !formData.customerNumber ||
-      !formData.firstName ||
-      !formData.lastName ||
-      !formData.dob ||
-      !formData.gender ||
-      !formData.branch
-    ) {
-      setError("Please complete all customer details");
-      setLoading(false);
-      return;
-    }
-
-    if (
-      !formData.productType ||
-      !formData.accountName ||
-      !formData.accountMandate
-    ) {
-      setError("Please complete all account details");
-      setLoading(false);
-      return;
-    }
-
-    if (!accountNumber) {
-      setError("Please generate an account number");
-      setLoading(false);
-      return;
-    }
-
     try {
       await new Promise((res) => setTimeout(res, 1200));
 
-      setSuccess(
-        `Account created successfully! Account No: ${accountNumber}`
-      );
+      setSuccess(`Account created successfully! Account No: ${accountNumber}`);
 
       setFormData({
         customerNumber: "",
@@ -122,6 +146,8 @@ const CreateAccount = () => {
 
       setPreview(null);
       setAccountNumber("");
+      setLocked(false);
+
     } catch {
       setError("Something went wrong");
     } finally {
@@ -129,16 +155,35 @@ const CreateAccount = () => {
     }
   };
 
+  const resetAll = () => {
+    setFormData({
+      customerNumber: "",
+      firstName: "",
+      lastName: "",
+      otherName: "",
+      dob: "",
+      gender: "",
+      branch: "",
+      image: null,
+      productType: "",
+      accountName: "",
+      accountDescription: "",
+      accountMandate: "",
+    });
+
+    setPreview(null);
+    setAccountNumber("");
+    setLocked(false);
+    setError("");
+    setSuccess("");
+  };
+
   return (
     <div className="container py-4">
 
-      {/* HEADER */}
-      <div className="mb-4">
-        <h4 className="fw-bold">Create Customer & Open Account</h4>
-        <p className="text-muted">KYC & Account Opening Form</p>
-      </div>
+      <h4 className="fw-bold">Create Customer & Open Account</h4>
+      <p className="text-muted">KYC & Account Opening Form</p>
 
-      {/* ALERTS */}
       {error && <div className="alert alert-danger">{error}</div>}
       {success && <div className="alert alert-success">{success}</div>}
 
@@ -148,24 +193,25 @@ const CreateAccount = () => {
         <div className="card shadow-sm mb-4">
           <div className="card-body">
 
-            <h5 className="text-primary mb-3">Customer Details</h5>
+            <h5 className="text-primary">Customer Details</h5>
 
             <div className="row">
 
               {/* IMAGE */}
-              <div className="col-md-3 text-center mb-3">
+              <div className="col-md-3 text-center">
                 <div
-                  onClick={() => document.getElementById("imageUpload").click()}
                   style={{
                     width: 150,
                     height: 150,
-                    border: "2px solid #dee2e6",
+                    border: "2px solid #ccc",
                     borderRadius: 10,
-                    margin: "auto",
                     overflow: "hidden",
-                    background: "#f8f9fa",
-                    cursor: "pointer",
+                    margin: "auto",
+                    cursor: locked ? "not-allowed" : "pointer",
                   }}
+                  onClick={() =>
+                    !locked && document.getElementById("img").click()
+                  }
                 >
                   {preview && (
                     <img
@@ -181,10 +227,9 @@ const CreateAccount = () => {
                 </div>
 
                 <input
-                  id="imageUpload"
+                  id="img"
                   type="file"
-                  accept="image/*"
-                  style={{ display: "none" }}
+                  hidden
                   onChange={handleImageChange}
                 />
               </div>
@@ -193,44 +238,63 @@ const CreateAccount = () => {
               <div className="col-md-9">
                 <div className="row g-3">
 
+                  {/* CUSTOMER NUMBER */}
                   <div className="col-md-6">
-                    <label className="form-label">Customer Number</label>
-                    <input className="form-control" name="customerNumber" value={formData.customerNumber} onChange={handleChange} />
+                    <label>Customer Number</label>
+                    <div className="d-flex gap-2">
+                      <input
+                        className="form-control"
+                        name="kyc_code"
+                        value={formData.kyc_code}
+                        onChange={handleChange}
+                        disabled={locked}
+                      />
+
+                      <button
+                        type="button"
+                        className="btn btn-primary"
+                        onClick={fetchCustomer}
+                        disabled={fetchingCustomer}
+                      >
+                        {fetchingCustomer ? "Loading..." : "Fetch"}
+                      </button>
+                    </div>
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">First Name</label>
-                    <input className="form-control" name="firstName" value={formData.firstName} onChange={handleChange} />
+                    <label>First Name</label>
+                    <input className="form-control" value={formData.firstName} readOnly />
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Last Name</label>
-                    <input className="form-control" name="lastName" value={formData.lastName} onChange={handleChange} />
+                    <label>Last Name</label>
+                    <input className="form-control" value={formData.lastName} readOnly />
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Other Name</label>
-                    <input className="form-control" name="otherName" value={formData.otherName} onChange={handleChange} />
+                    <label>Other Name</label>
+                    <input className="form-control" value={formData.otherName} readOnly />
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Date of Birth</label>
-                    <input type="date" className="form-control" name="dob" value={formData.dob} onChange={handleChange} />
+                    <label>DOB</label>
+                    <input className="form-control" value={formData.dob} readOnly />
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Gender</label>
-                    <select className="form-select" name="gender" value={formData.gender} onChange={handleChange}>
-                      <option value="">Select</option>
-                      <option>Male</option>
-                      <option>Female</option>
-                      <option>Other</option>
-                    </select>
+                    <label>Gender</label>
+                    <input className="form-control" value={formData.gender} readOnly />
                   </div>
 
                   <div className="col-md-6">
-                    <label className="form-label">Branch</label>
-                    <select className="form-select" name="branch" value={formData.branch} onChange={handleChange}>
+                    <label>Branch</label>
+                    <select
+                      className="form-select"
+                      name="branch"
+                      value={formData.branch}
+                      onChange={handleChange}
+                      disabled={locked}
+                    >
                       <option value="">Select Branch</option>
                       {branches.map((b) => (
                         <option key={b}>{b}</option>
@@ -240,109 +304,66 @@ const CreateAccount = () => {
 
                 </div>
               </div>
-            </div>
 
+            </div>
           </div>
         </div>
 
-        {/* ACCOUNT DETAILS */}
+        {/* ACCOUNT SECTION */}
         <div className="card shadow-sm mb-4">
           <div className="card-body">
 
-            <h5 className="text-success mb-3">Account Details</h5>
+            <h5 className="text-success">Account Details</h5>
 
             <div className="row g-3">
 
               <div className="col-md-6">
-                <label className="form-label">Product Type</label>
-                <select className="form-select" name="productType" value={formData.productType} onChange={handleChange}>
+                <label>Product Type</label>
+                <select className="form-select" name="productType" onChange={handleChange}>
                   <option value="">Select</option>
                   <option>Savings</option>
                   <option>Current</option>
-                  <option>Fixed Deposit</option>
-                  <option>Business</option>
                 </select>
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Account Name</label>
-                <input className="form-control" name="accountName" value={formData.accountName} onChange={handleChange} />
+                <label>Account Name</label>
+                <input className="form-control" name="accountName" onChange={handleChange} />
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Account Description</label>
-                <input className="form-control" name="accountDescription" value={formData.accountDescription} onChange={handleChange} />
+                <label>Description</label>
+                <input className="form-control" name="accountDescription" onChange={handleChange} />
               </div>
 
               <div className="col-md-6">
-                <label className="form-label">Account Mandate</label>
-                <select className="form-select" name="accountMandate" value={formData.accountMandate} onChange={handleChange}>
-                  <option value="">Select</option>
-                  <option>Single Signatory</option>
-                  <option>Joint Signatory</option>
-                  <option>Any to Sign</option>
-                  <option>All Must Sign</option>
+                <label>Mandate</label>
+                <select className="form-select" name="accountMandate" onChange={handleChange}>
+                  <option>Single</option>
+                  <option>Joint</option>
                 </select>
               </div>
 
             </div>
-
           </div>
         </div>
 
         {/* ACCOUNT NUMBER */}
-        <div className="card shadow-sm mb-4">
-          <div className="card-body">
+        <button type="button" className="btn btn-success" onClick={generateAccountNumber}>
+          Generate Account Number
+        </button>
 
-            <h5 className="mb-3">Account Number</h5>
-
-            <div className="d-flex gap-3 align-items-center">
-
-              <button
-                type="button"
-                className="btn btn-success"
-                onClick={generateAccountNumber}
-              >
-                Generate Account Number
-              </button>
-
-              <div className="border rounded px-3 py-2 bg-light fw-bold">
-                {accountNumber || "No Account Number Generated"}
-              </div>
-
-            </div>
-
-          </div>
+        <div className="mt-2 fw-bold">
+          {accountNumber || "No Account Number"}
         </div>
 
-        {/* BUTTONS */}
-        <div className="d-flex gap-2">
-          <button className="btn btn-primary px-4" disabled={loading}>
+        {/* ACTIONS */}
+        <div className="mt-4 d-flex gap-2">
+          <button className="btn btn-primary" disabled={loading}>
             {loading ? "Processing..." : "Create Account"}
           </button>
 
-          <button
-            type="button"
-            className="btn btn-outline-secondary"
-            onClick={() => {
-              setFormData({
-                customerNumber: "",
-                firstName: "",
-                lastName: "",
-                otherName: "",
-                dob: "",
-                gender: "",
-                branch: "",
-                image: null,
-                productType: "",
-                accountName: "",
-                accountDescription: "",
-                accountMandate: "",
-              });
-              setPreview(null);
-              setAccountNumber("");
-            }}
-          >
+          <button type="button" className="btn btn-secondary" onClick={resetAll}>
             Reset
           </button>
         </div>

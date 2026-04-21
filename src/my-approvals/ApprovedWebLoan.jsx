@@ -101,6 +101,7 @@ const ApprovedWebLoan = () => {
       <Table striped bordered hover>
         <thead>
           <tr>
+            <th>Loan ID</th>
             <th>Customer ID</th>
             <th>Full Name</th>
             <th>Phone</th>
@@ -121,6 +122,7 @@ const ApprovedWebLoan = () => {
           ) : (
             data.map((loan) => (
               <tr key={loan.applicant_id}>
+                <td>{loan.loan_id}</td>
                 <td>{loan.kyc_code}</td>
                 <td>{loan.applicant_fullName}</td>
                 <td>{loan.mobileNumber}</td>

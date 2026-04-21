@@ -133,9 +133,12 @@ const CustomerApplyLoan = ({ user }) => {
               <input name="userId" value={formData.userId} hidden readOnly />
 
               <div className="mb-3">
-                <label className="form-label fw-semibold">
-                  Enter Your KYC Code
-                </label>
+               <label className="form-label fw-semibold">
+              Enter Your KYC Code
+             </label>
+             <small className="text-muted d-block mb-2">
+              Please complete your KYC forms to enable notifications via the bell icon and receive your code.
+             </small>
                 <input
                   name="kycCode"
                   className="form-control form-control-lg"
