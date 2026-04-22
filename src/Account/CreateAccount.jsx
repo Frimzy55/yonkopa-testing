@@ -2,8 +2,7 @@ import React, { useState } from "react";
 
 const CreateAccount = () => {
   const [formData, setFormData] = useState({
-//customerNumber: "",
-    kyc_code: ""  ,  
+    kyc_code: "",
     firstName: "",
     lastName: "",
     otherName: "",
@@ -19,14 +18,11 @@ const CreateAccount = () => {
   });
 
   const [preview, setPreview] = useState(null);
-  const [accountNumber, setAccountNumber] = useState("");
-
   const [loading, setLoading] = useState(false);
   const [fetchingCustomer, setFetchingCustomer] = useState(false);
   const [success, setSuccess] = useState("");
   const [error, setError] = useState("");
-
-  const [locked, setLocked] = useState(false); // lock after fetch
+  const [locked, setLocked] = useState(false);
 
   const branches = [
     "Head Office",
@@ -42,7 +38,6 @@ const CreateAccount = () => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
-  // IMAGE HANDLER (manual upload still allowed if needed)
   const handleImageChange = (e) => {
     if (locked) return;
 
@@ -57,65 +52,58 @@ const CreateAccount = () => {
     setFormData((prev) => ({ ...prev, image: file }));
 
     const reader = new FileReader();
-    reader.onloadend = () => {
-      setPreview(reader.result);
-    };
+    reader.onloadend = () => setPreview(reader.result);
     reader.readAsDataURL(file);
   };
 
-  // FETCH CUSTOMER FROM BACKEND
- const fetchCustomer = async () => {
-  if (!formData.kyc_code) {
-    setError("Enter KYC code");
-    return;
-  }
-
-  setFetchingCustomer(true);
-  setError("");
-  setSuccess("");
-
-  try {
-    const res = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/customer/${formData.kyc_code}`
-    );
-
-    const data = await res.json();
-
-    if (!data.success) {
-      setError(data.message);
+  // FETCH CUSTOMER BY KYC CODE
+  const fetchCustomer = async () => {
+    if (!formData.kyc_code) {
+      setError("Enter KYC code");
       return;
     }
 
-    const c = data.customer;
+    setFetchingCustomer(true);
+    setError("");
+    setSuccess("");
 
-    setFormData((prev) => ({
-      ...prev,
-      firstName: c.firstname || "",
-      lastName: c.lastname || "",
-      otherName: c.middlename || "",
-      dob: c.personal_dob ? c.personal_dob.split("T")[0] : "",
-      gender: c.personal_gender || "",
-    }));
-
-    if (c.avatar) {
-      setPreview(
-        `${process.env.REACT_APP_API_URL.replace(/\/$/, "")}/uploads/${c.avatar}`
+    try {
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/customer/${formData.kyc_code}`
       );
+
+      const data = await res.json();
+
+      if (!data.success) {
+        setError(data.message);
+        return;
+      }
+
+      const c = data.customer;
+
+      setFormData((prev) => ({
+        ...prev,
+        firstName: c.firstname || "",
+        lastName: c.lastname || "",
+        otherName: c.middlename || "",
+        dob: c.personal_dob ? c.personal_dob.split("T")[0] : "",
+        gender: c.personal_gender || "",
+      }));
+
+      if (c.avatar) {
+        setPreview(
+          `${process.env.REACT_APP_API_URL.replace(/\/$/, "")}/uploads/${c.avatar}`
+        );
+      }
+
+      setLocked(true);
+      setSuccess("Approved KYC loaded successfully");
+
+    } catch (err) {
+      setError("Failed to fetch customer");
+    } finally {
+      setFetchingCustomer(false);
     }
-
-    setLocked(true);
-    setSuccess("Approved KYC loaded successfully");
-
-  } catch (err) {
-    setError("Failed to fetch customer");
-  } finally {
-    setFetchingCustomer(false);
-  }
-};
-  // GENERATE ACCOUNT NUMBER
-  const generateAccountNumber = () => {
-    const random = Math.floor(1000000000 + Math.random() * 9000000000);
-    setAccountNumber(random.toString());
   };
 
   const handleSubmit = async (e) => {
@@ -127,10 +115,10 @@ const CreateAccount = () => {
     try {
       await new Promise((res) => setTimeout(res, 1200));
 
-      setSuccess(`Account created successfully! Account No: ${accountNumber}`);
+      setSuccess("Account created successfully!");
 
       setFormData({
-        customerNumber: "",
+        kyc_code: "",
         firstName: "",
         lastName: "",
         otherName: "",
@@ -145,7 +133,6 @@ const CreateAccount = () => {
       });
 
       setPreview(null);
-      setAccountNumber("");
       setLocked(false);
 
     } catch {
@@ -157,7 +144,7 @@ const CreateAccount = () => {
 
   const resetAll = () => {
     setFormData({
-      customerNumber: "",
+      kyc_code: "",
       firstName: "",
       lastName: "",
       otherName: "",
@@ -172,7 +159,6 @@ const CreateAccount = () => {
     });
 
     setPreview(null);
-    setAccountNumber("");
     setLocked(false);
     setError("");
     setSuccess("");
@@ -238,9 +224,9 @@ const CreateAccount = () => {
               <div className="col-md-9">
                 <div className="row g-3">
 
-                  {/* CUSTOMER NUMBER */}
+                  {/* KYC CODE */}
                   <div className="col-md-6">
-                    <label>Customer Number</label>
+                    <label>KYC Code</label>
                     <div className="d-flex gap-2">
                       <input
                         className="form-control"
@@ -346,15 +332,6 @@ const CreateAccount = () => {
 
             </div>
           </div>
-        </div>
-
-        {/* ACCOUNT NUMBER */}
-        <button type="button" className="btn btn-success" onClick={generateAccountNumber}>
-          Generate Account Number
-        </button>
-
-        <div className="mt-2 fw-bold">
-          {accountNumber || "No Account Number"}
         </div>
 
         {/* ACTIONS */}
