@@ -10,7 +10,7 @@ const STEPS = [
   { number: 1, title: "Loan Details" },
   { number: 2, title: "Collateral" },
   { number: 3, title: "Borrower Credit" },
-  { number: 4, title: "Final Decision" },
+  { number: 4, title: "Recommendation" },
 ];
 
 const LoanEvaluation = ({ loan, onBack }) => {
