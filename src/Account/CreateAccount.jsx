@@ -32,12 +32,18 @@ const CreateAccount = () => {
     "Westside Branch",
   ];
 
+  // =========================
+  // HANDLE INPUT CHANGE
+  // =========================
   const handleChange = (e) => {
     if (locked) return;
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  // =========================
+  // IMAGE HANDLER
+  // =========================
   const handleImageChange = (e) => {
     if (locked) return;
 
@@ -56,7 +62,9 @@ const CreateAccount = () => {
     reader.readAsDataURL(file);
   };
 
-  // FETCH CUSTOMER BY KYC CODE
+  // =========================
+  // FETCH CUSTOMER BY KYC
+  // =========================
   const fetchCustomer = async () => {
     if (!formData.kyc_code) {
       setError("Enter KYC code");
@@ -106,6 +114,9 @@ const CreateAccount = () => {
     }
   };
 
+  // =========================
+  // SUBMIT ACCOUNT
+  // =========================
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
@@ -113,35 +124,55 @@ const CreateAccount = () => {
     setSuccess("");
 
     try {
-      await new Promise((res) => setTimeout(res, 1200));
+      const form = new FormData();
+
+      form.append("kyc_code", formData.kyc_code);
+      form.append("firstName", formData.firstName);
+      form.append("lastName", formData.lastName);
+      form.append("otherName", formData.otherName);
+      form.append("dob", formData.dob);
+      form.append("gender", formData.gender);
+      form.append("branch", formData.branch);
+      form.append("productType", formData.productType);
+      form.append("accountName", formData.accountName);
+      form.append("accountDescription", formData.accountDescription);
+      form.append("accountMandate", formData.accountMandate);
+
+      // ONLY append real file
+      if (formData.image instanceof File) {
+        form.append("image", formData.image);
+      }
+
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/accounts/create`,
+        {
+          method: "POST",
+          body: form,
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      const data = await res.json();
+
+      if (!data.success) {
+        throw new Error(data.message);
+      }
 
       setSuccess("Account created successfully!");
+      resetAll();
 
-      setFormData({
-        kyc_code: "",
-        firstName: "",
-        lastName: "",
-        otherName: "",
-        dob: "",
-        gender: "",
-        branch: "",
-        image: null,
-        productType: "",
-        accountName: "",
-        accountDescription: "",
-        accountMandate: "",
-      });
-
-      setPreview(null);
-      setLocked(false);
-
-    } catch {
-      setError("Something went wrong");
+    } catch (err) {
+      setError(err.message || "Something went wrong");
     } finally {
       setLoading(false);
     }
   };
 
+  // =========================
+  // RESET FORM
+  // =========================
   const resetAll = () => {
     setFormData({
       kyc_code: "",
@@ -183,7 +214,6 @@ const CreateAccount = () => {
 
             <div className="row">
 
-              {/* IMAGE */}
               <div className="col-md-3 text-center">
                 <div
                   style={{
@@ -220,11 +250,9 @@ const CreateAccount = () => {
                 />
               </div>
 
-              {/* FORM */}
               <div className="col-md-9">
                 <div className="row g-3">
 
-                  {/* KYC CODE */}
                   <div className="col-md-6">
                     <label>KYC Code</label>
                     <div className="d-flex gap-2">
@@ -334,7 +362,6 @@ const CreateAccount = () => {
           </div>
         </div>
 
-        {/* ACTIONS */}
         <div className="mt-4 d-flex gap-2">
           <button className="btn btn-primary" disabled={loading}>
             {loading ? "Processing..." : "Create Account"}
