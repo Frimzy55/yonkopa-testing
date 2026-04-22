@@ -1,4 +1,4 @@
-// src/pages/ApproveWebLoanApplication.js
+// src/loans/ApproveWebLoanApplication.jsx
 import React, { useEffect, useState } from "react";
 import {
   Table,
@@ -14,6 +14,9 @@ import {
 import axios from "axios";
 import LoanDetailsModal from "./LoanDetailsModal";
 import KycDetailsModal from "./KycDetailsModal";
+//import LoanEvaluation from "./LoanEvaluation";
+import LoanEvaluation from "./LoanEvaluation/LoanEvaluation";
+
 
 const ApproveWebLoanApplication = () => {
   const [loanData, setLoanData] = useState([]);
@@ -29,7 +32,10 @@ const ApproveWebLoanApplication = () => {
   const [showKycModal, setShowKycModal] = useState(false);
   const [selectedKyc, setSelectedKyc] = useState(null);
 
-  // ✅ Fetch all loan
+  // ✅ NEW: Evaluation screen state
+  const [evaluatingLoan, setEvaluatingLoan] = useState(null);
+
+  // ✅ Fetch all loans
   useEffect(() => {
     const fetchLoanData = async () => {
       try {
@@ -55,8 +61,7 @@ const ApproveWebLoanApplication = () => {
 
   // ✅ Handle actions
   const handleAction = async (action, loan) => {
-
-    // 🔍 REVIEW (open modal)
+    // 🔍 REVIEW
     if (action === "review") {
       try {
         const res = await axios.get(
@@ -65,76 +70,42 @@ const ApproveWebLoanApplication = () => {
 
         setSelectedLoan(res.data);
         setShowModal(true);
-
       } catch (err) {
         console.error("Error fetching review:", err);
       }
     }
 
-    // 👁 VIEW
-    if (action === "view") {
-      try {
-        const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.userId}`
-        );
-
-        setSelectedLoan(res.data);
-        setShowModal(true);
-      } catch (err) {
-        console.error("Error fetching details:", err);
-      }
+    // ✅ EVALUATE → switch screen
+    if (action === "evaluate") {
+      setEvaluatingLoan(loan);
     }
-
-    /*if (action === "approve") {
-  try {
-    await axios.post(
-      `${process.env.REACT_APP_API_URL}/loan/approve`,
-      {
-        loan_id: loan.loan_id,   // ✅ CHANGE HERE
-      }
-    );
-
-    const updated = loanData.map((item) =>
-      item.loan_id === loan.loan_id
-        ? { ...item, loan_status: "approved" }
-        : item
-    );
-
-    setLoanData(updated);
-    setFilteredData(updated);
-
-  } catch (err) {
-    console.error("Approve failed:", err);
-  }
-}*/
 
     // ✅ APPROVE
     if (action === "approve") {
       try {
         await axios.post(
           `${process.env.REACT_APP_API_URL}/loan/approve`,
-          {
-            kyc_code: loan.kyc_code,
-          }
+          { loan_id: loan.loan_id }
         );
 
         const updated = loanData.map((item) =>
-          item.kyc_code === loan.kyc_code
+          item.loan_id === loan.loan_id
             ? { ...item, loan_status: "approved" }
             : item
         );
 
         setLoanData(updated);
         setFilteredData(updated);
-
+        setEvaluatingLoan(null);
       } catch (err) {
         console.error("Approve failed:", err);
       }
     }
 
-    // ❌ REJECT (placeholder)
+    // ❌ REJECT
     if (action === "reject") {
       console.log("Rejected:", loan);
+      setEvaluatingLoan(null);
     }
   };
 
@@ -149,7 +120,6 @@ const ApproveWebLoanApplication = () => {
       setShowKycModal(true);
     } catch (err) {
       console.error("Error fetching KYC:", err);
-
       setSelectedKyc(loan);
       setShowKycModal(true);
     }
@@ -197,7 +167,7 @@ const ApproveWebLoanApplication = () => {
   if (loading)
     return (
       <div className="text-center mt-5">
-        <Spinner animation="border" variant="primary" />
+        <Spinner animation="border" />
       </div>
     );
 
@@ -209,111 +179,112 @@ const ApproveWebLoanApplication = () => {
       </div>
     );
 
+  // ✅ 🔥 EVALUATION SCREEN (TABLE HIDDEN)
+  if (evaluatingLoan) {
+  return (
+    <LoanEvaluation
+      loan={evaluatingLoan}
+      onApprove={(loan) => handleAction("approve", loan)}
+      onReject={(loan) => handleAction("reject", loan)}
+      onBack={() => setEvaluatingLoan(null)}
+    />
+  );
+}
+  // ✅ DEFAULT TABLE VIEW
   return (
     <div className="loan-table-container">
       <h2 className="mb-4">Full Loan KYC Applications</h2>
 
-      {/* 🔍 Search + Entries */}
-      <Row className="mb-3 align-items-center">
-        <Col md={6} sm={12} className="mb-2">
+      {/* Search */}
+      <Row className="mb-3">
+        <Col md={6}>
           <Form.Control
             type="text"
-            placeholder="Search by name, customer ID or phone..."
+            placeholder="Search..."
             value={searchTerm}
             onChange={handleSearch}
           />
         </Col>
 
-        <Col md={3} sm={6} className="mb-2">
+        <Col md={3}>
           <Form.Select value={entries} onChange={handleEntriesChange}>
-            <option value={5}>Show 5 entries</option>
-            <option value={10}>Show 10 entries</option>
-            <option value={25}>Show 25 entries</option>
-            <option value={50}>Show 50 entries</option>
+            <option value={5}>5</option>
+            <option value={10}>10</option>
+            <option value={25}>25</option>
           </Form.Select>
         </Col>
       </Row>
 
-      {/* 📊 Table */}
-      <Table striped bordered hover>
+      {/* Table */}
+      <Table bordered hover>
         <thead>
           <tr>
-             <th>Loan ID</th>
+            <th>Loan ID</th>
             <th>Customer ID</th>
-            <th>Full Name</th>
+            <th>Name</th>
             <th>Phone</th>
-            <th>Loan Amount</th>
+            <th>Amount</th>
             <th>Status</th>
-            <th>Created At</th>
+            <th>Date</th>
             <th>Actions</th>
           </tr>
         </thead>
 
         <tbody>
-          {filteredData.length === 0 ? (
-            <tr>
-              <td colSpan="7" className="text-center">
-                No loan applications found
+          {filteredData.slice(0, entries).map((loan) => (
+            <tr key={loan.applicant_id}>
+              <td>{loan.loan_id}</td>
+              <td>{loan.kyc_code}</td>
+              <td>{loan.applicant_fullName}</td>
+              <td>{loan.mobileNumber}</td>
+              <td>₵{loan.loanAmount}</td>
+              <td>{getStatusBadge(loan.loan_status)}</td>
+              <td>
+                {new Date(
+                  loan.applicant_created_at
+                ).toLocaleString()}
+              </td>
+
+              <td>
+                <Dropdown as={ButtonGroup}>
+                  <Dropdown.Toggle size="sm">
+                    Actions
+                  </Dropdown.Toggle>
+
+                  <Dropdown.Menu>
+                    <Dropdown.Item
+                      onClick={() => handleAction("review", loan)}
+                    >
+                      Review
+                    </Dropdown.Item>
+
+                    <Dropdown.Item
+                      onClick={() => handleAction("evaluate", loan)}
+                    >
+                      Evaluate Loan
+                    </Dropdown.Item>
+
+
+                    <Dropdown.Item
+                     onClick={() => handleAction("skip", loan)}
+                      >
+                     Skip Evaluation
+                    </Dropdown.Item>
+
+                    <Dropdown.Item
+                      onClick={() => handleAction("reject", loan)}
+                    >
+                      Reject
+                    </Dropdown.Item>
+                  </Dropdown.Menu>
+                </Dropdown>
               </td>
             </tr>
-          ) : (
-            filteredData.slice(0, entries).map((loan) => (
-              <tr key={loan.applicant_id}>
-                <td>{loan.loan_id}</td>
-                <td>{loan.kyc_code}</td>
-                <td>{loan.applicant_fullName}</td>
-                <td>{loan.mobileNumber}</td>
-                <td>₵{loan.loanAmount}</td>
-                <td>{getStatusBadge(loan.loan_status)}</td>
-                <td>
-                  {new Date(
-                    loan.applicant_created_at
-                  ).toLocaleString()}
-                </td>
-
-                <td>
-                  <Dropdown as={ButtonGroup}>
-                    <Dropdown.Toggle
-                      variant="outline-secondary"
-                      size="sm"
-                    >
-                      Actions
-                    </Dropdown.Toggle>
-
-                    <Dropdown.Menu>
-                      <Dropdown.Item
-                        onClick={() => handleAction("review", loan)}
-                      >
-                        Review
-                      </Dropdown.Item>
-
-                      <Dropdown.Item
-                        onClick={() => handleAction("approve", loan)}
-                      >
-                        Approve
-                      </Dropdown.Item>
-
-                      <Dropdown.Item
-                        onClick={() => handleAction("reject", loan)}
-                      >
-                        Reject
-                      </Dropdown.Item>
-
-                      <Dropdown.Item
-                        onClick={() => handleAction("view", loan)}
-                      >
-                        View Details
-                      </Dropdown.Item>
-                    </Dropdown.Menu>
-                  </Dropdown>
-                </td>
-              </tr>
-            ))
-          )}
+          ))}
         </tbody>
       </Table>
 
-      {/* ✅ Loan Modal */}
+      {/* Modals */}
       <LoanDetailsModal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -323,7 +294,6 @@ const ApproveWebLoanApplication = () => {
         onViewKyc={handleViewKyc}
       />
 
-      {/* ✅ KYC Modal */}
       <KycDetailsModal
         show={showKycModal}
         onClose={() => setShowKycModal(false)}
