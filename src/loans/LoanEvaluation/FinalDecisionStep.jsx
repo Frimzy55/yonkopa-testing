@@ -31,7 +31,7 @@ const FinalDecisionStep = ({ loan,onBack, onSubmit }) => {
 
       {/* Final Comments */}
       <Form.Group className="mt-4">
-        <Form.Label>Final Comments</Form.Label>
+        <Form.Label>Recommendation</Form.Label>
         <Form.Control
           as="textarea"
           rows={3}
