@@ -92,10 +92,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
   };
 
   const handleSubmit = () => {
-    if (!isCreditworthy) {
-      alert("Please confirm if the borrower is creditworthy");
-      return;
-    }
+    // No validation - always allow proceeding to next step
     onNext();
   };
 

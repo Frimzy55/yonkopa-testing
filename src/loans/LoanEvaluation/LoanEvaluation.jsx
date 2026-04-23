@@ -125,6 +125,7 @@ const LoanEvaluation = ({ loan, onBack }) => {
           {/* STEP 3 */}
           {step === 3 && (
             <BorrowerCreditStep
+             loan={loan}   // ✅ ADD THIS LINE
               data={formData.credit}
               setData={(data) =>
                 setFormData((prev) => ({
@@ -140,6 +141,7 @@ const LoanEvaluation = ({ loan, onBack }) => {
           {/* STEP 4 */}
           {step === 4 && (
             <FinalDecisionStep
+               loan={loan} 
               data={formData.decision}
               setData={(data) =>
                 setFormData((prev) => ({
