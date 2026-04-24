@@ -123,7 +123,6 @@ const LoanDetailsModal = ({
                   <td><b>National ID</b></td>
                   <td>{loan.applicant_national_id || "—"}</td>
                 </tr>
-                
               </tbody>
             </Table>
           </>
@@ -197,153 +196,153 @@ const LoanDetailsModal = ({
         )}
 
         {/* STEP 3 - Guarantor with conditional fields based on employee type */}
+        {step === 3 && (
+          <>
+            <h5>Guarantor Information</h5>
+
+            {/* Profile Picture at the top */}
+            <div className="text-center mb-4">
+              <h6>Profile Picture</h6>
+              {loan.guarantorProfilePicture ? (
+                renderImage(loan.guarantorProfilePicture, "Guarantor Profile")
+              ) : (
+                <div className="text-muted">No profile picture available</div>
+              )}
+            </div>
+
+            {/* Basic Information */}
+            <h6 className="mt-3">Basic Details</h6>
+            <Table bordered size="sm">
+              <tbody>
+                <tr>
+                  <td><b>Full Name</b></td>
+                  <td>{loan.guarantorName || "—"}</td>
+                </tr>
+                <tr>
+                  <td><b>Phone Number</b></td>
+                  <td>{loan.guarantorPhone || "—"}</td>
+                </tr>
+                <tr>
+                  <td><b>Address</b></td>
+                  <td>{loan.guarantorAddress || "—"}</td>
+                </tr>
+                <tr>
+                  <td><b>Residence Location</b></td>
+                  <td>{loan.guarantorResidenceLocation || "—"}</td>
+                </tr>
+                <tr>
+                  <td><b>ID Number</b></td>
+                  <td>{loan.guarantorIdNumber || "—"}</td>
+                </tr>
+                <tr>
+                  <td><b>Employee Type</b></td>
+                  <td>
+                    <span className={`badge bg-${
+                      employeeType === "salary worker" ? "primary" : "success"
+                    }`}>
+                      {loan.guarantorEmployeeType || "—"}
+                    </span>
+                  </td>
+                </tr>
+              </tbody>
+            </Table>
+
+            {/* Conditional Rendering based on Employee Type */}
+            {employeeType === "salary worker" && (
+              <>
+                <h6 className="mt-3">Employment Details</h6>
+                <Table bordered size="sm">
+                  <tbody>
+                    <tr>
+                      <td><b>Rank/Position</b></td>
+                      <td>{loan.guarantorRank || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Work Location</b></td>
+                      <td>{loan.guarantorWorkLocation || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Name of Employer</b></td>
+                      <td>{loan.guarantorNameOfEmployer || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Years in Service</b></td>
+                      <td>{loan.guarantorYearsInService || "—"}</td>
+                    </tr>
+                  </tbody>
+                </Table>
+
+                {/* Documents for Salary Worker */}
+                <h6 className="mt-3">Supporting Documents</h6>
+                <Table bordered size="sm">
+                  <tbody>
+                    <tr>
+                      <td><b>Payslip</b></td>
+                      <td>{renderImage(loan.guarantorPayslip, "Payslip")}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Ghana Card (Front)</b></td>
+                      <td>{renderImage(loan.guarantorGhanaCardFront, "Ghana Card Front")}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Ghana Card (Back)</b></td>
+                      <td>{renderImage(loan.guarantorGhanaCardBack, "Ghana Card Back")}</td>
+                    </tr>
+                  </tbody>
+                </Table>
+              </>
+            )}
+
+            {employeeType === "self-employed" && (
+              <>
+                <h6 className="mt-3">Business Details</h6>
+                <Table bordered size="sm">
+                  <tbody>
+                    <tr>
+                      <td><b>Business Name</b></td>
+                      <td>{loan.guarantorBusinessName || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Business Location</b></td>
+                      <td>{loan.guarantorBusinessLocation || "—"}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Years in Business</b></td>
+                      <td>{loan.guarantorYearsInBusiness || "—"}</td>
+                    </tr>
+                  </tbody>
+                </Table>
+
+                {/* Documents for Self-Employed */}
+                <h6 className="mt-3">Supporting Documents</h6>
+                <Table bordered size="sm">
+                  <tbody>
+                    <tr>
+                      <td><b>Business Picture</b></td>
+                      <td>{renderImage(loan.guarantorBusinessPicture, "Business Picture")}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Ghana Card (Front)</b></td>
+                      <td>{renderImage(loan.guarantorGhanaCardFront, "Ghana Card Front")}</td>
+                    </tr>
+                    <tr>
+                      <td><b>Ghana Card (Back)</b></td>
+                      <td>{renderImage(loan.guarantorGhanaCardBack, "Ghana Card Back")}</td>
+                    </tr>
+                  </tbody>
+                </Table>
+              </>
+            )}
+
+            {/* If no employee type selected or other value */}
+            {(!employeeType || (employeeType !== "salary worker" && employeeType !== "self-employed")) && (
+              <div className="alert alert-info mt-3">
+                <small>No employment details available. Employee type: {loan.guarantorEmployeeType || "Not specified"}</small>
+              </div>
+            )}
+          </>
+        )}
         
-{step === 3 && (
-  <>
-    <h5>Guarantor Information</h5>
-
-    {/* Profile Picture at the top */}
-    <div className="text-center mb-4">
-      <h6>Profile Picture</h6>
-      {loan.guarantorProfilePicture ? (
-        renderImage(loan.guarantorProfilePicture, "Guarantor Profile")
-      ) : (
-        <div className="text-muted">No profile picture available</div>
-      )}
-    </div>
-
-    {/* Basic Information */}
-    <h6 className="mt-3">Basic Details</h6>
-    <Table bordered size="sm">
-      <tbody>
-        <tr>
-          <td><b>Full Name</b></td>
-          <td>{loan.guarantorName || "—"}</td>
-        </tr>
-        <tr>
-          <td><b>Phone Number</b></td>
-          <td>{loan.guarantorPhone || "—"}</td>
-        </tr>
-        <tr>
-          <td><b>Address</b></td>
-          <td>{loan.guarantorAddress || "—"}</td>
-        </tr>
-        <tr>
-          <td><b>Residence Location</b></td>
-          <td>{loan.guarantorResidenceLocation || "—"}</td>
-        </tr>
-        <tr>
-          <td><b>ID Number</b></td>
-          <td>{loan.guarantorIdNumber || "—"}</td>
-        </tr>
-        <tr>
-          <td><b>Employee Type</b></td>
-          <td>
-            <span className={`badge bg-${
-              employeeType === "salary worker" ? "primary" : "success"
-            }`}>
-              {loan.guarantorEmployeeType || "—"}
-            </span>
-          </td>
-        </tr>
-      </tbody>
-    </Table>
-
-    {/* Conditional Rendering based on Employee Type */}
-    {employeeType === "salary worker" && (
-      <>
-        <h6 className="mt-3">Employment Details</h6>
-        <Table bordered size="sm">
-          <tbody>
-            <tr>
-              <td><b>Rank/Position</b></td>
-              <td>{loan.guarantorRank || "—"}</td>
-            </tr>
-            <tr>
-              <td><b>Work Location</b></td>
-              <td>{loan.guarantorWorkLocation || "—"}</td>
-            </tr>
-            <tr>
-              <td><b>Name of Employer</b></td>
-              <td>{loan.guarantorNameOfEmployer || "—"}</td>
-            </tr>
-            <tr>
-              <td><b>Years in Service</b></td>
-              <td>{loan.guarantorYearsInService || "—"}</td>
-            </tr>
-          </tbody>
-        </Table>
-
-        {/* Documents for Salary Worker */}
-        <h6 className="mt-3">Supporting Documents</h6>
-        <Table bordered size="sm">
-          <tbody>
-            <tr>
-              <td><b>Payslip</b></td>
-              <td>{renderImage(loan.guarantorPayslip, "Payslip")}</td>
-            </tr>
-            <tr>
-              <td><b>Ghana Card (Front)</b></td>
-              <td>{renderImage(loan.guarantorGhanaCardFront, "Ghana Card Front")}</td>
-            </tr>
-            <tr>
-              <td><b>Ghana Card (Back)</b></td>
-              <td>{renderImage(loan.guarantorGhanaCardBack, "Ghana Card Back")}</td>
-            </tr>
-          </tbody>
-        </Table>
-      </>
-    )}
-
-    {employeeType === "self-employed" && (
-      <>
-        <h6 className="mt-3">Business Details</h6>
-        <Table bordered size="sm">
-          <tbody>
-            <tr>
-              <td><b>Business Name</b></td>
-              <td>{loan.guarantorBusinessName || "—"}</td>
-            </tr>
-            <tr>
-              <td><b>Business Location</b></td>
-              <td>{loan.guarantorBusinessLocation || "—"}</td>
-            </tr>
-            <tr>
-              <td><b>Years in Business</b></td>
-              <td>{loan.guarantorYearsInBusiness || "—"}</td>
-            </tr>
-          </tbody>
-        </Table>
-
-        {/* Documents for Self-Employed */}
-        <h6 className="mt-3">Supporting Documents</h6>
-        <Table bordered size="sm">
-          <tbody>
-            <tr>
-              <td><b>Business Picture</b></td>
-              <td>{renderImage(loan.guarantorBusinessPicture, "Business Picture")}</td>
-            </tr>
-            <tr>
-              <td><b>Ghana Card (Front)</b></td>
-              <td>{renderImage(loan.guarantorGhanaCardFront, "Ghana Card Front")}</td>
-            </tr>
-            <tr>
-              <td><b>Ghana Card (Back)</b></td>
-              <td>{renderImage(loan.guarantorGhanaCardBack, "Ghana Card Back")}</td>
-            </tr>
-          </tbody>
-        </Table>
-      </>
-    )}
-
-    {/* If no employee type selected or other value */}
-    {(!employeeType || (employeeType !== "salary worker" && employeeType !== "self-employed")) && (
-      <div className="alert alert-info mt-3">
-        <small>No employment details available. Employee type: {loan.guarantorEmployeeType || "Not specified"}</small>
-      </div>
-    )}
-  </>
-)}
         {/* STEP 4 - Mobile Money Details */}
         {step === 4 && (
           <>
@@ -360,7 +359,7 @@ const LoanDetailsModal = ({
                       {loan.momoProvider || "—"}
                     </span>
                   </td>
-                 </tr>
+                </tr>
                 <tr>
                   <td><b>Mobile Money Number</b></td>
                   <td>
@@ -370,20 +369,19 @@ const LoanDetailsModal = ({
                       "—"
                     )}
                   </td>
-                 </tr>
+                </tr>
                 <tr>
                   <td><b>Account Name</b></td>
                   <td>{loan.momoAccountName || "—"}</td>
-                 </tr>
+                </tr>
                 <tr>
                   <td><b>Account Status</b></td>
                   <td>
                     <span className="badge bg-success">
                       Active
                     </span>
-                    
                   </td>
-                 </tr>
+                </tr>
               </tbody>
             </Table>
 
@@ -412,34 +410,7 @@ const LoanDetailsModal = ({
         </div>
 
         <div>
-          {/* Approve / Reject */}
-          {loan.loan_status === "pending" && step === 2 && (
-            <>
-              <Button
-                variant="success"
-                onClick={() => {
-                  onApprove(loan);
-                  onClose();
-                }}
-                className="me-2"
-              >
-                Approve
-              </Button>
-
-              <Button
-                variant="danger"
-                onClick={() => {
-                  onReject(loan);
-                  onClose();
-                }}
-                className="me-2"
-              >
-                Reject
-              </Button>
-            </>
-          )}
-
-          {/* View KYC */}
+          {/* View KYC Button Only - Approve/Reject removed */}
           <Button
             variant="info"
             onClick={() => onViewKyc(loan)}

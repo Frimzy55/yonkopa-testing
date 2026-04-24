@@ -157,7 +157,7 @@ export const menuItems = [
       },
       { name: 'Loans', icon: 'bi-shield-plus',
         nestedMenus: [
-          { name: 'Approved Web Loans', icon: 'bi-globe' },
+          { name: 'Loans Awaiting Approvals', icon: 'bi-globe' },
           { name: 'Approve New Individual Loan', icon: 'bi-person' },
           { name: 'Approve Corporate Loan', icon: 'bi-building' },
           { name: 'Approve Group Loan', icon: 'bi-people-fill' },

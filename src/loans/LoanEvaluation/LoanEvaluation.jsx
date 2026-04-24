@@ -27,27 +27,43 @@ const LoanEvaluation = ({ loan, onBack }) => {
 
   const stepProgress = (step / 4) * 100;
 
-  const handleSubmit = async () => {
-    try {
-      const res = await fetch("http://localhost:5000/api/loans/evaluate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json"
-        },
-        body: JSON.stringify({
-          loanId: loan.loan_id || loan.id,
-          ...formData
-        })
-      });
+  /*const handleSubmit = async () => {
+  const res = await fetch("http://localhost:5000/api/loans/evaluate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      loanId: loan.loan_id,
+      loanDetails: formData.loanDetails,
+      collateral: formData.collateral,
+      credit: formData.credit,
+      decision: formData.decision
+    })
+  });
 
-      const data = await res.json();
-      alert("Loan evaluation saved successfully");
-      console.log(data);
-    } catch (error) {
-      console.error(error);
-      alert("Error saving evaluation");
-    }
+  
+
+  const data = await res.json();
+  alert(data.message);
+};
+*/
+
+const handleSubmit = async (overrideData) => {
+  const payload = {
+    loan,
+    collateral: formData.collateral,
+    creditData: formData.credit,
+    finalDecision: overrideData?.decision || formData.decision
   };
+
+  const res = await fetch("http://localhost:5000/api/loan/evaluate", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload)
+  });
+
+  const data = await res.json();
+  alert(data.message);
+};
 
   return (
     <div className="container mt-4">
@@ -107,20 +123,26 @@ const LoanEvaluation = ({ loan, onBack }) => {
           )}
 
           {/* STEP 2 */}
-          {step === 2 && (
-            <CollateralStep
-             loan={loan}   // ✅ ADD THIS LINE
-              data={formData.collateral}
-              setData={(data) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  collateral: data
-                }))
-              }
-              onBack={() => setStep(1)}
-              onNext={() => setStep(3)}
-            />
-          )}
+         {step === 2 && (
+  <CollateralStep
+    loan={loan}
+    data={formData.collateral}
+    setData={(data) =>
+      setFormData((prev) => ({
+        ...prev,
+        collateral: data
+      }))
+    }
+    onBack={() => setStep(1)}
+    onNext={(data) => {
+      setFormData((prev) => ({
+        ...prev,
+        collateral: data
+      }));
+      setStep(3);
+    }}
+  />
+)}
 
           {/* STEP 3 */}
           {step === 3 && (
@@ -139,20 +161,23 @@ const LoanEvaluation = ({ loan, onBack }) => {
           )}
 
           {/* STEP 4 */}
-          {step === 4 && (
-            <FinalDecisionStep
-               loan={loan} 
-              data={formData.decision}
-              setData={(data) =>
-                setFormData((prev) => ({
-                  ...prev,
-                  decision: data
-                }))
-              }
-              onBack={() => setStep(3)}
-              onSubmit={handleSubmit}
-            />
-          )}
+         {step === 4 && (
+  <FinalDecisionStep
+    loan={loan}
+    onBack={() => setStep(3)}
+    onSubmit={(data) => {
+      setFormData((prev) => ({
+        ...prev,
+        decision: data   // ✅ SAVE IT FIRST
+      }));
+
+      handleSubmit({
+        ...formData,
+        decision: data   // ✅ SEND CORRECT DATA
+      });
+    }}
+  />
+)}
 
         </Card.Body>
       </Card>

@@ -1,5 +1,5 @@
 // src/loans/ApproveWebLoanApplication.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   Table,
   Spinner,
@@ -14,7 +14,6 @@ import {
 import axios from "axios";
 import LoanDetailsModal from "./LoanDetailsModal";
 import KycDetailsModal from "./KycDetailsModal";
-//import LoanEvaluation from "./LoanEvaluation";
 import LoanEvaluation from "./LoanEvaluation/LoanEvaluation";
 
 
@@ -32,8 +31,14 @@ const ApproveWebLoanApplication = () => {
   const [showKycModal, setShowKycModal] = useState(false);
   const [selectedKyc, setSelectedKyc] = useState(null);
 
-  // ✅ NEW: Evaluation screen state
+  // ✅ Evaluation screen state
   const [evaluatingLoan, setEvaluatingLoan] = useState(null);
+  
+  // ✅ Track the row that was clicked for highlighting
+  const [highlightedRowId, setHighlightedRowId] = useState(null);
+  
+  // ✅ Ref to scroll to highlighted row
+  const tableRef = useRef(null);
 
   // ✅ Fetch all loans
   useEffect(() => {
@@ -59,7 +64,22 @@ const ApproveWebLoanApplication = () => {
     fetchLoanData();
   }, []);
 
-  // ✅ Handle actions
+  // ✅ Scroll to and highlight row when returning from evaluation
+  useEffect(() => {
+    if (!evaluatingLoan && highlightedRowId && tableRef.current) {
+      // Find the row element and scroll to it
+      const rowElement = document.getElementById(`loan-row-${highlightedRowId}`);
+      if (rowElement) {
+        rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Remove highlight after animation
+        setTimeout(() => {
+          setHighlightedRowId(null);
+        }, 3000);
+      }
+    }
+  }, [evaluatingLoan, highlightedRowId]);
+
   const handleAction = async (action, loan) => {
     // 🔍 REVIEW
     if (action === "review") {
@@ -75,8 +95,9 @@ const ApproveWebLoanApplication = () => {
       }
     }
 
-    // ✅ EVALUATE → switch screen
+    // ✅ EVALUATE - Store the loan ID for highlighting when returning
     if (action === "evaluate") {
+      setHighlightedRowId(loan.loan_id);
       setEvaluatingLoan(loan);
     }
 
@@ -97,6 +118,7 @@ const ApproveWebLoanApplication = () => {
         setLoanData(updated);
         setFilteredData(updated);
         setEvaluatingLoan(null);
+        setHighlightedRowId(null);
       } catch (err) {
         console.error("Approve failed:", err);
       }
@@ -104,8 +126,37 @@ const ApproveWebLoanApplication = () => {
 
     // ❌ REJECT
     if (action === "reject") {
-      console.log("Rejected:", loan);
+      const confirmReject = window.confirm(
+        "Are you sure you want to reject this loan?"
+      );
+
+      if (!confirmReject) return;
+
+      try {
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/loan/reject`,
+          { loan_id: loan.loan_id }
+        );
+
+        const updated = loanData.map((item) =>
+          item.loan_id === loan.loan_id
+            ? { ...item, loan_status: "rejected" }
+            : item
+        );
+
+        setLoanData(updated);
+        setFilteredData(updated);
+        setEvaluatingLoan(null);
+        setHighlightedRowId(null);
+      } catch (err) {
+        console.error("Reject failed:", err);
+      }
+    }
+
+    // ⚠️ SKIP
+    if (action === "skip") {
       setEvaluatingLoan(null);
+      setHighlightedRowId(null);
     }
   };
 
@@ -179,21 +230,49 @@ const ApproveWebLoanApplication = () => {
       </div>
     );
 
-  // ✅ 🔥 EVALUATION SCREEN (TABLE HIDDEN)
+  // ✅ EVALUATION SCREEN (TABLE HIDDEN)
   if (evaluatingLoan) {
-  return (
-    <LoanEvaluation
-      loan={evaluatingLoan}
-      onApprove={(loan) => handleAction("approve", loan)}
-      onReject={(loan) => handleAction("reject", loan)}
-      onBack={() => setEvaluatingLoan(null)}
-    />
-  );
-}
+    return (
+      <LoanEvaluation
+        loan={evaluatingLoan}
+        onApprove={(loan) => handleAction("approve", loan)}
+        onReject={(loan) => handleAction("reject", loan)}
+        onBack={() => {
+          // Clear evaluating loan but keep highlightedRowId
+          setEvaluatingLoan(null);
+          // The useEffect will handle scrolling when this returns
+        }}
+      />
+    );
+  }
+
   // ✅ DEFAULT TABLE VIEW
   return (
-    <div className="loan-table-container">
+    <div className="loan-table-container" ref={tableRef}>
       <h2 className="mb-4">Full Loan KYC Applications</h2>
+
+      {/* Add custom CSS for highlighting */}
+      <style>
+        {`
+          .highlight-row {
+            animation: highlightFade 3s ease-in-out;
+            background-color: #fff3cd !important;
+            border-left: 4px solid #ffc107 !important;
+          }
+          
+          @keyframes highlightFade {
+            0% {
+              background-color: #fff3cd;
+            }
+            70% {
+              background-color: #fff3cd;
+            }
+            100% {
+              background-color: transparent;
+            }
+          }
+        `}
+      </style>
 
       {/* Search */}
       <Row className="mb-3">
@@ -232,7 +311,11 @@ const ApproveWebLoanApplication = () => {
 
         <tbody>
           {filteredData.slice(0, entries).map((loan) => (
-            <tr key={loan.applicant_id}>
+            <tr 
+              key={loan.applicant_id}
+              id={`loan-row-${loan.loan_id}`}
+              className={highlightedRowId === loan.loan_id ? "highlight-row" : ""}
+            >
               <td>{loan.loan_id}</td>
               <td>{loan.kyc_code}</td>
               <td>{loan.applicant_fullName}</td>
@@ -264,11 +347,10 @@ const ApproveWebLoanApplication = () => {
                       Evaluate Loan
                     </Dropdown.Item>
 
-
                     <Dropdown.Item
-                     onClick={() => handleAction("skip", loan)}
-                      >
-                     Skip Evaluation
+                      onClick={() => handleAction("skip", loan)}
+                    >
+                      Skip Evaluation
                     </Dropdown.Item>
 
                     <Dropdown.Item

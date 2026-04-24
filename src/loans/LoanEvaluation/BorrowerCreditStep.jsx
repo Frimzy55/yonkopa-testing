@@ -18,34 +18,38 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
   const [nearestLandmark, setNearestLandmark] = useState(data.nearestLandmark || "");
   const [businessDescription, setBusinessDescription] = useState(data.businessDescription || "");
   const [isAbleToPay, setIsAbleToPay] = useState(data.isAbleToPay || false);
-  const [currentStockValue, setCurrentStockValue] = useState(data.currentStockValue || 0);
-  const [startedBusinessWith, setStartedBusinessWith] = useState(data.startedBusinessWith || 0);
+  const [currentStockValue, setCurrentStockValue] = useState(data.currentStockValue || "");
+  const [startedBusinessWith, setStartedBusinessWith] = useState(data.startedBusinessWith || "");
   const [sourceOfFund, setSourceOfFund] = useState(data.sourceOfFund || "");
-  const [principal, setPrincipal] = useState(data.principal || 0);
-  const [rate, setRate] = useState(data.rate || 0);
-  const [loanTerm, setLoanTerm] = useState(data.loanTerm || 0);
-  const [interest, setInterest] = useState(data.interest || 0);
-  const [loanAmount, setLoanAmount] = useState(data.loanAmount || 0);
-  const [monthlyInstallment, setMonthlyInstallment] = useState(data.monthlyInstallment || 0);
-  const [grossMarginPercentage, setGrossMarginPercentage] = useState(data.grossMarginPercentage || 0);
-  const [monthlySalesRevenue, setMonthlySalesRevenue] = useState(data.monthlySalesRevenue || 0);
-  const [costOfGoodsSold, setCostOfGoodsSold] = useState(data.costOfGoodsSold || 0);
-  const [grossProfit, setGrossProfit] = useState(data.grossProfit || 0);
-  const [totalOperatingExpenses, setTotalOperatingExpenses] = useState(data.totalOperatingExpenses || 0);
-  const [netBusinessProfit, setNetBusinessProfit] = useState(data.netBusinessProfit || 0);
-  const [householdExpenses, setHouseholdExpenses] = useState(data.householdExpenses || 0);
-  const [otherIncome, setOtherIncome] = useState(data.otherIncome || 0);
-  const [householdSurplus, setHouseholdSurplus] = useState(data.householdSurplus || 0);
-  const [loanRecommendation, setLoanRecommendation] = useState(data.loanRecommendation || 0);
+  const [principal, setPrincipal] = useState(data.principal || "");
+  const [rate, setRate] = useState(data.rate || "");
+  const [loanTerm, setLoanTerm] = useState(data.loanTerm || "");
+  const [interest, setInterest] = useState(data.interest || "");
+  const [loanAmount, setLoanAmount] = useState(data.loanAmount || "");
+  const [monthlyInstallment, setMonthlyInstallment] = useState(data.monthlyInstallment || "");
+  const [grossMarginPercentage, setGrossMarginPercentage] = useState(data.grossMarginPercentage || "");
+  const [monthlySalesRevenue, setMonthlySalesRevenue] = useState(data.monthlySalesRevenue || "");
+  const [costOfGoodsSold, setCostOfGoodsSold] = useState(data.costOfGoodsSold || "");
+  const [grossProfit, setGrossProfit] = useState(data.grossProfit || "");
+  const [totalOperatingExpenses, setTotalOperatingExpenses] = useState(data.totalOperatingExpenses || "");
+  const [netBusinessProfit, setNetBusinessProfit] = useState(data.netBusinessProfit || "");
+  const [householdExpenses, setHouseholdExpenses] = useState(data.householdExpenses || "");
+  const [otherIncome, setOtherIncome] = useState(data.otherIncome || "");
+  const [householdSurplus, setHouseholdSurplus] = useState(data.householdSurplus || "");
+  const [loanRecommendation, setLoanRecommendation] = useState(data.loanRecommendation || "");
   const [payCapacity, setPayCapacity] = useState(null);
 
   // Calculate loan details
   useEffect(() => {
+    const principalNum = parseFloat(principal) || 0;
+    const rateNum = parseFloat(rate) || 0;
+    const loanTermNum = parseFloat(loanTerm) || 0;
+    
     const { interest: calcInterest, loanAmount: calcLoan, monthlyInstallment: calcMonthly } =
-      calculateLoanDetails({ principal, rate, loanTerm });
-    setInterest(calcInterest);
-    setLoanAmount(calcLoan);
-    setMonthlyInstallment(calcMonthly);
+      calculateLoanDetails({ principal: principalNum, rate: rateNum, loanTerm: loanTermNum });
+    setInterest(calcInterest || "");
+    setLoanAmount(calcLoan || "");
+    setMonthlyInstallment(calcMonthly || "");
   }, [principal, rate, loanTerm]);
 
   // Calculate financials
@@ -62,21 +66,43 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
     const surplus = calculateHouseholdSurplus(netProfit, otherIncomeVal, householdExpensesVal);
     const loanRec = surplus * 0.6;
 
-    setCostOfGoodsSold(cogs);
-    setGrossProfit(grossProfitVal);
-    setTotalOperatingExpenses(totalExpenses);
-    setNetBusinessProfit(netProfit);
-    setHouseholdSurplus(surplus);
-    setLoanRecommendation(loanRec);
+    setCostOfGoodsSold(cogs || "");
+    setGrossProfit(grossProfitVal || "");
+    setTotalOperatingExpenses(totalExpenses || "");
+    setNetBusinessProfit(netProfit || "");
+    setHouseholdSurplus(surplus || "");
+    setLoanRecommendation(loanRec || "");
   }, [monthlySalesRevenue, grossMarginPercentage, otherIncome, householdExpenses]);
 
   // Sync data to parent
   useEffect(() => {
     setData({
-      isCreditworthy, businessOverview, businessLocation, businessStartDate, nearestLandmark, businessDescription,
-      isAbleToPay, currentStockValue, startedBusinessWith, sourceOfFund, principal, rate, loanTerm, interest,
-      loanAmount, monthlyInstallment, grossMarginPercentage, monthlySalesRevenue, costOfGoodsSold, grossProfit,
-      totalOperatingExpenses, netBusinessProfit, householdExpenses, otherIncome, householdSurplus, loanRecommendation
+      isCreditworthy, 
+      businessOverview, 
+      businessLocation, 
+      businessStartDate, 
+      nearestLandmark, 
+      businessDescription,
+      isAbleToPay, 
+      currentStockValue, 
+      startedBusinessWith, 
+      sourceOfFund, 
+      principal, 
+      rate, 
+      loanTerm, 
+      interest,
+      loanAmount, 
+      monthlyInstallment, 
+      grossMarginPercentage, 
+      monthlySalesRevenue, 
+      costOfGoodsSold, 
+      grossProfit,
+      totalOperatingExpenses, 
+      netBusinessProfit, 
+      householdExpenses, 
+      otherIncome, 
+      householdSurplus, 
+      loanRecommendation
     });
   }, [
     isCreditworthy, businessOverview, businessLocation, businessStartDate, nearestLandmark, businessDescription,
@@ -98,8 +124,11 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
 
   // Determine risk level based on financial indicators
   const getRiskLevel = () => {
-    if (householdSurplus > monthlyInstallment * 1.5) return { level: "Low Risk", color: "success" };
-    if (householdSurplus > monthlyInstallment) return { level: "Medium Risk", color: "warning" };
+    const householdSurplusNum = parseFloat(householdSurplus) || 0;
+    const monthlyInstallmentNum = parseFloat(monthlyInstallment) || 0;
+    
+    if (householdSurplusNum > monthlyInstallmentNum * 1.5) return { level: "Low Risk", color: "success" };
+    if (householdSurplusNum > monthlyInstallmentNum) return { level: "Medium Risk", color: "warning" };
     return { level: "High Risk", color: "danger" };
   };
 
@@ -110,7 +139,12 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
       <h5 className="mb-1">Borrower Credit Assessment</h5>
       <p className="text-muted mb-3">
         Credit information for <strong>{loan?.applicant_fullName}</strong>
+       
       </p>
+      <div className="mb-3">
+                <small className="text-muted text-uppercase d-block mb-1">Loan ID</small>
+                <strong className="fs-5">{loan.loan_id || loan.id}</strong>
+              </div>
 
       {/* Financial Summary Card - Only show if creditworthy */}
       {isCreditworthy && (
@@ -119,19 +153,19 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
             <Col md={4}>
               <div className="text-center">
                 <small className="text-muted">Monthly Sales Revenue</small>
-                <h6 className="mb-0">GH¢ {monthlySalesRevenue.toLocaleString()}</h6>
+                <h6 className="mb-0">GH¢ {parseFloat(monthlySalesRevenue || 0).toLocaleString()}</h6>
               </div>
             </Col>
             <Col md={4}>
               <div className="text-center">
                 <small className="text-muted">Net Business Profit</small>
-                <h6 className="mb-0">GH¢ {netBusinessProfit.toLocaleString()}</h6>
+                <h6 className="mb-0">GH¢ {parseFloat(netBusinessProfit || 0).toLocaleString()}</h6>
               </div>
             </Col>
             <Col md={4}>
               <div className="text-center">
                 <small className="text-muted">Household Surplus</small>
-                <h6 className="mb-0">GH¢ {householdSurplus.toLocaleString()}</h6>
+                <h6 className="mb-0">GH¢ {parseFloat(householdSurplus || 0).toLocaleString()}</h6>
               </div>
             </Col>
           </Row>
@@ -140,7 +174,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
             <Col md={6}>
               <div>
                 <small className="text-muted">Monthly Installment</small>
-                <h6 className="mb-0">GH¢ {monthlyInstallment.toLocaleString()}</h6>
+                <h6 className="mb-0">GH¢ {parseFloat(monthlyInstallment || 0).toLocaleString()}</h6>
               </div>
             </Col>
             <Col md={6} className="text-end">
@@ -152,7 +186,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
           <Row className="mt-3">
             <Col xs={12}>
               <small className="text-muted">Loan Recommendation</small>
-              <h5 className="text-primary mb-0">GH¢ {loanRecommendation.toLocaleString()}</h5>
+              <h5 className="text-primary mb-0">GH¢ {parseFloat(loanRecommendation || 0).toLocaleString()}</h5>
             </Col>
           </Row>
         </Card>
@@ -272,7 +306,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
                     <Form.Control
                       type="number"
                       value={currentStockValue}
-                      onChange={(e) => setCurrentStockValue(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setCurrentStockValue(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
@@ -282,7 +316,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
                     <Form.Control
                       type="number"
                       value={startedBusinessWith}
-                      onChange={(e) => setStartedBusinessWith(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setStartedBusinessWith(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
@@ -309,7 +343,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
                     <Form.Control
                       type="number"
                       value={principal}
-                      onChange={(e) => setPrincipal(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setPrincipal(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
@@ -319,7 +353,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
                     <Form.Control
                       type="number"
                       value={rate}
-                      onChange={(e) => setRate(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setRate(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
@@ -329,7 +363,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
                     <Form.Control
                       type="number"
                       value={loanTerm}
-                      onChange={(e) => setLoanTerm(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setLoanTerm(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
@@ -363,7 +397,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
                     <Form.Control
                       type="number"
                       value={grossMarginPercentage}
-                      onChange={(e) => setGrossMarginPercentage(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setGrossMarginPercentage(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
@@ -373,7 +407,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
                     <Form.Control
                       type="number"
                       value={monthlySalesRevenue}
-                      onChange={(e) => setMonthlySalesRevenue(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setMonthlySalesRevenue(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
@@ -407,7 +441,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
                     <Form.Control
                       type="number"
                       value={householdExpenses}
-                      onChange={(e) => setHouseholdExpenses(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setHouseholdExpenses(e.target.value)}
                     />
                   </Form.Group>
                 </Col>
@@ -417,7 +451,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
                     <Form.Control
                       type="number"
                       value={otherIncome}
-                      onChange={(e) => setOtherIncome(parseFloat(e.target.value) || 0)}
+                      onChange={(e) => setOtherIncome(e.target.value)}
                     />
                   </Form.Group>
                 </Col>

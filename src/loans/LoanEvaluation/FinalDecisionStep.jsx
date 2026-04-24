@@ -21,7 +21,12 @@ const FinalDecisionStep = ({ loan,onBack, onSubmit }) => {
       <h5 className="mb-3">Final Decision</h5>
        <p className="text-muted mb-3">
         Credit information for <strong>{loan?.applicant_fullName}</strong>
+        
       </p>
+      <div className="mb-3">
+                <small className="text-muted text-uppercase d-block mb-1">Loan ID</small>
+                <strong className="fs-5">{loan.loan_id || loan.id}</strong>
+              </div>
 
       <Card className="p-3 bg-light border">
         <p className="mb-0">

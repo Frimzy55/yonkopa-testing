@@ -4,8 +4,9 @@ import { Card, Button, Form } from "react-bootstrap";
 const CollateralStep = ({ loan, onBack, onNext }) => {
   const [lendingType, setLendingType] = useState("");
   const [collateralType, setCollateralType] = useState("");
+  const [formData, setFormData] = useState({});
 
-  const [, setFormData] = useState({});
+  //const [, setFormData] = useState({});
 
   const handleChange = (field, value) => {
     setFormData((prev) => ({
@@ -14,6 +15,13 @@ const CollateralStep = ({ loan, onBack, onNext }) => {
     }));
   };
 
+  const handleNext = () => {
+  onNext({
+    lendingType,
+    collateralType,
+    formData
+  });
+};
   const renderCollateralForm = () => {
     switch (collateralType) {
       case "land":
@@ -117,7 +125,12 @@ const CollateralStep = ({ loan, onBack, onNext }) => {
 
       <p className="text-muted mb-3">
         Collateral information for {loan?.applicant_fullName}
+     
       </p>
+      <div className="mb-3">
+                <small className="text-muted text-uppercase d-block mb-1">Loan ID</small>
+                <strong className="fs-5">{loan.loan_id || loan.id}</strong>
+              </div>
 
       {/* Lending Type */}
       <Card className="p-3 mb-3 bg-light border">
@@ -182,15 +195,9 @@ const CollateralStep = ({ loan, onBack, onNext }) => {
           ← Previous
         </Button>
 
-        <Button
-          onClick={onNext}
-          disabled={
-            !lendingType ||
-            (lendingType === "secured" && !collateralType)
-          }
-        >
-          Next →
-        </Button>
+       <Button onClick={handleNext} disabled={!lendingType || (lendingType === "secured" && !collateralType)}>
+  Next →
+</Button>
       </div>
     </>
   );

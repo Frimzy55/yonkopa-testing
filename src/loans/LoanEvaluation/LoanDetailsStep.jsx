@@ -94,11 +94,11 @@ const LoanDetailsStep = ({ loan, onNext }) => {
                     </div>
                   </Col>
                 )}
-                {loan.applicationDate && (
+                {loan.applicant_created_at && (
                   <Col md={6}>
                     <div>
                       <small className="text-muted text-uppercase d-block mb-1">Application Date</small>
-                      <span>{new Date(loan.applicationDate).toLocaleDateString()}</span>
+                      <span>{new Date(loan.applicant_created_at).toLocaleDateString()}</span>
                     </div>
                   </Col>
                 )}

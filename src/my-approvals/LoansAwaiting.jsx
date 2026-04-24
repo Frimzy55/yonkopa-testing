@@ -8,7 +8,6 @@ import {
 } from "react-bootstrap";
 import axios from "axios";
 
-// ✅ FIXED PATH (adjust if needed)
 import LoanDetailsModal from "./LoanDetailsModal";
 import KycDetailsModal from "./KycDetailsModal";
 
@@ -23,12 +22,12 @@ const ApprovedWebLoan = () => {
   const [showKycModal, setShowKycModal] = useState(false);
   const [selectedKyc, setSelectedKyc] = useState(null);
 
-  // ✅ Fetch approved loans
+  // ✅ Fetch data
   useEffect(() => {
-    const fetchApprovedLoans = async () => {
+    const fetchLoans = async () => {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/admin/approved-loans`
+          `${process.env.REACT_APP_API_URL}/api/admin/loan-full-view-evaluation`
         );
 
         setData(res.data);
@@ -39,14 +38,14 @@ const ApprovedWebLoan = () => {
       }
     };
 
-    fetchApprovedLoans();
+    fetchLoans();
   }, []);
 
   // ✅ View Loan Details
   const handleView = async (loan) => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.userId}`
+        `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.loan_id}`
       );
 
       setSelectedLoan(res.data);
@@ -68,31 +67,54 @@ const ApprovedWebLoan = () => {
     } catch (err) {
       console.error("Error fetching KYC:", err);
 
-      // fallback if already included
       setSelectedKyc(loan);
       setShowKycModal(true);
     }
   };
 
+ // const getStatusBadge = (status) => {
+   // return <Badge bg="warning">{status}</Badge>;
+  //};
+
   const getStatusBadge = (status) => {
-    return <Badge bg="success">{status}</Badge>;
-  };
+  switch (status?.toLowerCase()) {
+    case "approved":
+      return <Badge bg="success">{status}</Badge>;
+
+    case "pending":
+      return <Badge bg="warning" text="dark">{status}</Badge>;
+
+    case "rejected":
+      return <Badge bg="danger">{status}</Badge>;
+
+    case "under_review":
+      return <Badge bg="info">{status}</Badge>;
+
+    case "disbursed":
+      return <Badge bg="primary">{status}</Badge>;
+
+    default:
+      return <Badge bg="secondary">{status}</Badge>;
+  }
+};
 
   // ✅ Loading
-  if (loading)
+  if (loading) {
     return (
       <div className="text-center mt-5">
         <Spinner animation="border" />
       </div>
     );
+  }
 
   // ✅ Error
-  if (error)
+  if (error) {
     return (
       <div className="text-center mt-5">
         <Alert variant="danger">{error}</Alert>
       </div>
     );
+  }
 
   return (
     <div className="loan-table-container">
@@ -106,6 +128,7 @@ const ApprovedWebLoan = () => {
             <th>Full Name</th>
             <th>Phone</th>
             <th>Loan Amount</th>
+            
             <th>Status</th>
             <th>Created At</th>
             <th>Action</th>
@@ -115,49 +138,62 @@ const ApprovedWebLoan = () => {
         <tbody>
           {data.length === 0 ? (
             <tr>
-              <td colSpan="7" className="text-center">
+              <td colSpan="9" className="text-center">
                 No approved loans found
               </td>
             </tr>
           ) : (
-            data.map((loan) => (
-              <tr key={loan.applicant_id}>
-                <td>{loan.loan_id}</td>
-                <td>{loan.kyc_code}</td>
-                <td>{loan.applicant_fullName}</td>
-                <td>{loan.mobileNumber}</td>
-                <td>₵{loan.loanAmount}</td>
-                <td>{getStatusBadge(loan.loan_status)}</td>
-                <td>
-                  {new Date(
-                    loan.applicant_created_at
-                  ).toLocaleString()}
-                </td>
+            data
+              // ✅ FILTER OUT NULL loan_eval_id
+              .filter(
+                (loan) =>
+                  loan.loan_eval_id !== null &&
+                  loan.loan_eval_id !== undefined
+              )
+              .map((loan) => (
+                <tr key={loan.loan_id}>
+                  <td>{loan.loan_id}</td>
+                  <td>{loan.kyc_code}</td>
+                  <td>{loan.applicant_fullName}</td>
+                  <td>{loan.mobileNumber}</td>
+                  <td>₵{loan.kyc_loan_amount}</td>
 
-                <td>
-                  <Button
-                    variant="primary"
-                    size="sm"
-                    onClick={() => handleView(loan)}
-                  >
-                    View
-                  </Button>
-                </td>
-              </tr>
-            ))
+                  {/* ✅ SAFE DISPLAY */}
+                 
+
+                  <td>{getStatusBadge(loan.momo_loan_status)}</td>
+
+                  <td>
+                    {new Date(
+                      loan.applicationDate ||
+                        loan.created_at
+                    ).toLocaleString()}
+                  </td>
+
+                  <td>
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => handleView(loan)}
+                    >
+                      View
+                    </Button>
+                  </td>
+                </tr>
+              ))
           )}
         </tbody>
       </Table>
 
-      {/* ✅ Loan Modal */}
+      {/* Loan Modal */}
       <LoanDetailsModal
         show={showModal}
         onClose={() => setShowModal(false)}
         loan={selectedLoan}
-        onViewKyc={handleViewKyc}   // ✅ FIXED
+        onViewKyc={handleViewKyc}
       />
 
-      {/* ✅ KYC Modal */}
+      {/* KYC Modal */}
       <KycDetailsModal
         show={showKycModal}
         onClose={() => setShowKycModal(false)}
