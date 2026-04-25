@@ -13,8 +13,9 @@ const LoanDetailsModal = ({ show, handleClose, loan }) => {
   // Helper function to format date
   const formatDate = (date) => {
     if (!date) return null;
-    return new Date(date).toLocaleString();
+    return new Date(date).toLocaleDateString();
   };
+
 
   // Helper function to check if a value is empty/N/A
   const isEmpty = (value) => {
@@ -126,7 +127,11 @@ const LoanDetailsModal = ({ show, handleClose, loan }) => {
                           {renderField("Middle Name", loan.middlename)}
                           {renderField("Last Name", loan.lastname)}
                           {renderField("Full Name", loan.applicant_fullName)}
-                          {renderField("Date of Birth", loan.applicant_dob || loan.dateofbirth)}
+                        {renderField(
+                  "Date of Birth",
+                     loan.applicant_dob || loan.dateofbirth,
+                    formatDate
+                         )}
                           {renderField("Gender", loan.applicant_gender || loan.personal_gender)}
                           {renderField("Marital Status", loan.applicant_maritalStatus || loan.personal_maritalstatus)}
                           {renderField("National ID", loan.applicant_nationalid || loan.personal_nationalid)}
