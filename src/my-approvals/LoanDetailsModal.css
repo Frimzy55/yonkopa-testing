@@ -1,0 +1,188 @@
+/* LoanDetailsModal.css */
+
+.loan-details-modal .modal-dialog {
+  max-width: 1200px;
+}
+
+.loan-details-modal .modal-content {
+  border-radius: 20px;
+  overflow: hidden;
+}
+
+/* Navigation Sidebar Styles */
+.nav-sidebar {
+  gap: 8px;
+}
+
+.nav-link-custom {
+  border-radius: 12px !important;
+  padding: 12px 16px !important;
+  transition: all 0.3s ease;
+  color: #6c757d;
+  font-weight: 500;
+}
+
+.nav-link-custom:hover {
+  background-color: #f8f9fa;
+  transform: translateX(4px);
+  color: #0d6efd;
+}
+
+.nav-pills .nav-link.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+}
+
+/* Tab Content Animation */
+.fade-in {
+  animation: fadeIn 0.5s ease-in;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Info Field Styles */
+.info-field {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  padding: 6px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.info-label {
+  color: #495057;
+  font-size: 0.85rem;
+  min-width: 140px;
+}
+
+.info-value {
+  color: #212529;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+.info-icon {
+  color: #6c757d;
+  width: 16px;
+  display: inline-block;
+}
+
+/* Section Header Styles */
+.section-header {
+  font-size: 1.1rem;
+}
+
+/* Card Styles */
+.loan-details-modal .card {
+  border-radius: 16px;
+  transition: transform 0.2s ease;
+}
+
+.loan-details-modal .card:hover {
+  transform: translateY(-2px);
+}
+
+/* Assessment Summary */
+.assessment-summary {
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+  border-radius: 16px;
+}
+
+/* Reference Card */
+.reference-card {
+  transition: all 0.3s ease;
+  border: 1px solid #e9ecef;
+}
+
+.reference-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transform: translateY(-2px);
+}
+
+/* Collateral Table */
+.collateral-table {
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.collateral-table td {
+  padding: 10px 15px;
+  vertical-align: middle;
+}
+
+/* Comments Section */
+.comments-section {
+  border-left: 4px solid #0d6efd;
+  background: linear-gradient(90deg, #f8f9fa 0%, #ffffff 100%);
+}
+
+/* Scrollbar Styling */
+.loan-details-modal .modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.loan-details-modal .modal-body::-webkit-scrollbar-track {
+  background: #f1f1f1;
+  border-radius: 10px;
+}
+
+.loan-details-modal .modal-body::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+.loan-details-modal .modal-body::-webkit-scrollbar-thumb:hover {
+  background: #555;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .info-field {
+    flex-direction: column;
+  }
+  
+  .info-label {
+    margin-bottom: 4px;
+  }
+  
+  .nav-link-custom {
+    padding: 8px 12px !important;
+    font-size: 0.9rem;
+  }
+}
+
+/* Badge Styles */
+.badge {
+  padding: 6px 12px;
+  font-weight: 500;
+  border-radius: 20px;
+}
+
+/* Button Styles */
+.loan-details-modal .btn-secondary {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none;
+  border-radius: 12px;
+  padding: 10px 24px;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.loan-details-modal .btn-secondary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.loan-details-modal .btn-secondary:active {
+  transform: translateY(0);
+}

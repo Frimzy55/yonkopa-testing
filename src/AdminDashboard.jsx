@@ -106,7 +106,8 @@ import ApproveBatchUpload from './my-approvals/ApproveBatchUpload';
 import ApproveNewAccounts from './my-approvals/ApproveNewAccounts';
 import ApproveAccountMaintenance from './my-approvals/ApproveAccountMaintenance';
 import ApproveLien from './my-approvals/ApproveLien';
-import ApprovedWebLoan from './my-approvals/LoansAwaiting';
+//import ApprovedWebLoan from './my-approvals/LoansAwaiting';
+import  AwaitingApproval from './my-approvals/AwaitingApproval'
 import ApproveNewIndividualLoan from './my-approvals/ApproveNewIndividualLoan';
 import ApproveCorporateLoan from './my-approvals/ApproveCorporateLoan';
 import ApproveGroupLoan from './my-approvals/ApproveGroupLoan';
@@ -420,7 +421,7 @@ const AdminDashboard = () => {
     };
 
     const loanApprovals = {
-      'Loans Awaiting Approvals': ApprovedWebLoan,
+      'Loans Awaiting Approvals': AwaitingApproval,
       'Approve New Individual Loan': ApproveNewIndividualLoan,
       'Approve Corporate Loan': ApproveCorporateLoan,
       'Approve Group Loan': ApproveGroupLoan,
