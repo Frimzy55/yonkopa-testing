@@ -62,7 +62,7 @@ const LoanDetailsModal = ({ show, handleClose, loan }) => {
                   <Nav.Link eventKey="employment-info">💼 Employment Details</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link eventKey="financial-assessment">📊 Financial Assessment</Nav.Link>
+                  <Nav.Link eventKey="financial-assessment">📊 Financial  Assessment</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link eventKey="evaluation">✅ Contact Information</Nav.Link>
@@ -74,7 +74,7 @@ const LoanDetailsModal = ({ show, handleClose, loan }) => {
                   <Nav.Link eventKey="guarantor">🛡️ Guarantor Information</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
-                  <Nav.Link eventKey="collateral">🏦 Collateral/Security</Nav.Link>
+                  <Nav.Link eventKey="collateral">🏦 Collateral Details</Nav.Link>
                 </Nav.Item>
                 <Nav.Item>
                   <Nav.Link eventKey="momo">📱 Mobile Money</Nav.Link>
