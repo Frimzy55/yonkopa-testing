@@ -158,6 +158,7 @@ export const menuItems = [
       { name: 'Loans', icon: 'bi-shield-plus',
         nestedMenus: [
           { name: 'Loans Awaiting Approvals', icon: 'bi-globe' },
+          { name: 'Approved Loans', icon: 'bi-check-circle-fill' },  // Added this line
           { name: 'Approve New Individual Loan', icon: 'bi-person' },
           { name: 'Approve Corporate Loan', icon: 'bi-building' },
           { name: 'Approve Group Loan', icon: 'bi-people-fill' },

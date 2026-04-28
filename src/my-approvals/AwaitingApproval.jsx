@@ -19,28 +19,31 @@ const [selectedLoan, setSelectedLoan] = useState(null);
     fetchLoanData();
   }, []);
 
-  const fetchLoanData = async () => {
-    try {
-      setLoading(true);
-      //const response = await fetch('http://localhost:5000/api/admin/loan-full-view-evaluation');
-       const response = await fetch(
-  `${process.env.REACT_APP_API_URL}/api/admin/loan-full-view-evaluation`
-);
+  // In your backend, create a new endpoint that returns ALL loans or add a parameter
+// GET /api/admin/loan-full-view-evaluation?status=pending,approved,rejected
 
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-
-      const data = await response.json();
-      setLoans(data);
-      setError(null);
-    } catch (err) {
-      console.error('Error fetching loan data:', err);
-      setError(err.message);
-    } finally {
-      setLoading(false);
+const fetchLoanData = async () => {
+  try {
+    setLoading(true);
+    // Fetch all loans, not just pending
+    const response = await fetch(
+      `${process.env.REACT_APP_API_URL}/api/admin/loan-full-view-evaluation?status=all`
+    );
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
-  };
+    
+    const data = await response.json();
+    setLoans(data);
+    setError(null);
+  } catch (err) {
+    console.error('Error fetching loan data:', err);
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -58,7 +61,7 @@ const [selectedLoan, setSelectedLoan] = useState(null);
     const color = statusColors[status?.toLowerCase()] || 'secondary';
     return <span className={`badge bg-${color}`}>{status || 'Pending'}</span>;
   };
-const handleAction = (action, loan) => {
+/*const handleAction = (action, loan) => {
   switch(action) {
     case 'view':
       setSelectedLoan(loan);
@@ -71,6 +74,48 @@ const handleAction = (action, loan) => {
 
     case 'reject':
       console.log('Reject loan:', loan);
+      break;
+
+    default:
+      break;
+  }
+};*/
+
+const handleAction = async (action, loan) => {
+  switch (action) {
+    case "view":
+      setSelectedLoan(loan);
+      setShowModal(true);
+      break;
+
+    case "approve":
+      try {
+        await fetch(
+          `${process.env.REACT_APP_API_URL}/api/admin/approve-loan1/${loan.loan_id}`,
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+            },
+          }
+        );
+
+        // ✅ instant UI update
+        const updated = loans.map((item) =>
+          item.loan_id === loan.loan_id
+            ? { ...item, loan_status: "approved" }
+            : item
+        );
+
+        setLoans(updated);
+
+      } catch (err) {
+        console.error("Approve failed:", err);
+      }
+      break;
+
+    case "reject":
+      console.log("Reject loan:", loan);
       break;
 
     default:

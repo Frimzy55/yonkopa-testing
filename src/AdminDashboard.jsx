@@ -138,6 +138,7 @@ import ApproveBackdatedDeposit from './my-approvals/ApproveBackdatedDeposit';
 import ApproveBackdatedWithdrawals from './my-approvals/ApproveBackdatedWithdrawals';
 import ApproveFundTransfer from './my-approvals/ApproveFundTransfer';
 import ApproveBackdatedFts from './my-approvals/ApproveBackdatedFts';
+import ApprovedLoans from './my-approvals/ApprovedLoans';  // Add this import
 
 // Batch Upload Components
 import UploadCustomers from './batch-upload/UploadCustomers';
@@ -422,6 +423,7 @@ const AdminDashboard = () => {
 
     const loanApprovals = {
       'Loans Awaiting Approvals': AwaitingApproval,
+      'Approved Loans': ApprovedLoans,
       'Approve New Individual Loan': ApproveNewIndividualLoan,
       'Approve Corporate Loan': ApproveCorporateLoan,
       'Approve Group Loan': ApproveGroupLoan,
