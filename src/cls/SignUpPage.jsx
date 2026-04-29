@@ -15,17 +15,18 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
   const [message, setMessage] = useState("");
+  const [validationMessage, setValidationMessage] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  // ✅ Get Bootstrap validation class
+  // Bootstrap validation class
   const getFieldClass = (name) => {
     if (!touched[name]) return "";
     if (errors[name]) return "is-invalid";
     return "is-valid";
   };
 
-  // ✅ Validation
+  // Validation
   const validateField = (name, value) => {
     let newErrors = { ...errors };
 
@@ -36,63 +37,53 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
         } else {
           const nameRegex = /^[A-Za-z]+(?:\s[A-Za-z]+)+$/;
           if (!nameRegex.test(value.trim())) {
-            newErrors.fullName =
-              "Enter a valid name";
+            newErrors.fullName = "Enter a valid name";
           } else {
             delete newErrors.fullName;
           }
         }
         break;
 
-     /* case "identifier":
+      case "identifier":
         if (!value) {
           newErrors.identifier = "Email or phone number is required";
         } else {
           const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-          const isPhone = /^\d{10}$/.test(value.replace(/\D/g, ""));
+
+          // Accept phone number with optional country code (10–12 digits)
+          const cleaned = value.replace(/\D/g, "");
+          const isPhone = /^\d{10,12}$/.test(cleaned);
 
           if (!isEmail && !isPhone) {
             newErrors.identifier =
-              "Enter a valid email or 10-digit phone number";
+              "Enter a valid email or phone number (10-12 digits)";
           } else {
             delete newErrors.identifier;
           }
         }
-        break;*/
-
-        case "identifier":
-  if (!value) {
-    newErrors.identifier = "Email or phone number is required";
-  } else {
-    const isEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
-    // Accept numbers with optional +country code, and 10-12 digits
-    const cleaned = value.replace(/\D/g, "");
-    const isPhone = /^\d{10,12}$/.test(cleaned);
-
-    if (!isEmail && !isPhone) {
-      newErrors.identifier =
-        "Enter a valid email or phone number (10-12 digits)";
-    } else {
-      delete newErrors.identifier;
-    }
-  }
-  break;
+        break;
 
       case "password":
-        if (!value) newErrors.password = "Password is required";
-        else if (value.length < 8)
+        if (!value) {
+          newErrors.password = "Password is required";
+        } else if (value.length < 8) {
           newErrors.password = "Must be at least 8 characters";
-        else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value))
+        } else if (!/(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/.test(value)) {
           newErrors.password =
             "Must contain uppercase, lowercase and a number";
-        else delete newErrors.password;
+        } else {
+          delete newErrors.password;
+        }
         break;
 
       case "confirmPassword":
-        if (!value) newErrors.confirmPassword = "Confirm your password";
-        else if (value !== formData.password)
+        if (!value) {
+          newErrors.confirmPassword = "Confirm your password";
+        } else if (value !== formData.password) {
           newErrors.confirmPassword = "Passwords do not match";
-        else delete newErrors.confirmPassword;
+        } else {
+          delete newErrors.confirmPassword;
+        }
         break;
 
       default:
@@ -102,28 +93,35 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
     return newErrors;
   };
 
-  // ✅ Handle Change (real-time validation)
+  // Handle input change
   const handleChange = (e) => {
     const { name, value } = e.target;
 
-    const updatedForm = { ...formData, [name]: value };
+    const updatedForm = {
+      ...formData,
+      [name]: value,
+    };
+
     setFormData(updatedForm);
 
     const updatedErrors = validateField(name, value);
     setErrors(updatedErrors);
   };
 
-  // ✅ Handle Blur
+  // Handle blur
   const handleBlur = (e) => {
     const { name, value } = e.target;
 
-    setTouched({ ...touched, [name]: true });
+    setTouched({
+      ...touched,
+      [name]: true,
+    });
 
     const updatedErrors = validateField(name, value);
     setErrors(updatedErrors);
   };
 
-  // ✅ Submit
+  // Submit
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -139,8 +137,12 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
     setErrors(newErrors);
 
     if (Object.keys(newErrors).length > 0) {
-      alert("Fix validation errors!");
+      setValidationMessage(
+        "Please fill in all required fields correctly before submitting."
+      );
       return;
+    } else {
+      setValidationMessage("");
     }
 
     try {
@@ -148,7 +150,9 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
         `${process.env.REACT_APP_API_URL}/signup`,
         {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+          },
           body: JSON.stringify(formData),
         }
       );
@@ -156,7 +160,9 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message);
+        setValidationMessage("");
+        setMessage(data.message || "Account created successfully");
+
         setTimeout(() => {
           onClose();
         }, 1500);
@@ -165,39 +171,53 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
       }
     } catch (err) {
       console.error(err);
-      alert("Server error. Try later.");
+      setMessage("Server error. Try later.");
     }
   };
 
   return (
     <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center">
-      <div className="bg-white rounded shadow p-4" style={{ width: "400px" }}>
+      <div
+        className="bg-white rounded shadow p-4"
+        style={{ width: "400px" }}
+      >
+        {/* Logo */}
+        <div className="text-center mb-3">
+          <img
+            src={logo}
+            alt="Logo"
+            style={{
+              width: "70px",
+              height: "70px",
+              objectFit: "contain",
+            }}
+          />
+        </div>
 
-      {/* Logo */}
-<div className="text-center mb-3">
-  <img
-    src={logo}
-    alt="Logo"
-    style={{
-      width: "70px",
-      height: "70px",
-      objectFit: "contain",
-    }}
-  />
-</div>
+        {/* Header */}
+        <div className="d-flex justify-content-between align-items-center mb-3">
+          <h4 className="m-0">Create Account</h4>
+          <button
+            className="btn-close"
+            onClick={onClose}
+          ></button>
+        </div>
 
-{/* Header */}
-<div className="d-flex justify-content-between align-items-center mb-3">
-  <h4 className="m-0">Create Account</h4>
-  <button className="btn-close" onClick={onClose}></button>
-</div>
-
+        {/* Success / Server Message */}
         {message && (
-          <div className="alert alert-info text-center">{message}</div>
+          <div className="alert alert-info text-center">
+            {message}
+          </div>
+        )}
+
+        {/* Validation Message */}
+        {validationMessage && (
+          <div className="alert alert-danger text-center">
+            {validationMessage}
+          </div>
         )}
 
         <form onSubmit={handleSubmit} noValidate>
-
           {/* Full Name */}
           <div className="mb-3 position-relative">
             <label className="form-label">Full Name</label>
@@ -209,6 +229,7 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
               onChange={handleChange}
               onBlur={handleBlur}
             />
+
             {touched.fullName && (
               <i
                 className={`bi ${
@@ -219,14 +240,20 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
                 style={{ right: "10px", top: "38px" }}
               ></i>
             )}
+
             {touched.fullName && errors.fullName && (
-              <div className="invalid-feedback">{errors.fullName}</div>
+              <div className="invalid-feedback">
+                {errors.fullName}
+              </div>
             )}
           </div>
 
-          {/* Identifier */}
+          {/* Email / Phone */}
           <div className="mb-3 position-relative">
-            <label className="form-label">Email or Phone Number</label>
+            <label className="form-label">
+              Email or Phone Number
+            </label>
+
             <input
               type="text"
               name="identifier"
@@ -235,6 +262,7 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
               onChange={handleChange}
               onBlur={handleBlur}
             />
+
             {touched.identifier && (
               <i
                 className={`bi ${
@@ -245,14 +273,18 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
                 style={{ right: "10px", top: "38px" }}
               ></i>
             )}
+
             {touched.identifier && errors.identifier && (
-              <div className="invalid-feedback">{errors.identifier}</div>
+              <div className="invalid-feedback">
+                {errors.identifier}
+              </div>
             )}
           </div>
 
           {/* Password */}
           <div className="mb-3">
             <label className="form-label">Password</label>
+
             <div className="input-group position-relative">
               <input
                 type={showPassword ? "text" : "password"}
@@ -262,12 +294,17 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
                 onChange={handleChange}
                 onBlur={handleBlur}
               />
+
               <span
                 className="input-group-text"
                 onClick={() => setShowPassword(!showPassword)}
                 style={{ cursor: "pointer" }}
               >
-                <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+                <i
+                  className={`bi ${
+                    showPassword ? "bi-eye-slash" : "bi-eye"
+                  }`}
+                ></i>
               </span>
 
               {touched.password && (
@@ -281,6 +318,7 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
                 ></i>
               )}
             </div>
+
             {touched.password && errors.password && (
               <div className="invalid-feedback d-block">
                 {errors.password}
@@ -290,16 +328,22 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
 
           {/* Confirm Password */}
           <div className="mb-3">
-            <label className="form-label">Confirm Password</label>
+            <label className="form-label">
+              Confirm Password
+            </label>
+
             <div className="input-group position-relative">
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 name="confirmPassword"
-                className={`form-control ${getFieldClass("confirmPassword")}`}
+                className={`form-control ${getFieldClass(
+                  "confirmPassword"
+                )}`}
                 value={formData.confirmPassword}
                 onChange={handleChange}
                 onBlur={handleBlur}
               />
+
               <span
                 className="input-group-text"
                 onClick={() =>
@@ -309,7 +353,9 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
               >
                 <i
                   className={`bi ${
-                    showConfirmPassword ? "bi-eye-slash" : "bi-eye"
+                    showConfirmPassword
+                      ? "bi-eye-slash"
+                      : "bi-eye"
                   }`}
                 ></i>
               </span>
@@ -325,23 +371,31 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
                 ></i>
               )}
             </div>
-            {touched.confirmPassword && errors.confirmPassword && (
-              <div className="invalid-feedback d-block">
-                {errors.confirmPassword}
-              </div>
-            )}
+
+            {touched.confirmPassword &&
+              errors.confirmPassword && (
+                <div className="invalid-feedback d-block">
+                  {errors.confirmPassword}
+                </div>
+              )}
           </div>
 
           {/* Submit */}
-          <button type="submit" className="btn btn-primary w-100">
+          <button
+            type="submit"
+            className="btn btn-primary w-100"
+          >
             Create Account
           </button>
         </form>
 
-        {/* Switch */}
+        {/* Switch to Login */}
         <p className="text-center mt-3">
           Already have an account?{" "}
-          <button className="btn btn-link p-0" onClick={onSwitchToLogin}>
+          <button
+            className="btn btn-link p-0"
+            onClick={onSwitchToLogin}
+          >
             Login here
           </button>
         </p>

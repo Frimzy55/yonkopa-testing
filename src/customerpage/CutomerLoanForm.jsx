@@ -319,7 +319,7 @@ const CustomerLoanForm = ({ user, handleReset }) => {
       });
       setTouchedFields(allFields);
       window.scrollTo({ top: 0, behavior: 'smooth' });
-      showToast("Please fix all errors on this page before continuing", "error");
+      showToast("Please fill in all required fields correctly before submitting.", "error");
     }
   };
 

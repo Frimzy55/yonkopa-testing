@@ -1,3 +1,7 @@
+
+
+
+
 import React, { useState, useEffect } from 'react';
 import { Table, Dropdown, ButtonGroup } from 'react-bootstrap'; // Make sure to install react-bootstrap
 import './AwaitingApproval.css'; // Optional: for styling
@@ -124,22 +128,30 @@ const handleAction = async (action, loan) => {
 };
 
   // Filter data based on search term
-  const filteredData = loans.filter(loan => {
-    if (!searchTerm) return true;
-    
-    const searchFields = [
-      loan.loan_id,
-      loan.kyc_code,
-      loan.applicant_fullName,
-      loan.mobileNumber,
-      loan.loanAmount,
-      loan.loan_status
-    ];
-    
-    return searchFields.some(field => 
-      field && field.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  });
+ const filteredData = loans.filter((loan) => {
+  // Hide approved loans
+  if (loan.loan_status?.toLowerCase() === "approved") {
+    return false;
+  }
+
+  // If no search term, show remaining loans
+  if (!searchTerm) return true;
+
+  const searchFields = [
+    loan.loan_id,
+    loan.kyc_code,
+    loan.applicant_fullName,
+    loan.mobileNumber,
+    loan.kyc_loan_amount,
+    loan.loan_status
+  ];
+
+  return searchFields.some(
+    (field) =>
+      field &&
+      field.toString().toLowerCase().includes(searchTerm.toLowerCase())
+  );
+});
 
   if (loading) {
     return (
@@ -169,7 +181,12 @@ const handleAction = async (action, loan) => {
         <div className="stats">
           <span className="total-count">Total Applications: {loans.length}</span>
           <span className="pending-count">
-            Pending: {loans.filter(l => l.loan_status === 'pending' || !l.loan_status).length}
+          Pending: {
+  loans.filter(
+    (l) =>
+      l.loan_status?.toLowerCase() !== "approved"
+  ).length
+}
           </span>
         </div>
       </div>

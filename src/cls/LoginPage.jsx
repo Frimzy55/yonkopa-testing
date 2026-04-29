@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-import { GoogleLogin } from '@react-oauth/google'; // Google OAuth
+//import { GoogleLogin } from '@react-oauth/google'; // Google OAuth
 import logo from '../image/yonko.png'; // import your logo
 import './LoginPage.css';
 import "bootstrap-icons/font/bootstrap-icons.css";
@@ -207,28 +207,7 @@ const LoginPage = ({ onClose }) => {
         </form>
 
         {/* Social Login */}
-        <div className="text-center my-3">
-          <p className="my-2">Or login with</p>
-
-          {/* Google Login */}
-          <GoogleLogin
-            onSuccess={credentialResponse => {
-              console.log('Google login success:', credentialResponse);
-              // TODO: send credentialResponse.credential to backend for login
-            }}
-            onError={() => console.log('Google login failed')}
-            width="100%"
-          />
-
-          {/* Apple Login */}
-          <button
-            type="button"
-            className="btn btn-dark w-100 mt-2"
-            onClick={() => alert("Apple login clicked! Implement OAuth flow on backend.")}
-          >
-            <i className="bi bi-apple me-2"></i> Login with Apple
-          </button>
-        </div>
+       
       </div>
     </div>
   );
