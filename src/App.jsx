@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
 import CustomerLanding from "./cls/CustomerLanding";
 import LoginPage from "./cls/StaffLoginPage";
@@ -12,7 +12,7 @@ import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
   return (
-    <Router basename="/yonkopa-testing">
+    <Router>
       <div className="App">
         <Routes>
 
@@ -22,7 +22,6 @@ function App() {
           <Route path="/signup" element={<DefaultSuper />} />
 
           {/* PROTECTED ROUTES */}
-
           <Route
             path="/customer-page"
             element={
