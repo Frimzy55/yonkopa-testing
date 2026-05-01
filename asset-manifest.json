@@ -1,7 +1,7 @@
 {
   "files": {
     "main.css": "/yonkopa-testing/static/css/main.c521a77f.css",
-    "main.js": "/yonkopa-testing/static/js/main.42de326c.js",
+    "main.js": "/yonkopa-testing/static/js/main.faf04a30.js",
     "static/js/453.64aababc.chunk.js": "/yonkopa-testing/static/js/453.64aababc.chunk.js",
     "static/media/bootstrap-icons.woff?": "/yonkopa-testing/static/media/bootstrap-icons.1295669cd4e305c97f2c.woff",
     "static/media/yonko.png": "/yonkopa-testing/static/media/yonko.e19cf743dd414f5e274f.png",
@@ -9,11 +9,11 @@
     "static/media/image1.jpg": "/yonkopa-testing/static/media/image1.1d3a56d033b2f5343903.jpg",
     "index.html": "/yonkopa-testing/index.html",
     "main.c521a77f.css.map": "/yonkopa-testing/static/css/main.c521a77f.css.map",
-    "main.42de326c.js.map": "/yonkopa-testing/static/js/main.42de326c.js.map",
+    "main.faf04a30.js.map": "/yonkopa-testing/static/js/main.faf04a30.js.map",
     "453.64aababc.chunk.js.map": "/yonkopa-testing/static/js/453.64aababc.chunk.js.map"
   },
   "entrypoints": [
     "static/css/main.c521a77f.css",
-    "static/js/main.42de326c.js"
+    "static/js/main.faf04a30.js"
   ]
 }
