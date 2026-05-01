@@ -1,4 +1,3 @@
-
 import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 
@@ -13,18 +12,17 @@ import ProtectedRoute from "./ProtectedRoute";
 
 function App() {
   return (
-    <Router>
+    <Router basename="/yonkopa-testing">
       <div className="App">
         <Routes>
 
-          {/* ================= PUBLIC ROUTES ================= */}
+          {/* PUBLIC ROUTES */}
           <Route path="/" element={<CustomerLanding />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/signup" element={<DefaultSuper />} />
 
-          {/* ================= PROTECTED ROUTES ================= */}
+          {/* PROTECTED ROUTES */}
 
-          {/* Customer */}
           <Route
             path="/customer-page"
             element={
@@ -34,7 +32,6 @@ function App() {
             }
           />
 
-          {/* Admin */}
           <Route
             path="/admin-dashboard"
             element={
