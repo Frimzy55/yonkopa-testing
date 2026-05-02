@@ -18,7 +18,7 @@ function App() {
 
           {/* PUBLIC ROUTES */}
           <Route path="/" element={<CustomerLanding />} />
-          <Route path="/login" element={<LoginPage />} />
+          <Route path="/access" element={<LoginPage />} />
           <Route path="/signup" element={<DefaultSuper />} />
 
           {/* PROTECTED ROUTES */}
