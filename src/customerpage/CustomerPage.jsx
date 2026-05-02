@@ -1,5 +1,6 @@
 import React, { useEffect, useState, useRef } from 'react';
 import './CustomerDashboard.css';
+import { useNavigate } from "react-router-dom";
 
 import DashboardHome from './CustomerDashboardHome';
 import NotificationsSupport from './CustomerNotificationsSupport';
@@ -133,10 +134,18 @@ const CustomerView = () => {
     }
   };
 
-  const handleLogout = () => {
+  /*const handleLogout = () => {
     localStorage.removeItem('user');
-    window.location.href = '/';
-  };
+   // window.location.href = '/';
+      window.location.hash = '#/';
+  };*/
+
+const navigate = useNavigate();
+
+const handleLogout = () => {
+  localStorage.removeItem('user');
+  navigate('/');
+};
 
   const handleMenuClick = (itemId) => {
     setActiveMenu(itemId);
