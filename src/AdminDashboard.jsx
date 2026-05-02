@@ -336,7 +336,7 @@ const AdminDashboard = () => {
     if (e) e.preventDefault();
     setIsUserDropdownOpen(false);
     localStorage.removeItem('token');
-    navigate('/login');
+    navigate('/access');
   }, [navigate]);
 
   const handleSummarySelect = useCallback((summaryType, summaryName) => {
