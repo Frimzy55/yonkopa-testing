@@ -17,10 +17,10 @@ function App() {
         <Routes>
 
           {/* PUBLIC ROUTES */}
-            {/*  <Route path="/" element={<CustomerLanding />} />  */}
+              <Route path="/Apply" element={<CustomerLanding />} />  
           <Route path="/access" element={<LoginPage />} />
           <Route path="/signup" element={<DefaultSuper />} />
-            <Route path={["/", "/home"]} element={<CustomerLanding />} />  
+           
 
 
 
