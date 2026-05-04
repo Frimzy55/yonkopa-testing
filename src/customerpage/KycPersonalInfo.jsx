@@ -143,12 +143,13 @@ const PersonalInfo = ({
 
         {/* Date of Birth */}
         <div className="form-group">
-          <label>Date of Birth *</label>
+          <label>Date of Birth (yyyy-mm-dd)*</label>
           <input
-            type="date"
+            type="text"
             name="dateOfBirth"
             value={formData?.dateOfBirth || ""}
             onChange={handleInputChange}
+             placeholder="(e.g., yyyy-mm-dd)"
             required
             className={formErrors?.dateOfBirth ? "error-input" : ""}
           />
