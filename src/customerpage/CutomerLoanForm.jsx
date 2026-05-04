@@ -28,12 +28,71 @@ const Toast = ({ message, type, onClose }) => {
   );
 };
 
+// Success Popup Modal Component
+const SuccessPopup = ({ message, onClose, onContinue }) => {
+  useEffect(() => {
+    // Auto close after 5 seconds
+    const timer = setTimeout(() => {
+      onContinue();
+    }, 5000);
+    return () => clearTimeout(timer);
+  }, [onContinue]);
+
+  return (
+    <div className="success-popup-overlay" onClick={onClose}>
+      <div className="success-popup-content" onClick={(e) => e.stopPropagation()}>
+        <div className="success-animation">
+          <div className="success-checkmark">
+            <div className="check-icon">
+              <span className="icon-line line-tip"></span>
+              <span className="icon-line line-long"></span>
+              <div className="icon-circle"></div>
+              <div className="icon-fix"></div>
+            </div>
+          </div>
+        </div>
+        
+        <h3 className="success-title">Application Submitted Successfully!</h3>
+        <p className="success-message">{message || "Your loan application has been received and is being processed."}</p>
+        
+        <div className="success-details">
+          <div className="detail-item">
+            <span className="detail-icon">📋</span>
+            <span>Application Status: <strong>Under Review</strong></span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-icon">⏱️</span>
+            <span>Processing Time: <strong>24-48 hours</strong></span>
+          </div>
+          <div className="detail-item">
+            <span className="detail-icon">📧</span>
+            <span>Confirmation sent to your email</span>
+          </div>
+        </div>
+        
+        <div className="success-buttons">
+          <button className="btn-continue" onClick={onContinue}>
+            Continue to Dashboard
+          </button>
+          <button className="btn-close-popup" onClick={onClose}>
+            Close
+          </button>
+        </div>
+        
+        <p className="auto-close-text">Redirecting in 5 seconds...</p>
+      </div>
+    </div>
+  );
+};
+
 const CustomerLoanForm = ({ user, handleReset }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState({});
   const [touchedFields, setTouchedFields] = useState({});
   const [toast, setToast] = useState(null);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const [formData, setFormData] = useState({
     userId: "",
@@ -92,6 +151,16 @@ const CustomerLoanForm = ({ user, handleReset }) => {
 
   const hideToast = () => {
     setToast(null);
+  };
+
+  const handleSuccessPopupClose = () => {
+    setShowSuccessPopup(false);
+    handleReset?.();
+  };
+
+  const handleSuccessContinue = () => {
+    setShowSuccessPopup(false);
+    handleReset?.();
   };
 
   useEffect(() => {
@@ -379,18 +448,14 @@ const CustomerLoanForm = ({ user, handleReset }) => {
       console.log("Server response:", data);
 
       if (data.success) {
-        // Show success toast
-        showToast("Loan Application Completed Successfully! 🎉", "success");
+        // Show success popup instead of toast
+        setSuccessMessage(data.message || "Your loan application has been received and is being processed.");
+        setShowSuccessPopup(true);
         
         // Reset form state
         setCurrentStep(1);
         setErrors({});
         setTouchedFields({});
-        
-        // Call handleReset after a short delay to ensure toast is visible
-        setTimeout(() => {
-          handleReset?.();
-        }, 1500);
       } else {
         showToast(`Failed: ${data.error || "Unknown error"}`, "error");
       }
@@ -460,6 +525,15 @@ const CustomerLoanForm = ({ user, handleReset }) => {
       {/* Toast Notification */}
       {toast && (
         <Toast message={toast.message} type={toast.type} onClose={hideToast} />
+      )}
+
+      {/* Success Popup */}
+      {showSuccessPopup && (
+        <SuccessPopup 
+          message={successMessage}
+          onClose={handleSuccessPopupClose}
+          onContinue={handleSuccessContinue}
+        />
       )}
 
       {isSubmitting && (
