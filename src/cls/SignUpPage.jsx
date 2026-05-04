@@ -20,6 +20,8 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
   const [agreeToTerms, setAgreeToTerms] = useState(false);
   const [showTermsModal, setShowTermsModal] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showSuccessPopup, setShowSuccessPopup] = useState(false);
+  const [successData, setSuccessData] = useState({});
 
   const getFieldClass = (name) => {
     if (!touched[name]) return "";
@@ -135,11 +137,21 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
       const data = await response.json();
 
       if (response.ok) {
-        setMessage(data.message || "Account created successfully!");
+        setSuccessData({
+          name: formData.fullName,
+          email: formData.identifier,
+          message: data.message || "Account created successfully!"
+        });
+        setShowSuccessPopup(true);
+        
+        // Close the popup after 3 seconds and then close signup and switch to login
         setTimeout(() => {
-          onClose();
-          onSwitchToLogin();
-        }, 2000);
+          setShowSuccessPopup(false);
+          setTimeout(() => {
+            onClose();
+            onSwitchToLogin();
+          }, 500);
+        }, 5000);
       } else {
         setMessage(data.message || "Error creating account. Please try again.");
       }
@@ -167,15 +179,27 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
           <p className="text-muted mb-4">Join Yonkopa to access quick and affordable loans</p>
 
           {/* Success Message */}
-          {message && (
-            <div className={`alert ${message.includes("success") ? "alert-success" : "alert-info"} text-center py-2`}>
+          {message && message.includes("success") && (
+            <div className="alert alert-success text-center py-2">
+              <i className="bi bi-check-circle-fill me-2"></i>
+              {message}
+            </div>
+          )}
+          
+          {/* Error Message */}
+          {message && !message.includes("success") && (
+            <div className="alert alert-danger text-center py-2">
+              <i className="bi bi-exclamation-triangle-fill me-2"></i>
               {message}
             </div>
           )}
 
           {/* Validation Message */}
           {validationMessage && (
-            <div className="alert alert-danger text-center py-2">{validationMessage}</div>
+            <div className="alert alert-warning text-center py-2">
+              <i className="bi bi-exclamation-circle-fill me-2"></i>
+              {validationMessage}
+            </div>
           )}
 
           <form onSubmit={handleSubmit} noValidate>
@@ -327,6 +351,29 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
         </div>
       </div>
 
+      {/* Success Popup Modal */}
+      {showSuccessPopup && (
+        <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center" style={{ zIndex: 1070 }}>
+          <div className="bg-white rounded-4 shadow-lg p-4 text-center" style={{ width: "400px", maxWidth: "90%", animation: "slideIn 0.3s ease-out" }}>
+            <div className="mb-3">
+              <div className="bg-success bg-opacity-10 rounded-circle d-inline-flex p-3">
+                <i className="bi bi-check-circle-fill text-success" style={{ fontSize: "3rem" }}></i>
+              </div>
+            </div>
+            <h4 className="fw-bold mb-2">Welcome, {successData.name?.split(' ')[0]}!</h4>
+            <p className="text-muted mb-3">{successData.message}</p>
+            <div className="alert alert-success bg-light border-0">
+              <i className="bi bi-envelope-fill me-2"></i>
+              <small>Verification link sent to {successData.email}</small>
+            </div>
+            <div className="spinner-border spinner-border-sm text-success" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="text-muted small mt-2">Redirecting to login...</p>
+          </div>
+        </div>
+      )}
+
       {/* Terms Modal */}
       {showTermsModal && (
         <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
@@ -373,6 +420,20 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
           </div>
         </div>
       )}
+
+      {/* Add animation styles */}
+      <style jsx>{`
+        @keyframes slideIn {
+          from {
+            transform: translateY(-50px);
+            opacity: 0;
+          }
+          to {
+            transform: translateY(0);
+            opacity: 1;
+          }
+        }
+      `}</style>
     </>
   );
 };
