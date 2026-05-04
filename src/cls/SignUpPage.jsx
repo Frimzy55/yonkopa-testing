@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
+import TermsModal from "./TermsModal";
+
 import logo from "../image/yonko.png";
 
 const SignUpPage = ({ onClose, onSwitchToLogin }) => {
@@ -375,51 +377,11 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
       )}
 
       {/* Terms Modal */}
-      {showTermsModal && (
-        <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center" style={{ zIndex: 1060 }}>
-          <div className="bg-white rounded-4 shadow-lg p-4" style={{ width: "520px", maxWidth: "90%", maxHeight: "80vh", overflowY: "auto" }}>
-            <div className="d-flex justify-content-between align-items-center mb-3">
-              <h4 className="fw-semibold">Terms and Conditions</h4>
-              <button className="btn-close" onClick={() => setShowTermsModal(false)}></button>
-            </div>
-            
-            <div className="terms-content" style={{ fontSize: "0.9rem", lineHeight: "1.6" }}>
-              <h5 className="mt-3">1. Acceptance of Terms</h5>
-              <p className="text-muted">By creating an account, you agree to comply with and be bound by these Terms and Conditions.</p>
-              
-              <h5 className="mt-3">2. Account Registration</h5>
-              <p className="text-muted">You must provide accurate and complete information when creating your account. You are responsible for maintaining the confidentiality of your password.</p>
-              
-              <h5 className="mt-3">3. User Conduct</h5>
-              <p className="text-muted">You agree not to use the service for any unlawful purpose or in any way that could damage, disable, or impair the service.</p>
-              
-              <h5 className="mt-3">4. Privacy Policy</h5>
-              <p className="text-muted">Your privacy is important to us. Please review our Privacy Policy to understand how we collect and use your information.</p>
-              
-              <h5 className="mt-3">5. Loan Terms</h5>
-              <p className="text-muted">All loans are subject to approval based on creditworthiness and other factors. Interest rates and fees vary by loan product.</p>
-              
-              <h5 className="mt-3">6. Termination</h5>
-              <p className="text-muted">We reserve the right to terminate or suspend your account at our sole discretion, without notice, for conduct that violates these terms.</p>
-              
-              <h5 className="mt-3">7. Changes to Terms</h5>
-              <p className="text-muted">We may modify these terms at any time. Continued use of the service constitutes acceptance of the modified terms.</p>
-              
-              <h5 className="mt-3">8. Contact Information</h5>
-              <p className="text-muted">For questions about these Terms, please contact us at <a href="mailto:support@yonkopa.com">support@yonkopa.com</a>.</p>
-            </div>
-            
-            <div className="mt-4">
-              <button
-                className="btn btn-primary w-100 rounded-pill"
-                onClick={() => setShowTermsModal(false)}
-              >
-                I Understand
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+      <TermsModal
+  show={showTermsModal}
+  onClose={() => setShowTermsModal(false)}
+/>
+      
 
       {/* Add animation styles */}
       <style jsx>{`
