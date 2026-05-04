@@ -1,17 +1,14 @@
-// src/components/LoginPage.jsx
 import React, { useState } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
-//import { GoogleLogin } from '@react-oauth/google'; // Google OAuth
-import logo from '../image/yonko.png'; // import your logo
-import './LoginPage.css';
+import logo from '../image/yonko.png';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const LoginPage = ({ onClose }) => {
+const LoginPage = ({ onClose, onSwitchToSignUp }) => {
   const navigate = useNavigate();
 
   const [formData, setFormData] = useState({
-    identifier: '', // email or phone
+    identifier: '',
     password: ''
   });
 
@@ -21,41 +18,32 @@ const LoginPage = ({ onClose }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
-  // Validate single field
   const validateField = (name, value) => {
     const newErrors = { ...errors };
     switch (name) {
-      /*case 'identifier':
-        if (!value.trim()) newErrors.identifier = 'Email or phone is required';
-        else if (
-          !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value) && // not valid email
-          !/^\d{10}$/.test(value.replace(/\D/g, ''))    // not 10-digit phone
-        ) {
-          newErrors.identifier = 'Enter a valid email or 10-digit phone';
-        } else delete newErrors.identifier;
-        break;*/
+      case 'identifier':
+        const trimmed = value.trim();
+        const digits = trimmed.replace(/\D/g, '');
+        const isValidPhone = digits.length === 10 || (digits.length === 12 && digits.startsWith('233'));
+        const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
 
-        case 'identifier':
-  const trimmed = value.trim();
-  // Normalize phone: remove non-digits, remove leading country code if any
-  const digits = trimmed.replace(/\D/g, '');
-  const isValidPhone = digits.length === 10 || (digits.length === 12 && digits.startsWith('233'));
-  const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
-
-  if (!trimmed) {
-    newErrors.identifier = 'Email or phone is required';
-  } else if (!isValidEmail && !isValidPhone) {
-    newErrors.identifier = 'Enter a valid email or 10-digit phone';
-  } else {
-    delete newErrors.identifier;
-  }
-  break;
+        if (!trimmed) {
+          newErrors.identifier = 'Email or phone is required';
+        } else if (!isValidEmail && !isValidPhone) {
+          newErrors.identifier = 'Enter a valid email or 10-digit phone number';
+        } else {
+          delete newErrors.identifier;
+        }
+        break;
 
       case 'password':
-        if (!value) newErrors.password = 'Password is required';
-        else if (value.length < 6)
+        if (!value) {
+          newErrors.password = 'Password is required';
+        } else if (value.length < 6) {
           newErrors.password = 'Password must be at least 6 characters';
-        else delete newErrors.password;
+        } else {
+          delete newErrors.password;
+        }
         break;
 
       default:
@@ -109,7 +97,7 @@ const LoginPage = ({ onClose }) => {
 
       onClose && onClose();
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Login failed.";
+      const errorMessage = err.response?.data?.message || "Login failed. Please check your credentials.";
       setServerError(errorMessage);
       setTimeout(() => setServerError(''), 5000);
     } finally {
@@ -117,39 +105,35 @@ const LoginPage = ({ onClose }) => {
     }
   };
 
-  const canSubmit = 
-    Object.keys(errors).length === 0 &&
-    formData.identifier &&
-    formData.password &&
-    !isSubmitting;
+  const canSubmit = Object.keys(errors).length === 0 && formData.identifier && formData.password && !isSubmitting;
 
   return (
-    <div className="container d-flex justify-content-center align-items-center vh-100">
-      <div className="card shadow p-4" style={{ maxWidth: '420px', width: '100%' }}>
-        
-        {/* Logo */}
-        <div className="d-flex justify-content-center mb-3">
-          <img src={logo} alt="Logo" style={{ height: '80px', objectFit: 'contain' }} />
+    <div className="position-fixed top-0 start-0 w-100 h-100 bg-dark bg-opacity-50 d-flex justify-content-center align-items-center" style={{ zIndex: 1050 }}>
+      <div className="bg-white rounded-4 shadow-lg p-4" style={{ maxWidth: '440px', width: '95%' }}>
+        {/* Header */}
+        <div className="d-flex justify-content-between align-items-center mb-4">
+          <div className="d-flex align-items-center gap-2">
+            <img src={logo} alt="Yonkopa" style={{ height: '40px', objectFit: 'contain' }} />
+            <h4 className="m-0 fw-semibold">Welcome Back</h4>
+          </div>
+          <button className="btn-close" onClick={onClose} aria-label="Close"></button>
         </div>
 
-        <div className="d-flex justify-content-between align-items-center mb-3">
-          <h3 className="m-0">Login</h3>
-          {onClose && <button className="btn-close" onClick={onClose}></button>}
-        </div>
+        <p className="text-muted mb-4">Sign in to access your account</p>
 
         {serverError && (
-          <div className="alert alert-danger py-2">{serverError}</div>
+          <div className="alert alert-danger py-2 small">{serverError}</div>
         )}
 
         <form onSubmit={handleSubmit} noValidate>
           {/* Email or Phone */}
           <div className="mb-3">
-            <label className="form-label">Email or Phone</label>
+            <label className="form-label fw-medium">Email or Phone Number</label>
             <input 
               type="text" 
               name="identifier"
               className={`form-control ${touched.identifier && errors.identifier ? 'is-invalid' : ''}`}
-              placeholder="Enter email or phone"
+              placeholder="Enter your email or phone number"
               value={formData.identifier}
               onChange={handleChange}
               onBlur={handleBlur}
@@ -162,24 +146,24 @@ const LoginPage = ({ onClose }) => {
 
           {/* Password */}
           <div className="mb-3">
-            <label className="form-label">Password</label>
+            <label className="form-label fw-medium">Password</label>
             <div className="input-group">
               <input
                 type={showPassword ? "text" : "password"}
                 name="password"
                 className={`form-control ${touched.password && errors.password ? 'is-invalid' : ''}`}
-                placeholder="Enter password"
+                placeholder="Enter your password"
                 value={formData.password}
                 onChange={handleChange}
                 onBlur={handleBlur}
                 disabled={isSubmitting}
               />
               <span
-                className="input-group-text"
+                className="input-group-text bg-white border-start-0"
                 style={{ cursor: "pointer" }}
                 onClick={() => setShowPassword(!showPassword)}
               >
-                <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"}`}></i>
+                <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-secondary`}></i>
               </span>
             </div>
             {touched.password && errors.password && (
@@ -188,26 +172,41 @@ const LoginPage = ({ onClose }) => {
           </div>
 
           {/* Options */}
-          <div className="d-flex justify-content-between align-items-center mb-3">
+          <div className="d-flex justify-content-between align-items-center mb-4">
             <div className="form-check">
-              <input className="form-check-input" type="checkbox" disabled={isSubmitting} />
-              <label className="form-check-label">Remember me</label>
+              <input className="form-check-input" type="checkbox" id="rememberMe" disabled={isSubmitting} />
+              <label className="form-check-label small" htmlFor="rememberMe">Remember me</label>
             </div>
-            <a href="/forgot-password" className="text-decoration-none">Forgot password?</a>
+            <a href="/forgot-password" className="text-decoration-none small">Forgot password?</a>
           </div>
 
           {/* Login Button */}
           <button 
             type="submit"
-            className="btn btn-primary w-100"
+            className="btn btn-primary w-100 py-2 fw-semibold rounded-pill"
             disabled={!canSubmit}
           >
-            {isSubmitting ? "Logging in..." : "Login"}
+            {isSubmitting ? (
+              <span>
+                <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                Logging in...
+              </span>
+            ) : (
+              'Sign In'
+            )}
           </button>
         </form>
 
-        {/* Social Login */}
-       
+        {/* Sign Up Link */}
+        <p className="text-center mt-4 mb-0">
+          Don't have an account?{' '}
+          <button 
+            className="btn btn-link p-0 text-primary text-decoration-none"
+            onClick={onSwitchToSignUp}
+          >
+            Create Account
+          </button>
+        </p>
       </div>
     </div>
   );
