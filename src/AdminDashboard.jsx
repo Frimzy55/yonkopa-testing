@@ -81,8 +81,8 @@ import ReleaseLien from './internal-account/ReleaseLien';
 import LienEnquiries from './internal-account/LienEnquiries';
 
 // Admin Components
-import UserManagement from './UserManagement';
-import Roles from './Roles';
+import UserManagement from './admin/UserManagement';
+import Roles from './admin/Roles';
 
 // My Approvals Components
 import ApproveUserCreation from './my-approvals/ApproveUserCreation';
