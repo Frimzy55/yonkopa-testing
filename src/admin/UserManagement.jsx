@@ -256,7 +256,7 @@ const UserManagement = () => {
                   className="btn btn-outline-primary mt-2"
                   onClick={handleResetFilter}
                 >
-                  Clear Filter
+                  Clear 
                 </button>
               </div>
             ) : (
@@ -339,7 +339,7 @@ const UserManagement = () => {
                 disabled={!selectedRole}
               >
                 <i className="bi bi-filter me-2"></i>
-                Filter Users
+                Find Users
               </button>
             </div>
           </div>
