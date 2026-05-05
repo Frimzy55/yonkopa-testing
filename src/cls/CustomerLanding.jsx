@@ -1,11 +1,40 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import SignUpPage from './SignUpPage';
 import LoginPage from './LoginPage';
+import { FaBolt, FaChartLine, FaShieldAlt, FaChevronDown } from 'react-icons/fa';
 import logo from '../image/yonko.png';
+import './CustomerLanding.css';
 
 const CustomerLanding = () => {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  
+  // Refs for smooth scrolling
+  const featuresRef = useRef(null);
+  const homeRef = useRef(null);
+
+  // Prevent background scroll when modal is open
+  useEffect(() => {
+    if (showSignUp || showLogin) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = 'auto';
+    }
+
+    return () => {
+      document.body.style.overflow = 'auto';
+    };
+  }, [showSignUp, showLogin]);
+
+  // Smooth scroll function
+  const smoothScrollTo = (elementRef) => {
+    if (elementRef.current) {
+      elementRef.current.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }
+  };
 
   const handleCloseSignUp = () => setShowSignUp(false);
   const handleCloseLogin = () => setShowLogin(false);
@@ -21,38 +50,49 @@ const CustomerLanding = () => {
   };
 
   return (
-    <div className="bg-light min-vh-100 d-flex flex-column">
-
+    <div className="customer-landing">
       {/* HEADER */}
       <nav className="navbar navbar-light bg-white shadow-sm">
         <div className="container d-flex justify-content-between align-items-center">
-          <div className="d-flex align-items-center gap-2">
+          <div className="d-flex align-items-center gap-2" style={{ cursor: 'pointer' }} onClick={() => smoothScrollTo(homeRef)}>
             <img
               src={logo}
               alt="Yonkopa Logo"
-              style={{
-                width: "40px",
-                height: "40px",
-                objectFit: "contain"
-              }}
+              className="logo-img"
             />
             <h3 className="navbar-brand m-0">
               Yonkopa Micro Credit
             </h3>
           </div>
 
-          <button
-            className="btn btn-primary rounded-pill px-4"
-            onClick={() => setShowLogin(true)}
-          >
-            Login
-          </button>
+          <div className="d-flex gap-3">
+            <button
+              className="btn btn-link text-decoration-none"
+              onClick={() => smoothScrollTo(homeRef)}
+              style={{ color: '#0d6efd' }}
+            >
+              Home
+            </button>
+            <button
+              className="btn btn-link text-decoration-none"
+              onClick={() => smoothScrollTo(featuresRef)}
+              style={{ color: '#0d6efd' }}
+            >
+              Features
+            </button>
+            <button
+              className="btn btn-primary rounded-pill px-4"
+              onClick={() => setShowLogin(true)}
+            >
+              Login
+            </button>
+          </div>
         </div>
       </nav>
 
       {/* HERO SECTION */}
-      <section className="py-5 bg-primary text-white text-center">
-        <div className="container">
+      <section ref={homeRef} className="hero-section">
+        <div className="container p-0 m-0">
           <h2 className="display-5 fw-bold">
             Get the Loan You Need
           </h2>
@@ -76,43 +116,65 @@ const CustomerLanding = () => {
               Login
             </button>
           </div>
+
+          {/* Scroll down indicator */}
+          <div className="scroll-indicator" onClick={() => smoothScrollTo(featuresRef)}>
+            <span>Scroll Down</span>
+            <FaChevronDown className="scroll-arrow" />
+          </div>
         </div>
       </section>
 
       {/* FEATURES */}
-      <section className="py-5">
+      <section ref={featuresRef} className="features-section">
         <div className="container">
+          <h2 className="text-center mb-5" style={{ color: '#0d6efd' }}>Why Choose Yonkopa?</h2>
           <div className="row g-4">
-
             <div className="col-md-4">
-              <div className="card shadow-sm h-100 text-center p-3 rounded-4">
+              <div className="card shadow-sm h-100 text-center p-3 rounded-4 feature-card">
+                <FaBolt className="feature-icon" />
                 <h4>Quick Approval</h4>
                 <p>Get decisions within 24 hours</p>
               </div>
             </div>
 
             <div className="col-md-4">
-              <div className="card shadow-sm h-100 text-center p-3 rounded-4">
+              <div className="card shadow-sm h-100 text-center p-3 rounded-4 feature-card">
+                <FaChartLine className="feature-icon" />
                 <h4>Low Interest Rates</h4>
                 <p>Affordable and flexible repayment plans</p>
               </div>
             </div>
 
             <div className="col-md-4">
-              <div className="card shadow-sm h-100 text-center p-3 rounded-4">
+              <div className="card shadow-sm h-100 text-center p-3 rounded-4 feature-card">
+                <FaShieldAlt className="feature-icon" />
                 <h4>No Hidden Fees</h4>
                 <p>Transparent pricing, no surprises</p>
               </div>
             </div>
-
           </div>
         </div>
       </section>
 
+      {/* CTA SECTION */}
+      <section className="cta-section">
+        <div className="container text-center">
+          <h3 className="mb-3">Ready to Get Started?</h3>
+          <p className="mb-4">Join thousands of satisfied customers who trust Yonkopa</p>
+          <button
+            className="btn btn-primary btn-lg rounded-pill px-5"
+            onClick={() => setShowSignUp(true)}
+          >
+            Sign Up Now
+          </button>
+        </div>
+      </section>
+
       {/* FOOTER */}
-      <footer className="mt-auto py-4 bg-dark text-white text-center">
+      <footer className="custom-footer">
         <div className="container">
-          <p className="mb-1">
+          <p className="m-0">
             &copy; 2026 Yonkopa. All rights reserved.
           </p>
         </div>
@@ -120,35 +182,8 @@ const CustomerLanding = () => {
 
       {/* SIGN UP MODAL */}
       {showSignUp && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 1050,
-            overflowY: 'auto',
-            WebkitOverflowScrolling: 'touch',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            padding: '20px'
-          }}
-          onClick={handleCloseSignUp}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '20px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-              width: '100%',
-              maxWidth: '500px',
-              margin: 'auto'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="modal-overlay">
+          <div className="modal-container">
             <SignUpPage
               onClose={handleCloseSignUp}
               onSwitchToLogin={handleSwitchToLogin}
@@ -159,35 +194,8 @@ const CustomerLanding = () => {
 
       {/* LOGIN MODAL */}
       {showLogin && (
-        <div
-          style={{
-            position: 'fixed',
-            top: 0,
-            left: 0,
-            right: 0,
-            bottom: 0,
-            backgroundColor: 'rgba(0, 0, 0, 0.5)',
-            zIndex: 1050,
-            overflowY: 'auto',
-            WebkitOverflowScrolling: 'touch',
-            display: 'flex',
-            justifyContent: 'center',
-            alignItems: 'flex-start',
-            padding: '20px'
-          }}
-          onClick={handleCloseLogin}
-        >
-          <div
-            style={{
-              backgroundColor: 'white',
-              borderRadius: '20px',
-              boxShadow: '0 4px 20px rgba(0,0,0,0.15)',
-              width: '100%',
-              maxWidth: '500px',
-              margin: 'auto'
-            }}
-            onClick={(e) => e.stopPropagation()}
-          >
+        <div className="modal-overlay">
+          <div className="modal-container">
             <LoginPage
               onClose={handleCloseLogin}
               onSwitchToSignUp={handleSwitchToSignUp}
@@ -195,7 +203,6 @@ const CustomerLanding = () => {
           </div>
         </div>
       )}
-
     </div>
   );
 };

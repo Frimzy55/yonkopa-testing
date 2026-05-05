@@ -1,0 +1,194 @@
+.customer-landing {
+  background-color: #f8f9fa;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.logo-img {
+  width: 40px;
+  height: 40px;
+  object-fit: contain;
+}
+
+/* Hero Section */
+.hero-section {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+  color: white;
+  text-align: center;
+  position: relative;
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scroll indicator */
+.scroll-indicator {
+  position: absolute;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  cursor: pointer;
+  animation: bounce 2s infinite;
+  text-align: center;
+}
+
+.scroll-indicator span {
+  display: block;
+  font-size: 14px;
+  margin-bottom: 5px;
+  opacity: 0.8;
+}
+
+.scroll-arrow {
+  font-size: 24px;
+  animation: bounceArrow 1.5s infinite;
+  display: inline-block;
+}
+
+@keyframes bounce {
+  0%, 20%, 50%, 80%, 100% {
+    transform: translateX(-50%) translateY(0);
+  }
+  40% {
+    transform: translateX(-50%) translateY(-10px);
+  }
+  60% {
+    transform: translateX(-50%) translateY(-5px);
+  }
+}
+
+@keyframes bounceArrow {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(10px);
+  }
+}
+
+/* Features Section */
+.features-section {
+  padding: 5rem 0;
+  background-color: white;
+}
+
+.features-section h2 {
+  margin-bottom: 2rem;
+}
+
+.feature-card {
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+}
+
+.feature-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+.feature-icon {
+  font-size: 48px;
+  margin-bottom: 1rem;
+  color: #0d6efd;
+}
+
+/* CTA Section */
+.cta-section {
+  padding: 4rem 0;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+}
+
+/* Footer */
+.custom-footer {
+  background-color: #212529;
+  color: white;
+  text-align: center;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+}
+
+.custom-footer .container {
+  padding: 0;
+  margin: 0;
+}
+
+.custom-footer p {
+  padding: 12px 0;
+  line-height: 1.2;
+  margin: 0;
+}
+
+/* Modal styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  z-index: 1050;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+.modal-container {
+  background-color: white;
+  border-radius: 1rem;
+  box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+  margin: 0 auto;
+  width: 95%;
+  max-width: 500px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+/* Smooth scrolling for the whole page */
+html {
+  scroll-behavior: smooth;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 2rem 0;
+    min-height: 60vh;
+  }
+  
+  .modal-container {
+    width: 98%;
+  }
+  
+  .features-section {
+    padding: 3rem 0;
+  }
+  
+  .cta-section {
+    padding: 2.5rem 0;
+  }
+  
+  .scroll-indicator span {
+    font-size: 12px;
+  }
+  
+  .scroll-arrow {
+    font-size: 20px;
+  }
+  
+  /* Adjust navbar for mobile */
+  .navbar .container {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .navbar .d-flex:last-child {
+    width: 100%;
+    justify-content: center;
+  }
+}
