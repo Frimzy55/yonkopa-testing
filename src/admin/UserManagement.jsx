@@ -13,7 +13,7 @@ const UserManagement = () => {
   const [editingUser, setEditingUser] = useState(null);
   const [showTable, setShowTable] = useState(false);
 
-  const roles = ['customer', 'loan_officer', 'supervisor', 'manager', 'admin'];
+  const roles = ['ceo', 'loan_officer', 'supervisor', 'manager', 'admin'];
 
   // Fetch users
   useEffect(() => {
@@ -146,7 +146,7 @@ const UserManagement = () => {
         <div className="card-body">
           <div className="row align-items-end">
             <div className="col-md-4 mb-3 mb-md-0">
-              <label className="form-label fw-semibold">Filter by Role</label>
+              <label className="form-label fw-semibold">Find by Role</label>
               <select
                 className="form-select"
                 value={selectedRole}
@@ -168,7 +168,7 @@ const UserManagement = () => {
                   disabled={!selectedRole}
                 >
                   <i className="bi bi-filter me-2"></i>
-                  Filter Users
+                  Find Users
                 </button>
                 <button
                   className="btn btn-secondary"

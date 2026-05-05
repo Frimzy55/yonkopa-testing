@@ -1,4 +1,97 @@
-// menuItems.js
+// Basic permissions configuration
+export const basicPermissions = [
+  { id: 'view_dashboard', name: 'View Dashboard', category: 'General' },
+  { id: 'manage_customers', name: 'Manage Customers', category: 'Customer' },
+  { id: 'view_customers', name: 'View Customers', category: 'Customer' },
+  { id: 'create_customer', name: 'Create Customer', category: 'Customer' },
+  { id: 'edit_customer', name: 'Edit Customer', category: 'Customer' },
+  { id: 'delete_customer', name: 'Delete Customer', category: 'Customer' },
+  { id: 'manage_accounts', name: 'Manage Accounts', category: 'Account' },
+  { id: 'view_accounts', name: 'View Accounts', category: 'Account' },
+  { id: 'create_account', name: 'Create Account', category: 'Account' },
+  { id: 'close_account', name: 'Close Account', category: 'Account' },
+  { id: 'teller_transactions', name: 'Teller Transactions', category: 'Teller' },
+  { id: 'deposit', name: 'Process Deposit', category: 'Teller' },
+  { id: 'withdraw', name: 'Process Withdrawal', category: 'Teller' },
+  { id: 'view_teller_summary', name: 'View Teller Summary', category: 'Teller' },
+  { id: 'manage_loans', name: 'Manage Loans', category: 'Loans' },
+  { id: 'approve_loans', name: 'Approve Loans', category: 'Loans' },
+  { id: 'disburse_loans', name: 'Disburse Loans', category: 'Loans' },
+  { id: 'manage_gl_accounts', name: 'Manage GL Accounts', category: 'Internal Accounts' },
+  { id: 'internal_transfers', name: 'Internal Transfers', category: 'Internal Accounts' },
+  { id: 'manage_users', name: 'Manage Users', category: 'Admin' },
+  { id: 'manage_roles', name: 'Manage Roles', category: 'Admin' },
+  { id: 'view_reports', name: 'View Reports', category: 'Reports' },
+  { id: 'batch_upload', name: 'Batch Upload', category: 'Batch Upload' },
+  { id: 'system_settings', name: 'System Settings', category: 'System' }
+];
+
+// Convert menu items to permissions
+const convertMenuToPermissions = (items, parentCategory = '') => {
+  let permissions = [];
+  
+  items.forEach(item => {
+    // Add the main menu item as a permission
+    if (item.name && item.name !== 'Dashboard') {
+      permissions.push({
+        id: item.name.toLowerCase().replace(/ /g, '_'),
+        name: `Access ${item.name} Module`,
+        category: parentCategory || item.name,
+        originalName: item.name,
+        icon: item.icon
+      });
+    }
+    
+    // Process sub menus
+    if (item.subMenus && item.subMenus.length > 0) {
+      item.subMenus.forEach(subMenu => {
+        // Add sub menu as permission
+        if (subMenu.name) {
+          permissions.push({
+            id: `${item.name.toLowerCase()}_${subMenu.name.toLowerCase().replace(/ /g, '_')}`,
+            name: `${subMenu.name}`,
+            category: item.name,
+            parentMenu: item.name,
+            icon: subMenu.icon
+          });
+        }
+        
+        // Process nested menus
+        if (subMenu.nestedMenus && subMenu.nestedMenus.length > 0) {
+          subMenu.nestedMenus.forEach(nested => {
+            permissions.push({
+              id: `${item.name.toLowerCase()}_${subMenu.name.toLowerCase().replace(/ /g, '_')}_${nested.name.toLowerCase().replace(/ /g, '_')}`,
+              name: nested.name,
+              category: `${item.name} - ${subMenu.name}`,
+              parentMenu: item.name,
+              subMenu: subMenu.name,
+              icon: nested.icon
+            });
+          });
+        }
+        
+        // Process reports
+        if (subMenu.reports && subMenu.reports.length > 0) {
+          subMenu.reports.forEach(report => {
+            permissions.push({
+              id: `${item.name.toLowerCase()}_${subMenu.name.toLowerCase().replace(/ /g, '_')}_${report.name.toLowerCase().replace(/ /g, '_')}`,
+              name: report.name,
+              category: `${item.name} - ${subMenu.name}`,
+              parentMenu: item.name,
+              subMenu: subMenu.name,
+              icon: report.icon,
+              isReport: true
+            });
+          });
+        }
+      });
+    }
+  });
+  
+  return permissions;
+};
+
+// Menu items configuration
 export const menuItems = [
   { name: 'Dashboard', icon: 'bi-speedometer2' },
   { 
@@ -158,7 +251,6 @@ export const menuItems = [
       { name: 'Loans', icon: 'bi-shield-plus',
         nestedMenus: [
           { name: 'Loans Awaiting Approvals', icon: 'bi-globe' },
-         // { name: 'Approved Loans', icon: 'bi-check-circle-fill' },
           { name: 'Approve New Individual Loan', icon: 'bi-person' },
           { name: 'Approve Corporate Loan', icon: 'bi-building' },
           { name: 'Approve Group Loan', icon: 'bi-people-fill' },
@@ -215,15 +307,14 @@ export const menuItems = [
       { name: 'Loan Reports', icon: 'bi-piggy-bank', reportType: 'Loan Reports',
         reports: [
           { name: 'Loan Portfolio Report', icon: 'bi-bank' },
-           { name: 'Approved Loans Report', icon: 'bi-check-circle-fill' } , // ✅ Added this line
+          { name: 'Approved Loans Report', icon: 'bi-check-circle-fill' },
           { name: 'Loan Disbursement Report', icon: 'bi-cash' },
           { name: 'Loan Repayment Report', icon: 'bi-arrow-return-left' },
           { name: 'Loan Arrears Report', icon: 'bi-exclamation-triangle' },
           { name: 'Portfolio At Risk (PAR) Report', icon: 'bi-graph-up' },
           { name: 'Non-Performing Loans Report', icon: 'bi-flag' },
           { name: 'Loan Aging Analysis Report', icon: 'bi-calendar' },
-          { name: 'Written-Off Loans Report', icon: 'bi-trash' },
-         /// { name: 'Approved Loans Report', icon: 'bi-check-circle-fill' }  // ✅ Added this line
+          { name: 'Written-Off Loans Report', icon: 'bi-trash' }
         ]
       },
       { name: 'Customer Reports', icon: 'bi-people', reportType: 'Customer Reports',
@@ -317,3 +408,80 @@ export const menuItems = [
     ]
   }
 ];
+
+// Generate all permissions from menu items
+const menuPermissions = convertMenuToPermissions(menuItems);
+
+// Combine basic permissions with menu permissions
+export const availablePermissions = [...basicPermissions, ...menuPermissions];
+
+// Group permissions by category
+export const getGroupedPermissions = () => {
+  return availablePermissions.reduce((groups, permission) => {
+    if (!groups[permission.category]) {
+      groups[permission.category] = [];
+    }
+    groups[permission.category].push(permission);
+    return groups;
+  }, {});
+};
+
+// Get permissions by category
+export const getPermissionsByCategory = (category) => {
+  return availablePermissions.filter(permission => permission.category === category);
+};
+
+// Get all categories
+export const getAllCategories = () => {
+  const categories = [...new Set(availablePermissions.map(p => p.category))];
+  return categories;
+};
+
+// Check if a permission exists
+export const permissionExists = (permissionId) => {
+  return availablePermissions.some(p => p.id === permissionId);
+};
+
+// Get permission details by ID
+export const getPermissionDetails = (permissionId) => {
+  return availablePermissions.find(p => p.id === permissionId);
+};
+
+// Get permission count by category
+export const getPermissionCountByCategory = () => {
+  return availablePermissions.reduce((counts, permission) => {
+    counts[permission.category] = (counts[permission.category] || 0) + 1;
+    return counts;
+  }, {});
+};
+
+// Helper function to find a menu item by path
+export const findMenuItemByPath = (path, items = menuItems) => {
+  for (const item of items) {
+    if (item.path === path) return item;
+    if (item.subMenus) {
+      const found = findMenuItemByPath(path, item.subMenus);
+      if (found) return found;
+    }
+    if (item.nestedMenus) {
+      const found = findMenuItemByPath(path, item.nestedMenus);
+      if (found) return found;
+    }
+    if (item.reports) {
+      const found = findMenuItemByPath(path, item.reports);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+// Helper function to get all flattened menu paths
+export const getAllPaths = (items = menuItems, paths = []) => {
+  for (const item of items) {
+    if (item.path) paths.push(item.path);
+    if (item.subMenus) getAllPaths(item.subMenus, paths);
+    if (item.nestedMenus) getAllPaths(item.nestedMenus, paths);
+    if (item.reports) getAllPaths(item.reports, paths);
+  }
+  return paths;
+};

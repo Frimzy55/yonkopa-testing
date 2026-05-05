@@ -725,7 +725,7 @@ const AdminDashboard = () => {
     if (activeMenu === 'Admin') {
       const adminComponents = {
         'User Management': UserManagement,
-        'Roles': Roles,
+        'Add Roles': Roles,
       };
       if (activeSubMenu && adminComponents[activeSubMenu]) {
         const Component = adminComponents[activeSubMenu];

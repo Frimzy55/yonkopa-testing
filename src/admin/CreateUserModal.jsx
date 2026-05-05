@@ -12,7 +12,7 @@ const CreateUserModal = ({ show, onClose, onUserCreated, editingUser }) => {
     role: 'customer'
   });
 
-  const roles = ['customer', 'loan_officer', 'supervisor', 'manager', 'admin'];
+  const roles = ['ceo', 'loan_officer', 'supervisor', 'manager', 'admin'];
 
   useEffect(() => {
     if (editingUser) {

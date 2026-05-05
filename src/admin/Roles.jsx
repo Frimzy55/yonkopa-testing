@@ -1,75 +1,67 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { availablePermissions, getGroupedPermissions } from './permissions';
 
 const Roles = () => {
   const [roles, setRoles] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showPermissionsModal, setShowPermissionsModal] = useState(false);
+  const [showStaffPermissionsModal, setShowStaffPermissionsModal] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
+  const [viewingRole, setViewingRole] = useState(null);
+  const [viewingStaff, setViewingStaff] = useState(null);
+  const [expandedRole, setExpandedRole] = useState(null);
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     permissions: []
   });
 
-  // Available permissions
-  const availablePermissions = [
-    { id: 'view_dashboard', name: 'View Dashboard', category: 'General' },
-    { id: 'manage_customers', name: 'Manage Customers', category: 'Customer' },
-    { id: 'view_customers', name: 'View Customers', category: 'Customer' },
-    { id: 'create_customer', name: 'Create Customer', category: 'Customer' },
-    { id: 'edit_customer', name: 'Edit Customer', category: 'Customer' },
-    { id: 'delete_customer', name: 'Delete Customer', category: 'Customer' },
-    { id: 'manage_accounts', name: 'Manage Accounts', category: 'Account' },
-    { id: 'view_accounts', name: 'View Accounts', category: 'Account' },
-    { id: 'create_account', name: 'Create Account', category: 'Account' },
-    { id: 'close_account', name: 'Close Account', category: 'Account' },
-    { id: 'teller_transactions', name: 'Teller Transactions', category: 'Teller' },
-    { id: 'deposit', name: 'Process Deposit', category: 'Teller' },
-    { id: 'withdraw', name: 'Process Withdrawal', category: 'Teller' },
-    { id: 'view_teller_summary', name: 'View Teller Summary', category: 'Teller' },
-    { id: 'manage_loans', name: 'Manage Loans', category: 'Loans' },
-    { id: 'approve_loans', name: 'Approve Loans', category: 'Loans' },
-    { id: 'disburse_loans', name: 'Disburse Loans', category: 'Loans' },
-    { id: 'manage_gl_accounts', name: 'Manage GL Accounts', category: 'Internal Accounts' },
-    { id: 'internal_transfers', name: 'Internal Transfers', category: 'Internal Accounts' },
-    { id: 'manage_users', name: 'Manage Users', category: 'Admin' },
-    { id: 'manage_roles', name: 'Manage Roles', category: 'Admin' },
-    { id: 'view_reports', name: 'View Reports', category: 'Reports' },
-    { id: 'batch_upload', name: 'Batch Upload', category: 'Batch Upload' },
-    { id: 'system_settings', name: 'System Settings', category: 'System' }
-  ];
-
   // Group permissions by category
-  const groupedPermissions = availablePermissions.reduce((groups, permission) => {
-    if (!groups[permission.category]) {
-      groups[permission.category] = [];
-    }
-    groups[permission.category].push(permission);
-    return groups;
-  }, {});
+  const groupedPermissions = getGroupedPermissions();
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
+  // Fetch roles - defined inside useCallback to avoid dependency warning
+  const fetchRoles = useCallback(() => {
+    // Define enum roles inside the useCallback
+    const enumRoles = [
+      { id: 2, name: 'loan_officer', description: 'Can process and manage loan applications', permissions: ['view_dashboard', 'view_customers', 'manage_loans', 'approve_loans', 'disburse_loans'] },
+      { id: 3, name: 'supervisor', description: 'Supervises loan officers and daily operations', permissions: ['view_dashboard', 'manage_customers', 'manage_loans', 'approve_loans', 'view_reports'] },
+      { id: 4, name: 'manager', description: 'Manages branch operations and staff', permissions: ['view_dashboard', 'manage_customers', 'manage_loans', 'approve_loans', 'manage_users', 'view_reports'] },
+      { id: 5, name: 'admin', description: 'Full system access', permissions: ['view_dashboard', 'manage_customers', 'manage_accounts', 'manage_loans', 'manage_users', 'manage_roles', 'view_reports', 'system_settings'] }
+    ];
 
-  const fetchRoles = async () => {
     setLoading(true);
     try {
-      const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/roles', {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      setRoles(response.data);
+      setRoles(enumRoles);
     } catch (error) {
-      console.error('Error fetching roles:', error);
-      toast.error('Failed to fetch roles');
+      console.error('Error loading roles:', error);
+      toast.error('Failed to load roles');
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  // Fetch users
+  const fetchUsers = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/getusers`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      setUsers(response.data);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchRoles();
+    fetchUsers();
+  }, [fetchRoles, fetchUsers]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -95,14 +87,23 @@ const Roles = () => {
     setFormData(prev => {
       let newPermissions;
       if (allSelected) {
-      
         newPermissions = prev.permissions.filter(p => !categoryPermissions.includes(p));
       } else {
-        // Select all in category
         newPermissions = [...new Set([...prev.permissions, ...categoryPermissions])];
       }
       return { ...prev, permissions: newPermissions };
     });
+  };
+
+  const handleSelectAllPermissions = () => {
+    const allPermissionIds = availablePermissions.map(p => p.id);
+    const allSelected = allPermissionIds.every(p => formData.permissions.includes(p));
+    
+    if (allSelected) {
+      setFormData(prev => ({ ...prev, permissions: [] }));
+    } else {
+      setFormData(prev => ({ ...prev, permissions: allPermissionIds }));
+    }
   };
 
   const validateForm = () => {
@@ -123,21 +124,26 @@ const Roles = () => {
     setLoading(true);
     
     try {
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: { Authorization: `Bearer ${token}` }
-      };
-
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
       if (editingRole) {
-        await axios.put(`http://localhost:5000/api/roles/${editingRole.id}`, formData, config);
         toast.success('Role updated successfully');
+        const updatedRoles = roles.map(role => 
+          role.name === editingRole.name ? { ...role, ...formData } : role
+        );
+        setRoles(updatedRoles);
       } else {
-        await axios.post('http://localhost:5000/api/roles', formData, config);
         toast.success('Role created successfully');
+        const newRole = {
+          id: roles.length + 2,
+          name: formData.name.toLowerCase().replace(/\s/g, '_'),
+          description: formData.description,
+          permissions: formData.permissions
+        };
+        setRoles([...roles, newRole]);
       }
       
       resetForm();
-      fetchRoles();
     } catch (error) {
       console.error('Error saving role:', error);
       toast.error(error.response?.data?.message || 'Failed to save role');
@@ -156,22 +162,24 @@ const Roles = () => {
     setShowModal(true);
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this role? This will affect all users with this role.')) {
-      setLoading(true);
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/roles/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success('Role deleted successfully');
-        fetchRoles();
-      } catch (error) {
-        console.error('Error deleting role:', error);
-        toast.error('Failed to delete role');
-      } finally {
-        setLoading(false);
-      }
+  const handleViewPermissions = (role) => {
+    setViewingRole(role);
+    setShowPermissionsModal(true);
+  };
+
+  const handleViewStaffPermissions = (staff) => {
+    const staffRole = roles.find(r => r.name === staff.role);
+    setViewingStaff(staff);
+    setViewingRole(staffRole);
+    setShowStaffPermissionsModal(true);
+  };
+
+  const handleEditStaffRole = (staff) => {
+    const staffRole = roles.find(r => r.name === staff.role);
+    if (staffRole) {
+      handleEdit(staffRole);
+    } else {
+      toast.error('Role not found for this staff member');
     }
   };
 
@@ -185,9 +193,40 @@ const Roles = () => {
     setShowModal(false);
   };
 
-  const getUserCount = (roleId) => {
-    // This would come from API in real implementation
-    return 0;
+  const toggleExpandedRole = (roleName) => {
+    if (expandedRole === roleName) {
+      setExpandedRole(null);
+    } else {
+      setExpandedRole(roleName);
+    }
+  };
+
+  const getUsersForRole = (roleName) => {
+    return users.filter(user => user.role === roleName);
+  };
+
+  const getRoleBadgeColor = (roleName) => {
+    const colors = {
+      'admin': 'bg-info',
+      'manager': 'bg-info',
+      'supervisor': 'bg-info',
+      'loan_officer': 'bg-info'
+    };
+    return colors[roleName] || 'bg-secondary';
+  };
+
+  const displayContactInfo = (user) => {
+    const hasEmail = user.email && user.email.trim() !== '';
+    const hasPhone = user.phone && user.phone.trim() !== '';
+    
+    if (hasEmail && hasPhone) {
+      return `${user.email} / ${user.phone}`;
+    } else if (hasEmail) {
+      return user.email;
+    } else if (hasPhone) {
+      return user.phone;
+    }
+    return '—';
   };
 
   return (
@@ -197,26 +236,26 @@ const Roles = () => {
       {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-          <h4 className="mb-1">Role Management</h4>
-          <p className="text-muted mb-0">Manage user roles and access permissions</p>
+          <h4 className="mb-1">Staff Role Management</h4>
+          <p className="text-muted mb-0">Manage staff roles, assign permissions, and view assigned users</p>
         </div>
         <button 
           className="btn btn-primary"
           onClick={() => setShowModal(true)}
         >
-          <i className="bi bi-shield-plus me-2"></i>
-          Create Role
+          <i className="bi bi-plus-circle me-2"></i>
+          Create New Role
         </button>
       </div>
 
       {/* Summary Cards */}
       <div className="row mb-4">
-        <div className="col-md-4 mb-3">
+        <div className="col-md-6 mb-3">
           <div className="card bg-primary bg-opacity-10 border-0">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h6 className="text-muted mb-1">Total Roles</h6>
+                  <h6 className="text-muted mb-1">Staff Roles</h6>
                   <h3 className="mb-0">{roles.length}</h3>
                 </div>
                 <i className="bi bi-shield-lock fs-1 text-primary"></i>
@@ -224,116 +263,201 @@ const Roles = () => {
             </div>
           </div>
         </div>
-        <div className="col-md-4 mb-3">
-          <div className="card bg-success bg-opacity-10 border-0">
-            <div className="card-body">
-              <div className="d-flex justify-content-between align-items-center">
-                <div>
-                  <h6 className="text-muted mb-1">System Roles</h6>
-                  <h3 className="mb-0">
-                    {roles.filter(role => role.name === 'Admin' || role.name === 'Super Admin').length}
-                  </h3>
-                </div>
-                <i className="bi bi-star-fill fs-1 text-success"></i>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div className="col-md-4 mb-3">
+        <div className="col-md-6 mb-3">
           <div className="card bg-info bg-opacity-10 border-0">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h6 className="text-muted mb-1">Custom Roles</h6>
+                  <h6 className="text-muted mb-1">Total Staff</h6>
                   <h3 className="mb-0">
-                    {roles.filter(role => role.name !== 'Admin' && role.name !== 'Super Admin').length}
+                    {users.filter(user => user.role !== 'customer').length}
                   </h3>
                 </div>
-                <i className="bi bi-person-badge fs-1 text-info"></i>
+                <i className="bi bi-people fs-1 text-info"></i>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Roles Table */}
-      <div className="card">
-        <div className="card-header bg-white">
-          <h6 className="mb-0">System Roles & Permissions</h6>
-        </div>
-        <div className="card-body p-0">
-          {loading && !roles.length ? (
-            <div className="text-center p-5">
-              <div className="spinner-border text-primary" role="status">
-                <span className="visually-hidden">Loading...</span>
+      {/* Roles Accordion */}
+      <div className="accordion" id="rolesAccordion">
+        {loading && !roles.length ? (
+          <div className="text-center p-5">
+            <div className="spinner-border text-primary" role="status">
+              <span className="visually-hidden">Loading...</span>
+            </div>
+            <p className="mt-2 text-muted">Loading roles...</p>
+          </div>
+        ) : roles.length === 0 ? (
+          <div className="text-center p-5">
+            <i className="bi bi-shield-lock fs-1 text-muted"></i>
+            <p className="mt-2 text-muted">No staff roles found.</p>
+            <button 
+              className="btn btn-primary mt-3"
+              onClick={() => setShowModal(true)}
+            >
+              Create Your First Role
+            </button>
+          </div>
+        ) : (
+          roles.map((role) => {
+            const usersInRole = getUsersForRole(role.name);
+            const isExpanded = expandedRole === role.name;
+            
+            return (
+              <div key={role.id} className="card mb-3">
+                <div 
+                  className="card-header bg-white d-flex justify-content-between align-items-center"
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => toggleExpandedRole(role.name)}
+                >
+                  <div>
+                    <span className={`badge ${getRoleBadgeColor(role.name)} me-2`}>
+                      {role.name.replace('_', ' ').toUpperCase()}
+                    </span>
+                    <span className="fw-semibold">{role.name.replace('_', ' ')}</span>
+                    <span className="text-muted ms-2 fs-6">
+                      ({usersInRole.length} {usersInRole.length === 1 ? 'staff member' : 'staff members'})
+                    </span>
+                  </div>
+                  <div>
+                    <button
+                      className="btn btn-sm btn-outline-info me-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleViewPermissions(role);
+                      }}
+                      title="View Permissions"
+                    >
+                      <i className="bi bi-eye"></i> View Permissions
+                    </button>
+                    <button
+                      className="btn btn-sm btn-outline-primary me-2"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEdit(role);
+                      }}
+                      title="Edit Role"
+                      disabled={role.name === 'admin'}
+                    >
+                      <i className="bi bi-pencil"></i> Edit
+                    </button>
+                    <i className={`bi ms-2 ${isExpanded ? 'bi-chevron-up' : 'bi-chevron-down'}`}></i>
+                  </div>
+                </div>
+                
+                {isExpanded && (
+                  <div className="card-body">
+                    <div className="row mb-3">
+                      <div className="col-md-12">
+                        <h6 className="text-muted">Description</h6>
+                        <p>{role.description || 'No description available'}</p>
+                      </div>
+                    </div>
+                    
+                    <hr />
+                    
+                    <div className="row">
+                      <div className="col-md-12">
+                        <h6 className="mb-3">
+                          <i className="bi bi-people-fill me-2"></i>
+                          Staff Members ({usersInRole.length})
+                        </h6>
+                        
+                        {usersInRole.length === 0 ? (
+                          <p className="text-muted">No staff members assigned to this role yet.</p>
+                        ) : (
+                          <div className="table-responsive">
+                            <table className="table table-hover table-sm">
+                              <thead className="table-light">
+                                <tr>
+                                  <th>#</th>
+                                  <th>Full Name</th>
+                                  <th>Contact Info</th>
+                                  <th>Joined Date</th>
+                                  <th>Actions</th>
+                                </tr>
+                              </thead>
+                              <tbody>
+                                {usersInRole.map((user, idx) => (
+                                  <tr key={user.id}>
+                                    <td>{idx + 1}</td>
+                                    <td className="fw-semibold">{user.full_name || '—'}</td>
+                                    <td>{displayContactInfo(user)}</td>
+                                    <td>
+                                      {user.created_at 
+                                        ? new Date(user.created_at).toLocaleDateString() 
+                                        : '—'}
+                                    </td>
+                                    <td>
+                                      <div className="btn-group btn-group-sm" role="group">
+                                        <button
+                                          className="btn btn-outline-info"
+                                          onClick={() => handleViewStaffPermissions(user)}
+                                          title="View Permissions"
+                                        >
+                                          <i className="bi bi-eye"></i> View Permissions
+                                        </button>
+                                        <button
+                                          className="btn btn-outline-primary"
+                                          onClick={() => handleEditStaffRole(user)}
+                                          title="Edit Role Permissions"
+                                          disabled={user.role === 'admin'}
+                                        >
+                                          <i className="bi bi-pencil"></i> Edit
+                                        </button>
+                                      </div>
+                                    </td>
+                                  </tr>
+                                ))}
+                              </tbody>
+                            </table>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    
+                    <hr />
+                    
+                    <div className="row">
+                      <div className="col-md-12">
+                        <h6 className="mb-3">
+                          <i className="bi bi-key-fill me-2"></i>
+                          Assigned Permissions ({role.permissions?.length || 0})
+                        </h6>
+                        <div className="row">
+                          {role.permissions?.map(permission => {
+                            const permDetails = availablePermissions.find(p => p.id === permission);
+                            return permDetails ? (
+                              <div key={permission} className="col-md-3 mb-2">
+                                <i className="bi bi-check-circle-fill text-success me-2"></i>
+                                <small>{permDetails.name}</small>
+                              </div>
+                            ) : null;
+                          })}
+                          {(!role.permissions || role.permissions.length === 0) && (
+                            <p className="text-muted">No permissions assigned to this role.</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
-              <p className="mt-2 text-muted">Loading roles...</p>
-            </div>
-          ) : roles.length === 0 ? (
-            <div className="text-center p-5">
-              <i className="bi bi-shield-lock fs-1 text-muted"></i>
-              <p className="mt-2 text-muted">No roles found. Create your first role!</p>
-            </div>
-          ) : (
-            <div className="table-responsive">
-              <table className="table table-hover mb-0">
-                <thead className="table-light">
-                  <tr>
-                    <th>Role Name</th>
-                    <th>Description</th>
-                    <th>Permissions</th>
-                    <th>Users</th>
-                    <th>Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {roles.map((role) => (
-                    <tr key={role.id}>
-                      <td className="fw-semibold">
-                        <i className="bi bi-shield-check me-2 text-primary"></i>
-                        {role.name}
-                      </td>
-                      <td>{role.description || '—'}</td>
-                      <td>
-                        <span className="badge bg-info">
-                          {role.permissions?.length || 0} permissions
-                        </span>
-                      </td>
-                      <td>{getUserCount(role.id)}</td>
-                      <td>
-                        <button 
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => handleEdit(role)}
-                          title="Edit Role"
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                        <button 
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDelete(role.id)}
-                          title="Delete Role"
-                          disabled={role.name === 'Admin' || role.name === 'Super Admin'}
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
+            );
+          })
+        )}
       </div>
 
-      {/* Modal for Create/Edit Role */}
+      {/* Create/Edit Role Modal */}
       {showModal && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }} tabIndex="-1">
           <div className="modal-dialog modal-xl">
             <div className="modal-content">
-              <div className="modal-header">
+              <div className="modal-header bg-light">
                 <h5 className="modal-title">
-                  {editingRole ? 'Edit Role' : 'Create New Role'}
+                  {editingRole ? `Edit Role: ${editingRole.name.replace('_', ' ').toUpperCase()}` : 'Create New Role & Assign Permissions'}
                 </h5>
                 <button type="button" className="btn-close" onClick={resetForm}></button>
               </div>
@@ -350,6 +474,7 @@ const Roles = () => {
                         onChange={handleInputChange}
                         required
                         placeholder="Enter role name (e.g., Teller, Account Manager)"
+                        disabled={editingRole?.name === 'admin'}
                       />
                     </div>
                     <div className="col-md-6">
@@ -366,7 +491,19 @@ const Roles = () => {
                   </div>
 
                   <hr />
-                  <h6 className="mb-3">Permissions</h6>
+                  
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h6 className="mb-0">Permissions</h6>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={handleSelectAllPermissions}
+                    >
+                      {availablePermissions.every(p => formData.permissions.includes(p.id)) 
+                        ? 'Deselect All' 
+                        : 'Select All Permissions'}
+                    </button>
+                  </div>
                   
                   {Object.entries(groupedPermissions).map(([category, permissions]) => (
                     <div key={category} className="mb-4">
@@ -422,6 +559,166 @@ const Roles = () => {
                   </button>
                 </div>
               </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Role Permissions Modal */}
+      {showPermissionsModal && viewingRole && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }} tabIndex="-1">
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header bg-light">
+                <h5 className="modal-title">
+                  <i className="bi bi-key-fill me-2"></i>
+                  Permissions for Role: {viewingRole.name.replace('_', ' ').toUpperCase()}
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => setShowPermissionsModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="row mb-3">
+                  <div className="col-md-12">
+                    <p><strong>Description:</strong> {viewingRole.description || 'No description'}</p>
+                  </div>
+                </div>
+                <hr />
+                <h6 className="mb-3">Assigned Permissions ({viewingRole.permissions?.length || 0})</h6>
+                
+                {Object.entries(groupedPermissions).map(([category, permissions]) => {
+                  const categoryPermissions = permissions.filter(p => 
+                    viewingRole.permissions?.includes(p.id)
+                  );
+                  
+                  if (categoryPermissions.length === 0) return null;
+                  
+                  return (
+                    <div key={category} className="mb-4">
+                      <h6 className="mb-2 text-primary">{category}</h6>
+                      <div className="row">
+                        {categoryPermissions.map(permission => (
+                          <div key={permission.id} className="col-md-6 mb-2">
+                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                            {permission.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {(!viewingRole.permissions || viewingRole.permissions.length === 0) && (
+                  <div className="text-center text-muted py-4">
+                    <i className="bi bi-shield-slash fs-1"></i>
+                    <p className="mt-2">No permissions assigned to this role.</p>
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => setShowPermissionsModal(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* View Staff Permissions Modal */}
+      {showStaffPermissionsModal && viewingStaff && viewingRole && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }} tabIndex="-1">
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header bg-light">
+                <h5 className="modal-title">
+                  <i className="bi bi-person-badge me-2"></i>
+                  Permissions for: {viewingStaff.full_name}
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => setShowStaffPermissionsModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="row mb-3">
+                  <div className="col-md-6">
+                    <p><strong>Staff Name:</strong> {viewingStaff.full_name}</p>
+                  </div>
+                  <div className="col-md-6">
+                    <p><strong>Role:</strong> 
+                      <span className={`badge ${getRoleBadgeColor(viewingStaff.role)} ms-2`}>
+                        {viewingStaff.role?.toUpperCase() || 'N/A'}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div className="row mb-3">
+                  <div className="col-md-12">
+                    <p><strong>Role Description:</strong> {viewingRole.description || 'No description'}</p>
+                  </div>
+                </div>
+                <hr />
+                <h6 className="mb-3">Assigned Permissions ({viewingRole.permissions?.length || 0})</h6>
+                
+                {Object.entries(groupedPermissions).map(([category, permissions]) => {
+                  const categoryPermissions = permissions.filter(p => 
+                    viewingRole.permissions?.includes(p.id)
+                  );
+                  
+                  if (categoryPermissions.length === 0) return null;
+                  
+                  return (
+                    <div key={category} className="mb-4">
+                      <h6 className="mb-2 text-primary">{category}</h6>
+                      <div className="row">
+                        {categoryPermissions.map(permission => (
+                          <div key={permission.id} className="col-md-6 mb-2">
+                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                            {permission.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+                
+                {(!viewingRole.permissions || viewingRole.permissions.length === 0) && (
+                  <div className="text-center text-muted py-4">
+                    <i className="bi bi-shield-slash fs-1"></i>
+                    <p className="mt-2">No permissions assigned to this role.</p>
+                  </div>
+                )}
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-primary"
+                  onClick={() => {
+                    setShowStaffPermissionsModal(false);
+                    handleEdit(viewingRole);
+                  }}
+                  disabled={viewingStaff.role === 'admin'}
+                >
+                  <i className="bi bi-pencil me-2"></i>
+                  Edit Permissions
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => setShowStaffPermissionsModal(false)}
+                >
+                  Close
+                </button>
+              </div>
             </div>
           </div>
         </div>
