@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,12 +9,12 @@ const Roles = () => {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
-  //const [showPermissionsModal, setShowPermissionsModal] = useState(false);
   const [showStaffPermissionsModal, setShowStaffPermissionsModal] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
   const [viewingRole, setViewingRole] = useState(null);
   const [viewingStaff, setViewingStaff] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({});
   const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
   const [selectedStaff, setSelectedStaff] = useState(null);
   const [newPassword, setNewPassword] = useState('');
@@ -27,6 +27,9 @@ const Roles = () => {
     description: '',
     permissions: []
   });
+  
+  const dropdownRefs = useRef({});
+  const buttonRefs = useRef({});
 
   // Toggle functions for menu expansion
   const toggleMenu = (menuName) => {
@@ -134,7 +137,6 @@ const Roles = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`${staff.full_name} has been activated successfully`);
-      // Refresh users list
       fetchUsers();
     } catch (error) {
       console.error('Error activating staff:', error);
@@ -158,7 +160,6 @@ const Roles = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`${staff.full_name} has been deactivated successfully`);
-      // Refresh users list
       fetchUsers();
     } catch (error) {
       console.error('Error deactivating staff:', error);
@@ -182,7 +183,6 @@ const Roles = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`Login blocked for ${staff.full_name}`);
-      // Refresh users list
       fetchUsers();
     } catch (error) {
       console.error('Error blocking login:', error);
@@ -206,7 +206,6 @@ const Roles = () => {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`Login unblocked for ${staff.full_name}`);
-      // Refresh users list
       fetchUsers();
     } catch (error) {
       console.error('Error unblocking login:', error);
@@ -403,16 +402,25 @@ const Roles = () => {
     }
   }, []);
 
-  // Fetch users
+  // Fetch users - Updated to handle status field
   const fetchUsers = useCallback(async () => {
     try {
       const token = localStorage.getItem('token');
       const response = await axios.get(`${process.env.REACT_APP_API_URL}/getusers`, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setUsers(response.data);
+      
+      // Map the backend status to is_active and is_blocked for compatibility
+      const mappedUsers = response.data.map(user => ({
+        ...user,
+        is_active: user.status === 'active',
+        is_blocked: user.status === 'blocked'
+      }));
+      
+      setUsers(mappedUsers);
     } catch (error) {
       console.error('Error fetching users:', error);
+      toast.error('Failed to fetch users');
     }
   }, []);
 
@@ -424,8 +432,11 @@ const Roles = () => {
   // Close dropdown when clicking outside
   useEffect(() => {
     const handleClickOutside = (event) => {
-      if (openDropdown && !event.target.closest('.dropdown')) {
+      if (openDropdown && 
+          !event.target.closest('.custom-dropdown') && 
+          !event.target.closest('.dropdown-item')) {
         setOpenDropdown(null);
+        setDropdownPosition({});
       }
     };
     document.addEventListener('click', handleClickOutside);
@@ -561,7 +572,22 @@ const Roles = () => {
     return names[roleName] || roleName;
   };
 
+  // Updated status badge function to use status field
   const getStatusBadge = (user) => {
+    if (user.status) {
+      switch(user.status.toLowerCase()) {
+        case 'active':
+          return <span className="badge bg-success">Active</span>;
+        case 'inactive':
+          return <span className="badge bg-secondary">Inactive</span>;
+        case 'blocked':
+          return <span className="badge bg-danger">Blocked</span>;
+        default:
+          return <span className="badge bg-secondary">{user.status}</span>;
+      }
+    }
+    
+    // Fallback logic
     if (user.is_blocked) {
       return <span className="badge bg-danger">Blocked</span>;
     }
@@ -589,7 +615,41 @@ const Roles = () => {
 
   const toggleDropdown = (staffId, event) => {
     event.stopPropagation();
-    setOpenDropdown(openDropdown === staffId ? null : staffId);
+    
+    if (openDropdown === staffId) {
+      setOpenDropdown(null);
+      setDropdownPosition({});
+      return;
+    }
+    
+    const button = event.currentTarget;
+    if (button && button.getBoundingClientRect) {
+      const rect = button.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const dropdownHeight = 450;
+      
+      let top, bottom;
+      
+      if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+        bottom = viewportHeight - rect.top + 10;
+        top = 'auto';
+      } else {
+        top = rect.bottom + 5;
+        bottom = 'auto';
+      }
+      
+      setDropdownPosition({
+        position: 'fixed',
+        top: top,
+        bottom: bottom,
+        left: rect.left,
+        zIndex: 9999
+      });
+    }
+    
+    setOpenDropdown(staffId);
   };
 
   return (
@@ -722,10 +782,11 @@ const Roles = () => {
                         {staff.created_at 
                           ? new Date(staff.created_at).toLocaleDateString() 
                           : '—'}
-                      </td>
-                      <td>
-                        <div className="dropdown">
+                       </td>
+                      <td className="position-relative">
+                        <div className="custom-dropdown">
                           <button
+                            ref={el => buttonRefs.current[staff.id] = el}
                             className="btn btn-sm btn-secondary dropdown-toggle"
                             type="button"
                             onClick={(e) => toggleDropdown(staff.id, e)}
@@ -734,7 +795,11 @@ const Roles = () => {
                             Actions
                           </button>
                           {openDropdown === staff.id && (
-                            <div className="dropdown-menu show">
+                            <div 
+                              ref={el => dropdownRefs.current[staff.id] = el}
+                              className="custom-dropdown-menu show"
+                              style={dropdownPosition}
+                            >
                               <button
                                 className="dropdown-item"
                                 onClick={() => handleViewStaffPermissions(staff)}
@@ -758,7 +823,7 @@ const Roles = () => {
                                 <i className="bi bi-key me-2"></i>
                                 Reset Password
                               </button>
-                              {staff.is_active ? (
+                              {staff.status === 'active' ? (
                                 <button
                                   className="dropdown-item text-warning"
                                   onClick={() => handleDeactivateStaff(staff)}
@@ -767,7 +832,7 @@ const Roles = () => {
                                   <i className="bi bi-pause-circle me-2"></i>
                                   Deactivate
                                 </button>
-                              ) : (
+                              ) : staff.status === 'inactive' ? (
                                 <button
                                   className="dropdown-item text-success"
                                   onClick={() => handleActivateStaff(staff)}
@@ -776,8 +841,8 @@ const Roles = () => {
                                   <i className="bi bi-play-circle me-2"></i>
                                   Activate
                                 </button>
-                              )}
-                              {staff.is_blocked ? (
+                              ) : null}
+                              {staff.status === 'blocked' ? (
                                 <button
                                   className="dropdown-item text-success"
                                   onClick={() => handleUnblockLogin(staff)}
@@ -786,7 +851,7 @@ const Roles = () => {
                                   <i className="bi bi-unlock me-2"></i>
                                   Unblock Login
                                 </button>
-                              ) : (
+                              ) : staff.status === 'active' ? (
                                 <button
                                   className="dropdown-item text-danger"
                                   onClick={() => handleBlockLogin(staff)}
@@ -795,7 +860,7 @@ const Roles = () => {
                                   <i className="bi bi-lock me-2"></i>
                                   Block Login
                                 </button>
-                              )}
+                              ) : null}
                             </div>
                           )}
                         </div>
@@ -935,7 +1000,6 @@ const Roles = () => {
                       const menuPermissionId = getPermissionId(menu.name);
                       return (
                         <div key={idx} className="mb-3 border rounded">
-                          {/* Main Menu Heading - Click to toggle */}
                           <div 
                             className="d-flex justify-content-between align-items-center p-3 bg-primary bg-opacity-10 rounded-top cursor-pointer"
                             style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
@@ -973,7 +1037,6 @@ const Roles = () => {
                             </div>
                           </div>
                           
-                          {/* Sub Menus - Show when expanded */}
                           {expandedMenus[menu.name] && (
                             <div className="p-3 border-top">
                               {menu.subMenus && menu.subMenus.length > 0 ? (
@@ -1122,6 +1185,95 @@ const Roles = () => {
           }
           .menu-tree::-webkit-scrollbar-thumb:hover {
             background: #555;
+          }
+          
+          .custom-dropdown {
+            position: relative;
+            display: inline-block;
+          }
+          
+          .custom-dropdown-menu {
+            min-width: 240px;
+            padding: 0.5rem 0;
+            margin: 0;
+            font-size: 0.875rem;
+            color: #212529;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+          }
+          
+          .custom-dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0.6rem 1rem;
+            clear: both;
+            font-weight: 400;
+            color: #212529;
+            text-align: inherit;
+            text-decoration: none;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+          
+          .custom-dropdown-menu .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+          }
+          
+          .custom-dropdown-menu .dropdown-item:active {
+            background-color: #e9ecef;
+          }
+          
+          .custom-dropdown-menu .dropdown-item.disabled,
+          .custom-dropdown-menu .dropdown-item:disabled {
+            color: #6c757d;
+            pointer-events: none;
+            background-color: transparent;
+            cursor: not-allowed;
+            opacity: 0.6;
+          }
+          
+          .custom-dropdown-menu .dropdown-divider {
+            height: 0;
+            margin: 0.5rem 0;
+            overflow: hidden;
+            border-top: 1px solid #e9ecef;
+          }
+          
+          .custom-dropdown-menu .text-warning {
+            color: #ffc107 !important;
+          }
+          
+          .custom-dropdown-menu .text-success {
+            color: #198754 !important;
+          }
+          
+          .custom-dropdown-menu .text-danger {
+            color: #dc3545 !important;
+          }
+          
+          .custom-dropdown-menu .dropdown-item.text-warning:hover {
+            background-color: #fff3cd;
+            color: #ffc107 !important;
+          }
+          
+          .custom-dropdown-menu .dropdown-item.text-success:hover {
+            background-color: #d1e7dd;
+            color: #198754 !important;
+          }
+          
+          .custom-dropdown-menu .dropdown-item.text-danger:hover {
+            background-color: #f8d7da;
+            color: #dc3545 !important;
           }
         `}
       </style>

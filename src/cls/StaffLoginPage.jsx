@@ -81,7 +81,7 @@ const validateField = (name, value) => {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login2`, formData);
       const { token, user } = response.data;
 
       localStorage.setItem('token', token);

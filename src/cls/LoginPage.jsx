@@ -93,6 +93,7 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
 
       if (user.role === "admin") navigate("/admin-dashboard");
       else if (user.role === "loan_officer") navigate("/loan-officer-dashboard");
+     //  else if (user.role === "manager") navigate("/manager-dashboard");
       else navigate("/customer-page");
 
       onClose && onClose();
