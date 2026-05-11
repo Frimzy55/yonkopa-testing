@@ -14,14 +14,15 @@ import {
   FaSignOutAlt,
   FaChevronDown,
   FaChevronRight,
-  
   FaClock,
- 
   FaBriefcase,
   FaFileAlt,
   FaBars,
   FaAngleDoubleLeft,
-  FaAngleDoubleRight
+  FaAngleDoubleRight,
+  FaHandHoldingUsd,
+  FaUniversity,
+  FaCheckCircle
 } from "react-icons/fa";
 import { MdDashboard } from "react-icons/md";
 import { BiSolidReport } from "react-icons/bi";
@@ -32,13 +33,12 @@ import "./LoanSupervisorDashboard.css";
 const LoanSupervisorDashboard = () => {
   const [activeMenu, setActiveMenu] = useState("dashboard");
   const [expandedMenus, setExpandedMenus] = useState({
-    reports: false,
-    settings: false,
+    loans: false,
+    accounts: false,
   });
-  //const [searchTerm, ] = useState("");
   const [notifications, ] = useState([
-    { id: 1, message: "New employee request pending", time: "5 min ago", read: false },
-    { id: 2, message: "Project deadline approaching", time: "1 hour ago", read: false },
+    { id: 1, message: "New loan application pending approval", time: "5 min ago", read: false },
+    { id: 2, message: "Customer KYC verification required", time: "1 hour ago", read: false },
     { id: 3, message: "Monthly report ready", time: "2 hours ago", read: true },
   ]);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -48,7 +48,7 @@ const LoanSupervisorDashboard = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    document.title = "Manager Dashboard | HR Management";
+    document.title = "Loan Supervisor Dashboard | Loan Management";
     // Load sidebar state from localStorage
     const savedState = localStorage.getItem("sidebarCollapsed");
     if (savedState !== null) {
@@ -86,74 +86,59 @@ const LoanSupervisorDashboard = () => {
       tooltip: "Dashboard"
     },
     {
-      id: "team",
-      label: "Team Management",
+      id: "customers",
+      label: "Customers",
       icon: <FaUsers />,
       type: "item",
-      tooltip: "Team Management"
+      tooltip: "Customers"
     },
     {
-      id: "employees",
-      label: "Employees",
-      icon: <FaUserFriends />,
+      id: "loans",
+      label: "Loans",
+      icon: <FaHandHoldingUsd />,
+      type: "submenu",
+      tooltip: "Loans",
+      subItems: [
+        { id: "loan-applications", label: "Loan Applications", icon: <FaFileAlt />, tooltip: "Loan Applications" },
+        { id: "active-loans", label: "Active Loans", icon: <FaHandHoldingUsd />, tooltip: "Active Loans" },
+        { id: "loan-repayments", label: "Repayments", icon: <FaDollarSign />, tooltip: "Repayments" },
+        { id: "loan-products", label: "Loan Products", icon: <FaStar />, tooltip: "Loan Products" },
+      ],
+    },
+    {
+      id: "accounts",
+      label: "Accounts",
+      icon: <FaUniversity />,
+      type: "submenu",
+      tooltip: "Accounts",
+      subItems: [
+        { id: "customer-accounts", label: "Customer Accounts", icon: <FaUserFriends />, tooltip: "Customer Accounts" },
+        { id: "transactions", label: "Transactions", icon: <FaDollarSign />, tooltip: "Transactions" },
+        { id: "ledger", label: "General Ledger", icon: <FaFileAlt />, tooltip: "General Ledger" },
+      ],
+    },
+    {
+      id: "approvals",
+      label: "My Approvals",
+      icon: <FaCheckCircle />,
       type: "item",
-      tooltip: "Employees"
-    },
-    {
-      id: "reports",
-      label: "Reports",
-      icon: <BiSolidReport />,
-      type: "submenu",
-      tooltip: "Reports",
-      subItems: [
-        { id: "sales", label: "Sales Analytics", icon: <FaDollarSign />, tooltip: "Sales Analytics" },
-        { id: "performance", label: "Performance Metrics", icon: <FaStar />, tooltip: "Performance Metrics" },
-        { id: "attendance", label: "Attendance Tracking", icon: <FaCalendarAlt />, tooltip: "Attendance Tracking" },
-      ],
-    },
-    {
-      id: "settings",
-      label: "Settings",
-      icon: <FaCog />,
-      type: "submenu",
-      tooltip: "Settings",
-      subItems: [
-        { id: "profile", label: "Profile Settings", icon: <FaUser />, tooltip: "Profile Settings" },
-        { id: "security", label: "Security & Privacy", icon: <FaLock />, tooltip: "Security & Privacy" },
-        { id: "notifications", label: "Notification Preferences", icon: <FaBell />, tooltip: "Notification Preferences" },
-      ],
+      tooltip: "My Approvals"
     },
   ];
 
   const stats = [
-    { title: "Total Employees", value: "156", change: "+12%", trend: "up", color: "primary" },
-    { title: "Active Projects", value: "24", change: "+5%", trend: "up", color: "success" },
-    { title: "Pending Approvals", value: "8", change: "-2%", trend: "down", color: "warning" },
-    { title: "Avg Performance", value: "94%", change: "+3%", trend: "up", color: "info" },
+    { title: "Total Customers", value: "1,284", change: "+8%", trend: "up", color: "primary" },
+    { title: "Active Loans", value: "892", change: "+12%", trend: "up", color: "success" },
+    { title: "Pending Approvals", value: "24", change: "-3%", trend: "down", color: "warning" },
+    { title: "Disbursed Amount", value: "$4.2M", change: "+15%", trend: "up", color: "info" },
   ];
 
   const recentActivities = [
-    { id: 1, action: "New employee joined", user: "Sarah Johnson", role: "Frontend Developer", time: "2 hours ago", icon: <FaUserFriends /> },
-    { id: 2, action: "Project deadline extended", user: "Mike Chen", project: "Mobile App", time: "5 hours ago", icon: <FaClock /> },
-    { id: 3, action: "Performance review completed", user: "Emma Wilson", rating: "4.8/5", time: "1 day ago", icon: <FaStar /> },
-    { id: 4, action: "Budget approved", user: "Finance Dept", amount: "$50,000", time: "2 days ago", icon: <FaDollarSign /> },
+    { id: 1, action: "New loan application submitted", user: "John Doe", role: "Personal Loan - $25,000", time: "2 hours ago", icon: <FaFileAlt /> },
+    { id: 2, action: "Loan approved", user: "Mike Chen", project: "Home Loan - $350,000", time: "5 hours ago", icon: <FaCheckCircle /> },
+    { id: 3, action: "Repayment received", user: "Emma Wilson", rating: "$1,250", time: "1 day ago", icon: <FaDollarSign /> },
+    { id: 4, action: "KYC verification pending", user: "Finance Dept", amount: "Customer ID: #2345", time: "2 days ago", icon: <FaUserFriends /> },
   ];
-
- /* const teamMembers = [
-    { id: 1, name: "John Doe", role: "Senior Developer", department: "Engineering", status: "active", email: "john.doe@company.com", phone: "+1 234 567 8900" },
-    { id: 2, name: "Jane Smith", role: "Product Manager", department: "Product", status: "active", email: "jane.smith@company.com", phone: "+1 234 567 8901" },
-    { id: 3, name: "Mike Johnson", role: "UX Designer", department: "Design", status: "leave", email: "mike.johnson@company.com", phone: "+1 234 567 8902" },
-    { id: 4, name: "Sarah Williams", role: "QA Lead", department: "Quality Assurance", status: "active", email: "sarah.williams@company.com", phone: "+1 234 567 8903" },
-    { id: 5, name: "Alex Brown", role: "DevOps Engineer", department: "Infrastructure", status: "active", email: "alex.brown@company.com", phone: "+1 234 567 8904" },
-  ];
-
-  const filteredTeam = teamMembers.filter(member => 
-    member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.role.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    member.department.toLowerCase().includes(searchTerm.toLowerCase())
-  );*/
-
-
 
   const renderContent = () => {
     switch (activeMenu) {
@@ -164,8 +149,8 @@ const LoanSupervisorDashboard = () => {
               <div className="card-body">
                 <div className="row align-items-center">
                   <div className="col">
-                    <h4 className="mb-2">Welcome back, {user?.fullName || "Manager"}! </h4>
-                    <p className="mb-0 opacity-75">Here's what's happening with your team today.</p>
+                    <h4 className="mb-2">Welcome back, {user?.fullName || "Supervisor"}! </h4>
+                    <p className="mb-0 opacity-75">Here's what's happening with your loan portfolio today.</p>
                   </div>
                   <div className="col-auto">
                     <div className="bg-white bg-opacity-25 rounded-circle p-3">
@@ -187,10 +172,10 @@ const LoanSupervisorDashboard = () => {
                           <h2 className="mb-0">{stat.value}</h2>
                         </div>
                         <div className={`stat-icon bg-${stat.color} bg-opacity-10`}>
-                          {stat.title === "Total Employees" && <FaUserFriends className={`text-${stat.color}`} size={24} />}
-                          {stat.title === "Active Projects" && <FaBriefcase className={`text-${stat.color}`} size={24} />}
+                          {stat.title === "Total Customers" && <FaUsers className={`text-${stat.color}`} size={24} />}
+                          {stat.title === "Active Loans" && <FaHandHoldingUsd className={`text-${stat.color}`} size={24} />}
                           {stat.title === "Pending Approvals" && <FaClock className={`text-${stat.color}`} size={24} />}
-                          {stat.title === "Avg Performance" && <GiAchievement className={`text-${stat.color}`} size={24} />}
+                          {stat.title === "Disbursed Amount" && <FaDollarSign className={`text-${stat.color}`} size={24} />}
                         </div>
                       </div>
                       <div className="d-flex align-items-center">
@@ -209,43 +194,43 @@ const LoanSupervisorDashboard = () => {
               <div className="col-md-7">
                 <div className="card border-0 shadow-sm">
                   <div className="card-header bg-white border-0 pt-4">
-                    <h6 className="mb-0">Performance Overview</h6>
+                    <h6 className="mb-0">Loan Portfolio Overview</h6>
                   </div>
                   <div className="card-body">
                     <div className="mb-4">
                       <div className="d-flex justify-content-between mb-2">
-                        <small className="text-muted">Team Performance</small>
-                        <small className="text-muted">85%</small>
+                        <small className="text-muted">Loan Disbursement Rate</small>
+                        <small className="text-muted">78%</small>
                       </div>
                       <div className="progress-custom">
-                        <div className="progress-bar-custom bg-primary" style={{ width: "85%" }}></div>
+                        <div className="progress-bar-custom bg-primary" style={{ width: "78%" }}></div>
                       </div>
                     </div>
                     <div className="mb-4">
                       <div className="d-flex justify-content-between mb-2">
-                        <small className="text-muted">Project Completion</small>
-                        <small className="text-muted">72%</small>
+                        <small className="text-muted">Repayment Rate</small>
+                        <small className="text-muted">92%</small>
                       </div>
                       <div className="progress-custom">
-                        <div className="progress-bar-custom bg-success" style={{ width: "72%" }}></div>
+                        <div className="progress-bar-custom bg-success" style={{ width: "92%" }}></div>
                       </div>
                     </div>
                     <div className="mb-4">
                       <div className="d-flex justify-content-between mb-2">
-                        <small className="text-muted">Attendance Rate</small>
-                        <small className="text-muted">94%</small>
+                        <small className="text-muted">Approval Rate</small>
+                        <small className="text-muted">67%</small>
                       </div>
                       <div className="progress-custom">
-                        <div className="progress-bar-custom bg-info" style={{ width: "94%" }}></div>
+                        <div className="progress-bar-custom bg-info" style={{ width: "67%" }}></div>
                       </div>
                     </div>
                     <div>
                       <div className="d-flex justify-content-between mb-2">
-                        <small className="text-muted">Client Satisfaction</small>
-                        <small className="text-muted">88%</small>
+                        <small className="text-muted">Customer Satisfaction</small>
+                        <small className="text-muted">4.8/5</small>
                       </div>
                       <div className="progress-custom">
-                        <div className="progress-bar-custom bg-warning" style={{ width: "88%" }}></div>
+                        <div className="progress-bar-custom bg-warning" style={{ width: "96%" }}></div>
                       </div>
                     </div>
                   </div>
@@ -303,7 +288,7 @@ const LoanSupervisorDashboard = () => {
           </button>
           <div className="navbar-brand">
             <FaTachometerAlt />
-            <span>Supervisor Portal</span>
+            <span>Loan Supervisor Portal</span>
           </div>
         </div>
         <div className="navbar-right">
@@ -343,7 +328,7 @@ const LoanSupervisorDashboard = () => {
               <div className="user-avatar">
                 <FaUser size={14} />
               </div>
-              <span>{user?.fullName || "Manager"}</span>
+              <span>{user?.fullName || "Supervisor"}</span>
               <FaChevronDown size={12} />
             </button>
             
@@ -441,4 +426,4 @@ const LoanSupervisorDashboard = () => {
   );
 };
 
-export default LoanSupervisorDashboard;
+export default LoanSupervisorDashboard; 

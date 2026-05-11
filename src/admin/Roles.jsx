@@ -11,6 +11,7 @@ const Roles = () => {
   const [showModal, setShowModal] = useState(false);
   const [showStaffPermissionsModal, setShowStaffPermissionsModal] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
+  const [editingStaff, setEditingStaff] = useState(null);
   const [viewingRole, setViewingRole] = useState(null);
   const [viewingStaff, setViewingStaff] = useState(null);
   const [openDropdown, setOpenDropdown] = useState(null);
@@ -109,7 +110,7 @@ const Roles = () => {
     try {
       const token = localStorage.getItem('token');
       await axios.post(`${process.env.REACT_APP_API_URL}/reset-password`, {
-        userId: selectedStaff.id,
+        userId: selectedStaff.userId,
         password: newPassword
       }, {
         headers: { Authorization: `Bearer ${token}` }
@@ -133,7 +134,7 @@ const Roles = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${process.env.REACT_APP_API_URL}/activate-user/${staff.id}`, {}, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/activate-user/${staff.userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`${staff.full_name} has been activated successfully`);
@@ -156,7 +157,7 @@ const Roles = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${process.env.REACT_APP_API_URL}/deactivate-user/${staff.id}`, {}, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/deactivate-user/${staff.userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`${staff.full_name} has been deactivated successfully`);
@@ -179,7 +180,7 @@ const Roles = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${process.env.REACT_APP_API_URL}/block-user/${staff.id}`, {}, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/block-user/${staff.userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`Login blocked for ${staff.full_name}`);
@@ -202,7 +203,7 @@ const Roles = () => {
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      await axios.put(`${process.env.REACT_APP_API_URL}/unblock-user/${staff.id}`, {}, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/unblock-user/${staff.userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
       toast.success(`Login unblocked for ${staff.full_name}`);
@@ -383,7 +384,7 @@ const Roles = () => {
   const groupedPermissions = getGroupedPermissions();
 
   // Fetch roles
-  const fetchRoles = useCallback(() => {
+ /* const fetchRoles = useCallback(() => {
     const enumRoles = [
       { id: 2, name: 'loan_officer', description: 'Can process and manage loan applications', permissions: ['view_dashboard', 'view_customers', 'manage_loans', 'approve_loans', 'disburse_loans'] },
       { id: 3, name: 'supervisor', description: 'Supervises loan officers and daily operations', permissions: ['view_dashboard', 'manage_customers', 'manage_loans', 'approve_loans', 'view_reports'] },
@@ -400,7 +401,20 @@ const Roles = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, []);*/
+
+
+  const fetchRoles = useCallback(() => {
+  setLoading(true);
+  try {
+    setRoles([]); // no default roles anymore
+  } catch (error) {
+    console.error('Error loading roles:', error);
+    toast.error('Failed to load roles');
+  } finally {
+    setLoading(false);
+  }
+}, []);
 
   // Fetch users - Updated to handle status field
   const fetchUsers = useCallback(async () => {
@@ -413,6 +427,7 @@ const Roles = () => {
       // Map the backend status to is_active and is_blocked for compatibility
       const mappedUsers = response.data.map(user => ({
         ...user,
+        userId: user.id, // Map id to userId for consistency
         is_active: user.status === 'active',
         is_blocked: user.status === 'blocked'
       }));
@@ -425,9 +440,9 @@ const Roles = () => {
   }, []);
 
   useEffect(() => {
-    fetchRoles();
+   // fetchRoles();
     fetchUsers();
-  }, [fetchRoles, fetchUsers]);
+  }, [ fetchUsers]); 
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -471,45 +486,100 @@ const Roles = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
+  e.preventDefault();
+
+  if (!validateForm()) {
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const token = localStorage.getItem("token");
+
+    // =========================================
+    // UPDATE STAFF PERMISSIONS / TASKS
+    // =========================================
+    if (editingStaff) {
+
+      // Send selected checkbox permissions as tasks
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/assign-tasks`,
+        {
+          userId: editingStaff.userId,
+          staff_name: editingStaff.full_name,
+          tasks: formData.permissions
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      toast.success(
+        `Permissions updated successfully for ${editingStaff.full_name}`
+      );
+
     }
 
-    setLoading(true);
-    
-    try {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      if (editingRole) {
-        toast.success('Role updated successfully');
-        const updatedRoles = roles.map(role => 
-          role.name === editingRole.name ? { ...role, ...formData } : role
-        );
-        setRoles(updatedRoles);
-      } else {
-        toast.success('Role created successfully');
-        const newRole = {
-          id: roles.length + 2,
-          name: formData.name.toLowerCase().replace(/\s/g, '_'),
-          description: formData.description,
-          permissions: formData.permissions
-        };
-        setRoles([...roles, newRole]);
-      }
-      
-      resetForm();
-    } catch (error) {
-      console.error('Error saving role:', error);
-      toast.error(error.response?.data?.message || 'Failed to save role');
-    } finally {
-      setLoading(false);
+    // =========================================
+    // UPDATE ROLE
+    // =========================================
+    else if (editingRole) {
+
+      const updatedRoles = roles.map((role) =>
+        role.name === editingRole.name
+          ? {
+              ...role,
+              ...formData
+            }
+          : role
+      );
+
+      setRoles(updatedRoles);
+
+      toast.success("Role updated successfully");
     }
-  };
+
+    // =========================================
+    // CREATE NEW ROLE
+    // =========================================
+    else {
+
+      const newRole = {
+        id: roles.length + 2,
+        name: formData.name.toLowerCase().replace(/\s/g, "_"),
+        description: formData.description,
+        permissions: formData.permissions
+      };
+
+      setRoles([...roles, newRole]);
+
+      toast.success("Role created successfully");
+    }
+
+    // Reset form
+    resetForm();
+
+  } catch (error) {
+
+    console.error("Error saving role:", error);
+
+    toast.error(
+      error.response?.data?.message || "Failed to save permissions/tasks"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+};
 
   const handleEdit = (role) => {
     setEditingRole(role);
+    setEditingStaff(null);
     setFormData({
       name: role.name,
       description: role.description || '',
@@ -519,23 +589,78 @@ const Roles = () => {
     setOpenDropdown(null);
   };
 
-  const handleViewStaffPermissions = (staff) => {
-    const staffRole = roles.find(r => r.name === staff.role);
+
+
+const handleViewStaffPermissions = async (staff) => {
+  try {
+
+    const token = localStorage.getItem("token");
+
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/user-tasks/${staff.userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
+      }
+    );
+
+    const permissions = response.data.tasks || [];
+
     setViewingStaff(staff);
-    setViewingRole(staffRole);
+
+    setViewingRole({
+      name: staff.role,
+      description: `${staff.role} permissions`,
+      permissions
+    });
+
     setShowStaffPermissionsModal(true);
     setOpenDropdown(null);
-  };
 
-  const handleEditStaffRole = (staff) => {
-    const staffRole = roles.find(r => r.name === staff.role);
-    if (staffRole) {
-      handleEdit(staffRole);
-    } else {
-      toast.error('Role not found for this staff member');
-    }
+  } catch (error) {
+
+    console.error("Error fetching staff permissions:", error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to fetch staff permissions"
+    );
+  }
+};
+
+
+
+const handleEditStaffRole = async (staff) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // fetch current staff permissions from backend
+    const res = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/user-tasks/${staff.userId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    const permissions = res.data.tasks || [];
+
+    setEditingStaff(staff);
+
+    setFormData({
+      name: staff.role, // keep role name as label only
+      description: `${staff.role} permissions`,
+      permissions: permissions
+    });
+
+    setShowModal(true);
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to load staff permissions");
+  } finally {
     setOpenDropdown(null);
-  };
+  }
+};
 
   const resetForm = () => {
     setFormData({
@@ -544,6 +669,7 @@ const Roles = () => {
       permissions: []
     });
     setEditingRole(null);
+    setEditingStaff(null);
     setShowModal(false);
   };
 
@@ -753,19 +879,21 @@ const Roles = () => {
               <table className="table table-hover table-striped">
                 <thead>
                   <tr>
-                    <th style={{ width: '5%' }}>#</th>
-                    <th style={{ width: '18%' }}>Full Name</th>
+                    <th style={{ width: '5%' }}>User ID</th>
+                    <th style={{ width: '15%' }}>Full Name</th>
                     <th style={{ width: '20%' }}>Contact Information</th>
                     <th style={{ width: '12%' }}>Role</th>
                     <th style={{ width: '10%' }}>Status</th>
-                    <th style={{ width: '15%' }}>Joined Date</th>
-                    <th style={{ width: '20%' }}>Actions</th>
+                    <th style={{ width: '13%' }}>Joined Date</th>
+                    <th style={{ width: '25%' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
                   {staffMembers.map((staff, idx) => (
-                    <tr key={staff.id}>
-                      <td>{idx + 1}</td>
+                    <tr key={staff.userId}>
+                      <td className="fw-semibold">
+                        <span className="badge bg-secondary">#{staff.userId}</span>
+                      </td>
                       <td className="fw-semibold">
                         {staff.full_name || staff.username || '—'}
                       </td>
@@ -782,21 +910,21 @@ const Roles = () => {
                         {staff.created_at 
                           ? new Date(staff.created_at).toLocaleDateString() 
                           : '—'}
-                       </td>
+                      </td>
                       <td className="position-relative">
                         <div className="custom-dropdown">
                           <button
-                            ref={el => buttonRefs.current[staff.id] = el}
+                            ref={el => buttonRefs.current[staff.userId] = el}
                             className="btn btn-sm btn-secondary dropdown-toggle"
                             type="button"
-                            onClick={(e) => toggleDropdown(staff.id, e)}
+                            onClick={(e) => toggleDropdown(staff.userId, e)}
                           >
                             <i className="bi bi-gear me-1"></i>
                             Actions
                           </button>
-                          {openDropdown === staff.id && (
+                          {openDropdown === staff.userId && (
                             <div 
-                              ref={el => dropdownRefs.current[staff.id] = el}
+                              ref={el => dropdownRefs.current[staff.userId] = el}
                               className="custom-dropdown-menu show"
                               style={dropdownPosition}
                             >
@@ -882,7 +1010,7 @@ const Roles = () => {
               <div className="modal-header bg-primary text-white">
                 <h5 className="modal-title">
                   <i className="bi bi-key me-2"></i>
-                  Reset Password for: {selectedStaff.full_name}
+                  Reset Password for: {selectedStaff.full_name} (User ID: #{selectedStaff.userId})
                 </h5>
                 <button 
                   type="button" 
@@ -949,12 +1077,42 @@ const Roles = () => {
             <div className="modal-content">
               <div className="modal-header bg-light">
                 <h5 className="modal-title">
-                  {editingRole ? `Edit Role: ${editingRole.name.replace('_', ' ').toUpperCase()}` : 'Create New Role & Assign Permissions'}
+                  {editingRole ? (
+                    editingStaff ? (
+                      <>
+                        <i className="bi bi-person-badge me-2"></i>
+                        Editing Permissions for: {editingStaff.full_name} (User ID: #{editingStaff.userId})
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-pencil-square me-2"></i>
+                        Edit Role: {editingRole.name.replace('_', ' ').toUpperCase()}
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <i className="bi bi-plus-circle me-2"></i>
+                      Create New Role & Assign Permissions
+                    </>
+                  )}
                 </h5>
                 <button type="button" className="btn-close" onClick={resetForm}></button>
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
+                  {/* Staff editing info alert */}
+                  {editingStaff && (
+                    <div className="alert alert-info mb-3">
+                      <i className="bi bi-info-circle-fill me-2"></i>
+                      <strong>Editing permissions for staff member:</strong> {editingStaff.full_name} (User ID: #{editingStaff.userId})
+                      <br />
+                      <small className="text-muted">
+                        Role: {getRoleDisplayName(editingStaff.role)} | 
+                        Status: {getStatusBadge(editingStaff)}
+                      </small>
+                    </div>
+                  )}
+                  
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <label className="form-label">Role Name *</label>
@@ -966,8 +1124,14 @@ const Roles = () => {
                         onChange={handleInputChange}
                         required
                         placeholder="Enter role name"
-                        disabled={editingRole?.name === 'admin'}
+                        disabled={editingRole?.name === 'admin' || !!editingStaff}
                       />
+                      {editingStaff && (
+                        <small className="text-muted">
+                          <i className="bi bi-info-circle me-1"></i>
+                          Role name cannot be changed when editing staff permissions
+                        </small>
+                      )}
                     </div>
                     <div className="col-md-6">
                       <label className="form-label">Description</label>
@@ -1062,10 +1226,10 @@ const Roles = () => {
                     {loading ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2"></span>
-                        Saving...
+                        {editingStaff ? 'Updating Permissions...' : 'Saving...'}
                       </>
                     ) : (
-                      editingRole ? 'Update Role' : 'Create Role'
+                      editingRole ? (editingStaff ? 'Update Staff Permissions' : 'Update Role') : 'Create Role'
                     )}
                   </button>
                 </div>
@@ -1083,7 +1247,7 @@ const Roles = () => {
               <div className="modal-header bg-light">
                 <h5 className="modal-title">
                   <i className="bi bi-person-badge me-2"></i>
-                  Permissions for: {viewingStaff.full_name}
+                  Permissions for: {viewingStaff.full_name} (User ID: #{viewingStaff.userId})
                 </h5>
                 <button 
                   type="button" 
@@ -1093,10 +1257,13 @@ const Roles = () => {
               </div>
               <div className="modal-body">
                 <div className="row mb-3">
-                  <div className="col-md-6">
+                  <div className="col-md-4">
+                    <p><strong>User ID:</strong> #{viewingStaff.userId}</p>
+                  </div>
+                  <div className="col-md-4">
                     <p><strong>Staff Name:</strong> {viewingStaff.full_name}</p>
                   </div>
-                  <div className="col-md-6">
+                  <div className="col-md-4">
                     <p><strong>Role:</strong> 
                       <span className={`badge bg-${getRoleBadgeColor(viewingStaff.role)} ms-2`}>
                         {getRoleDisplayName(viewingStaff.role)}
@@ -1135,18 +1302,7 @@ const Roles = () => {
                 })}
               </div>
               <div className="modal-footer">
-                <button 
-                  type="button" 
-                  className="btn btn-primary"
-                  onClick={() => {
-                    setShowStaffPermissionsModal(false);
-                    handleEdit(viewingRole);
-                  }}
-                  disabled={viewingStaff.role === 'admin'}
-                >
-                  <i className="bi bi-pencil me-2"></i>
-                  Edit Permissions
-                </button>
+                
                 <button 
                   type="button" 
                   className="btn btn-secondary" 
