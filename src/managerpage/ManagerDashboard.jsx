@@ -162,7 +162,7 @@ const ManagerDashboard = () => {
               <div className="card-body">
                 <div className="row align-items-center">
                   <div className="col">
-                    <h4 className="mb-2">Welcome back, {user?.fullName || "Manager"}! 👋</h4>
+                    <h4 className="mb-2">Welcome back, {user?.fullName || "Manager"}! </h4>
                     <p className="mb-0 opacity-75">Here's what's happening with your team today.</p>
                   </div>
                   <div className="col-auto">
