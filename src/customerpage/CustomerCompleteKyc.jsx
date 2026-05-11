@@ -334,8 +334,6 @@ const CustomerCompleteKyc = ({ user }) => {
     if (validateCurrentStep()) {
       setCurrentStep((prev) => Math.min(prev + 1, 4));
       setFormErrors({});
-      // Scroll to top when moving to next step
-      window.scrollTo({ top: 0, behavior: 'smooth' });
     } else {
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
@@ -344,14 +342,14 @@ const CustomerCompleteKyc = ({ user }) => {
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
     setFormErrors({});
-    // Scroll to top when moving to previous step
-    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   // ==========================
   // FINAL SUBMIT
   // ==========================
-  const handleFinalSubmit = async () => {
+  const handleFinalSubmit = async (e) => {
+    e.preventDefault();
+    
     if (!nationalIdAvailable && formData.nationalId) {
       setSubmitMessage({ 
         type: "error", 
@@ -405,13 +403,8 @@ const CustomerCompleteKyc = ({ user }) => {
       checkingNationalId,
       nationalIdAvailable,
       user,
-      currentStep,
-      totalSteps: 4,
-      onNext: nextStep,
-      onPrevious: prevStep,
-      onFinalSubmit: handleFinalSubmit,
-      isLastStep: currentStep === 4,
-      submitting,
+      isMobileLocked: false,
+      isEmailLocked: false,
     };
     
     switch (currentStep) {
@@ -462,7 +455,7 @@ const CustomerCompleteKyc = ({ user }) => {
   );
 
   // ==========================
-  // STEP CARDS
+  // STEP CARDS (Green color removed)
   // ==========================
   const StepCards = () => {
     const steps = [
@@ -505,50 +498,52 @@ const CustomerCompleteKyc = ({ user }) => {
         <p>Loading...</p>
       ) : hasKyc ? (
         <div className="kyc-preview">
-          <div className="kyc-card">
-            {/* Header Section */}
-            <div className="kyc-header">
-              <div className="kyc-icon">
-                <i className="bi bi-check-circle-fill"></i>✔
-              </div>
-              <h3>KYC Completed Successfully</h3>
-              <p className="kyc-subtitle">Your identity verification has been completed successfully.</p>
-            </div>
-            
-            {/* KYC Code Section */}
-            <div className="kyc-code-section">
-              <div className="kyc-code-box">
-                <span className="kyc-code-label">KYC Code</span>
-                <h2 className="kyc-code-value">{formData.kycCode}</h2>
-              </div>
-            </div>
-            
-            {/* Personal Information Section */}
-            <div className="kyc-info-section">
-              <h4 className="section-title">Personal Information</h4>
-              
-              <div className="kyc-items-grid">
-                <div className="kyc-item">
-                  <div className="kyc-label">Full Name</div>
-                  <div className="kyc-value">
-                    {formData.title} {formData.firstName} {formData.middleName} {formData.lastName}
-                  </div>
-                </div>
-                
-                <div className="kyc-item">
-                  <div className="kyc-label">Email Address</div>
-                  <div className="kyc-value">{formData.email}</div>
-                </div>
-              </div>
-            </div>
+  <div className="kyc-card">
+    {/* Header Section */}
+    <div className="kyc-header">
+      <div className="kyc-icon">
+        <i className="bi bi-check-circle-fill"></i>✔
+      </div>
+      <h3>KYC Completed Successfully</h3>
+      <p className="kyc-subtitle">Your identity verification has been completed successfully.</p>
+    </div>
+    
+    {/* KYC Code Section */}
+    <div className="kyc-code-section">
+      <div className="kyc-code-box">
+        <span className="kyc-code-label">KYC Code</span>
+        <h2 className="kyc-code-value">{formData.kycCode}</h2>
+      </div>
+    </div>
+    
+    {/* Personal Information Section */}
+    <div className="kyc-info-section">
+      <h4 className="section-title">Personal Information</h4>
+      
+      <div className="kyc-items-grid">
+        <div className="kyc-item">
+          <div className="kyc-label">Full Name</div>
+          <div className="kyc-value">
+            {formData.title} {formData.firstName} {formData.middleName} {formData.lastName}
           </div>
         </div>
+        
+       
+        <div className="kyc-item">
+          <div className="kyc-label">Email Address</div>
+          <div className="kyc-value">{formData.email}</div>
+        </div>
+        
+      </div>
+    </div>
+  </div>
+</div>
       ) : submitted ? (
         renderPreview()
       ) : (
         <>
           <StepCards />
-          <div className="kyc-form">
+          <form className="kyc-form" onSubmit={handleFinalSubmit}>
             {renderStep()}
 
             {checkingNationalId && (
@@ -569,12 +564,43 @@ const CustomerCompleteKyc = ({ user }) => {
               </div>
             )}
 
+            <div className="form-navigation mt-3">
+              {currentStep > 1 && (
+                <button type="button" onClick={prevStep} className="btn btn-secondary">
+                  Previous
+                </button>
+              )}
+              {currentStep < 4 && (
+                <button
+                  type="button"
+                  onClick={nextStep}
+                  className="btn btn-primary"
+                  disabled={
+                    checkingNationalId ||
+                    !nationalIdAvailable ||
+                    !!formErrors.nationalId
+                  }
+                >
+                  Next
+                </button>
+              )}
+              {currentStep === 4 && (
+                <button 
+                  type="submit" 
+                  disabled={submitting || !nationalIdAvailable} 
+                  className="btn btn-success"
+                >
+                  {submitting ? "Submitting..." : "Submit KYC"}
+                </button>
+              )}
+            </div>
+
             {submitMessage && (
               <div className={`alert alert-${submitMessage.type === "success" ? "success" : "danger"} mt-3`}>
                 {submitMessage.text}
               </div>
             )}
-          </div>
+          </form>
         </>
       )}
     </div>

@@ -6,18 +6,13 @@ const ContactInfo = ({
   formData = {},
   handleInputChange,
   formErrors = {},
-  currentStep,
-  onNext,
-  onPrevious,
-  isLastStep,
-  onFinalSubmit,
-  submitting,
 }) => {
   return (
     <div className="form-step">
       <h3>Contact Information</h3>
 
       <div className="form-grid">
+
         {/* Mobile Number */}
         <div className="form-group">
           <label>Mobile Number *</label>
@@ -137,30 +132,7 @@ const ContactInfo = ({
             </span>
           )}
         </div>
-      </div>
 
-      {/* Navigation Buttons */}
-      <div className="form-navigation">
-        {currentStep > 1 && (
-          <button type="button" onClick={onPrevious} className="btn-secondary">
-            Previous
-          </button>
-        )}
-        {!isLastStep && (
-          <button type="button" onClick={onNext} className="btn-primary">
-            Next
-          </button>
-        )}
-        {isLastStep && (
-          <button 
-            type="button" 
-            onClick={onFinalSubmit} 
-            disabled={submitting} 
-            className="btn-success"
-          >
-            {submitting ? "Submitting..." : "Submit KYC"}
-          </button>
-        )}
       </div>
     </div>
   );
