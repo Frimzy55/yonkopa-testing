@@ -1,19 +1,26 @@
-/* CustomerCompleteKyc.css - Working on Desktop & Mobile */
+/* CustomerCompleteKyc.css - Fixed Mobile Scrolling with Visible Buttons */
 
 * {
   box-sizing: border-box;
 }
 
+/* Main container */
 .content-section {
   max-width: 100%;
   padding: 15px;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  position: relative;
 }
 
 .content-section h2 {
   font-size: 1.5rem;
   margin-bottom: 20px;
   color: #333;
+  flex-shrink: 0;
 }
 
 /* Step Cards */
@@ -24,6 +31,7 @@
   overflow-x: auto;
   padding-bottom: 8px;
   -webkit-overflow-scrolling: touch;
+  flex-shrink: 0;
 }
 
 .step-card {
@@ -69,12 +77,34 @@
   border-radius: 12px;
   box-shadow: 0 1px 3px rgba(0,0,0,0.1);
   overflow: hidden;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
 }
 
-/* Form Step Container */
+/* Scrollable form content */
 .form-step {
   background: white;
   padding: 20px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  -webkit-overflow-scrolling: touch;
+  flex: 1;
+}
+
+/* Ensure content inside form-step scrolls properly */
+.form-step::-webkit-scrollbar {
+  width: 6px;
+}
+
+.form-step::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.form-step::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 3px;
 }
 
 .form-step h3 {
@@ -265,13 +295,17 @@
   margin-bottom: 4px;
 }
 
-/* Navigation Buttons */
+/* Navigation Buttons - Fixed at bottom, ALWAYS VISIBLE */
 .form-navigation {
   display: flex;
   gap: 10px;
   padding: 16px 20px;
   background: white;
   border-top: 1px solid #e0e0e0;
+  flex-shrink: 0;
+  position: relative;
+  bottom: 0;
+  width: 100%;
 }
 
 .form-navigation button {
@@ -351,7 +385,6 @@
   color: #667eea;
   text-align: center;
   margin-bottom: 20px;
-  font-size: 20px;
 }
 
 .kyc-grid {
@@ -382,124 +415,6 @@
   word-break: break-word;
 }
 
-.kyc-references {
-  border-top: 1px solid #eee;
-  padding-top: 16px;
-}
-
-.kyc-references h4 {
-  font-size: 14px;
-  margin-bottom: 12px;
-}
-
-.kyc-references ul {
-  padding-left: 20px;
-  margin: 0;
-}
-
-.kyc-references li {
-  font-size: 13px;
-  margin-bottom: 6px;
-}
-
-/* Existing KYC Card */
-.kyc-preview {
-  padding: 16px;
-}
-
-.kyc-card {
-  background: white;
-  border-radius: 16px;
-  padding: 20px;
-  text-align: center;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-}
-
-.kyc-header {
-  margin-bottom: 16px;
-}
-
-.kyc-icon {
-  width: 50px;
-  height: 50px;
-  background: #e8eaff;
-  color: #667eea;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 24px;
-  margin: 0 auto 10px;
-}
-
-.kyc-header h3 {
-  font-size: 18px;
-  color: #333;
-}
-
-.kyc-body p {
-  color: #666;
-  font-size: 13px;
-  margin-bottom: 16px;
-}
-
-.kyc-code-box {
-  background: #f5f5f5;
-  padding: 12px;
-  border-radius: 8px;
-  margin: 16px 0;
-}
-
-.kyc-code-box span {
-  font-size: 11px;
-  color: #666;
-}
-
-.kyc-code-box h2 {
-  font-size: 20px;
-  color: #667eea;
-  margin: 4px 0 0;
-  word-break: break-word;
-}
-
-.kyc-note {
-  font-size: 11px;
-  color: #999;
-}
-
-/* Helper Classes */
-.bg-light {
-  background: #e9ecef;
-  padding: 10px 12px;
-  border-radius: 8px;
-  border: 1px solid #ced4da;
-}
-
-.checking-message {
-  font-size: 11px;
-  color: #666;
-  margin-top: 4px;
-  display: block;
-}
-
-.text-center {
-  text-align: center;
-}
-
-.mt-3 {
-  margin-top: 16px;
-}
-
-.mb-3 {
-  margin-bottom: 16px;
-}
-
-.welcome-text {
-  font-size: 16px;
-  margin-bottom: 16px;
-  color: #666;
-}
-
 /* National ID Checking */
 .national-id-checking {
   background: #e3f2fd;
@@ -527,49 +442,50 @@
   to { transform: rotate(360deg); }
 }
 
-.kyc-code-value {
-  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-  color: white;
-  padding: 4px 12px;
-  border-radius: 20px;
-  font-weight: bold;
-  font-family: monospace;
-  letter-spacing: 1px;
-  display: inline-block;
-}
-
 /* ============================================ */
-/* MOBILE STYLES - Buttons Always Visible */
+/* MOBILE STYLES - BUTTONS ALWAYS VISIBLE */
+/* ============================================ */
 @media (max-width: 768px) {
-
   .content-section {
     padding: 12px;
+    height: 100vh;
   }
-
+  
+  .content-section > h2 {
+    margin-bottom: 12px;
+    font-size: 1.3rem;
+  }
+  
+  .step-cards-container {
+    margin-bottom: 16px;
+  }
+  
+  .kyc-form {
+    border-radius: 12px;
+  }
+  
   .form-step {
     padding: 16px;
+    /* Ensure this scrolls properly */
     max-height: none;
-    overflow-y: visible;
+    height: auto;
   }
-
+  
   .form-navigation {
-    position: sticky;
+    padding: 12px 16px;
+    background: white;
+    border-top: 1px solid #e0e0e0;
+    position: relative;
     bottom: 0;
     left: 0;
     right: 0;
-    background: #fff;
-    padding: 12px 16px;
-    border-top: 1px solid #ddd;
-    z-index: 999;
-    box-shadow: 0 -2px 10px rgba(0,0,0,0.08);
   }
-
+  
   .form-navigation button {
     padding: 14px 8px;
     font-size: 15px;
+    min-height: 48px; /* Better touch target */
   }
-
-
   
   /* Better touch targets */
   .form-group input,
@@ -597,11 +513,11 @@
 @media (max-width: 480px) {
   .content-section {
     padding: 8px;
+    height: 100vh;
   }
   
   .form-step {
     padding: 12px;
-    max-height: calc(100vh - 260px);
   }
   
   .form-group {
@@ -615,6 +531,7 @@
   .form-navigation button {
     padding: 12px 6px;
     font-size: 14px;
+    min-height: 44px;
   }
   
   .step-card {
@@ -628,13 +545,17 @@
 }
 
 /* ============================================ */
-/* DESKTOP STYLES - Clean Layout */
+/* DESKTOP STYLES */
 /* ============================================ */
 @media (min-width: 769px) {
   .content-section {
     max-width: 900px;
     margin: 0 auto;
     padding: 20px;
+    height: auto;
+    min-height: auto;
+    display: block;
+    overflow: visible;
   }
   
   .step-cards-container {
@@ -662,11 +583,11 @@
   
   .kyc-form {
     margin: 0;
+    display: block;
   }
   
   .form-step {
     padding: 24px;
-    max-height: none;
     overflow-y: visible;
   }
   
