@@ -10,7 +10,15 @@ const PersonalInfo = ({
   handleFileChange,
   formErrors,
   checkingNationalId,
+  nationalIdAvailable,
   user,
+  currentStep,
+  totalSteps,
+  onNext,
+  onPrevious,
+  onFinalSubmit,
+  isLastStep,
+  submitting,
 }) => {
   const [preview, setPreview] = useState(
     formData?.avatar ? formData.avatar : defaultAvatar
@@ -149,7 +157,7 @@ const PersonalInfo = ({
             name="dateOfBirth"
             value={formData?.dateOfBirth || ""}
             onChange={handleInputChange}
-             placeholder="(e.g., yyyy-mm-dd)"
+            placeholder="(e.g., yyyy-mm-dd)"
             required
             className={formErrors?.dateOfBirth ? "error-input" : ""}
           />
@@ -276,6 +284,35 @@ const PersonalInfo = ({
               )}
             </div>
           </>
+        )}
+      </div>
+
+      {/* Navigation Buttons */}
+      <div className="form-navigation">
+        {currentStep > 1 && (
+          <button type="button" onClick={onPrevious} className="btn-secondary">
+            Previous
+          </button>
+        )}
+        {!isLastStep && (
+          <button
+            type="button"
+            onClick={onNext}
+            className="btn-primary"
+            disabled={checkingNationalId || !nationalIdAvailable || !!formErrors?.nationalId}
+          >
+            Next
+          </button>
+        )}
+        {isLastStep && (
+          <button 
+            type="button" 
+            onClick={onFinalSubmit} 
+            disabled={submitting || !nationalIdAvailable} 
+            className="btn-success"
+          >
+            {submitting ? "Submitting..." : "Submit KYC"}
+          </button>
         )}
       </div>
     </div>
