@@ -577,7 +577,7 @@ const Roles = () => {
   }
 };
 
-  const handleEdit = (role) => {
+  /*const handleEdit = (role) => {
     setEditingRole(role);
     setEditingStaff(null);
     setFormData({
@@ -587,7 +587,7 @@ const Roles = () => {
     });
     setShowModal(true);
     setOpenDropdown(null);
-  };
+  };*/
 
 
 
