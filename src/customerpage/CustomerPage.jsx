@@ -11,6 +11,10 @@ import CustomerLoanStatus from './CustomerLoanStatus';
 import CustomerRepayloan from './CustomerRepayloan';
 import AvatarDropdown from './AvatarDropdown';
 
+// Import custom sound files from src/sounds
+import notificationSoundFile from '../sounds/notifications.mp3';   // adjust relative path if needed
+import bellSoundFile from '../sounds/new-notification.wav';
+
 import {
   FaBell,
   FaIdCard,
@@ -24,52 +28,6 @@ import {
   FaTimes
 } from "react-icons/fa";
 
-// Helper function to create beep sounds programmatically
-const createBeepSound = (frequency, duration, volume = 0.3) => {
-  try {
-    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-    const sampleRate = audioContext.sampleRate;
-    const samples = duration * sampleRate;
-    const buffer = audioContext.createBuffer(1, samples, sampleRate);
-    const data = buffer.getChannelData(0);
-    
-    for (let i = 0; i < samples; i++) {
-      // Create sine wave
-      data[i] = Math.sin(2 * Math.PI * frequency * i / sampleRate) * volume;
-      // Add fade in and fade out
-      if (i < samples * 0.1) {
-        data[i] *= (i / (samples * 0.1));
-      }
-      if (i > samples * 0.9) {
-        data[i] *= (1 - (i - samples * 0.9) / (samples * 0.1));
-      }
-    }
-    
-    return {
-      play: () => {
-        try {
-          const newSource = audioContext.createBufferSource();
-          newSource.buffer = buffer;
-          newSource.connect(audioContext.destination);
-          
-          if (audioContext.state === 'suspended') {
-            audioContext.resume().then(() => {
-              newSource.start();
-            }).catch(err => console.log("Audio context resume error:", err));
-          } else {
-            newSource.start();
-          }
-        } catch (err) {
-          console.log("Sound play error:", err);
-        }
-      }
-    };
-  } catch (error) {
-    console.error("Web Audio API error:", error);
-    return null;
-  }
-};
-
 const CustomerView = () => {
   const [user, setUser] = useState(null);
   const [activeMenu, setActiveMenu] = useState('kyc');
@@ -80,7 +38,7 @@ const CustomerView = () => {
   const prevNotificationsRef = useRef(0);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
   
-  // Audio refs
+  // Audio refs for custom sounds
   const notificationSound = useRef(null);
   const bellSound = useRef(null);
   const audioContextRef = useRef(null);
@@ -91,22 +49,27 @@ const CustomerView = () => {
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  // Initialize audio with Web Audio API (no external files needed)
+  // Initialize custom audio from imported files
   useEffect(() => {
     try {
-      // Create audio context
+      // Create AudioContext only for unlocking (required by browsers)
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
       
-      // Create notification sound (higher pitch, longer)
-      notificationSound.current = createBeepSound(880, 0.5, 0.2);
+      // Use imported audio files
+      notificationSound.current = new Audio(notificationSoundFile);
+      bellSound.current = new Audio(bellSoundFile);
       
-      // Create bell click sound (lower pitch, shorter)
-      bellSound.current = createBeepSound(660, 0.15, 0.15);
+      // Set volume (0.0 to 1.0)
+      notificationSound.current.volume = 0.8;
+      bellSound.current.volume = 0.8;
       
-      console.log("Sounds created successfully");
+      // Preload sounds
+      notificationSound.current.load();
+      bellSound.current.load();
+      
+      console.log("Custom sounds loaded successfully from src/sounds");
     } catch (error) {
-      console.error("Failed to create sounds:", error);
-      // Create silent fallback
+      console.error("Failed to load custom sounds:", error);
       notificationSound.current = { play: () => {} };
       bellSound.current = { play: () => {} };
     }
@@ -124,9 +87,11 @@ const CustomerView = () => {
           console.log("Audio unlock failed:", err);
         }
       }
+      // Helps unlock HTML5 Audio on iOS
+      const dummyAudio = new Audio();
+      dummyAudio.play().catch(e => console.log("Dummy audio unlock attempt:", e));
     };
     
-    // Unlock on any user interaction
     const handleUserInteraction = () => {
       unlockAudio();
       window.removeEventListener('click', handleUserInteraction);
@@ -160,7 +125,7 @@ const CustomerView = () => {
 
     const fetchNotifications = async () => {
       try {
-        const token = localStorage.getItem('token'); // Get auth token
+        const token = localStorage.getItem('token');
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/notifications/${user.userId}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
@@ -176,12 +141,11 @@ const CustomerView = () => {
         const data = await res.json();
         const unreadCount = data.filter(n => n.isRead === 0).length;
 
-        // Play sound only if audio is unlocked and new notification arrived
         if (unreadCount > prevNotificationsRef.current && audioUnlocked && notificationSound.current) {
-          notificationSound.current.play();
+          notificationSound.current.currentTime = 0;
+          notificationSound.current.play().catch(err => console.log("Notification sound play error:", err));
         }
 
-        // Update ref + state
         prevNotificationsRef.current = unreadCount;
         setNotifications(unreadCount);
 
@@ -192,44 +156,33 @@ const CustomerView = () => {
 
     fetchNotifications();
     const interval = setInterval(fetchNotifications, 5000);
-
     return () => clearInterval(interval);
   }, [user, audioUnlocked]);
 
-  // Fetch avatar with authentication
+  // Fetch avatar
   useEffect(() => {
     if (!user?.userId) return;
-
     const fetchAvatar = async () => {
       try {
         const token = localStorage.getItem('token');
         const res = await fetch(`${process.env.REACT_APP_API_URL}/api/kyc/avatar/${user.userId}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json'
-          }
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
         });
-        
-        if (res.status === 403) {
-          console.error("Authentication failed for avatar fetch");
-          return;
-        }
-        
+        if (res.status === 403) return;
         const data = await res.json();
         if (data?.avatar) setAvatar(data.avatar);
       } catch (error) {
         console.error("Error fetching avatar:", error);
       }
     };
-
     fetchAvatar();
   }, [user]);
 
-  // Function to play bell click sound
   const playBellSound = () => {
     if (bellSound.current && audioUnlocked) {
       try {
-        bellSound.current.play();
+        bellSound.current.currentTime = 0;
+        bellSound.current.play().catch(err => console.log("Bell sound play error:", err));
       } catch (err) {
         console.log("Bell sound play error:", err);
       }
@@ -257,10 +210,9 @@ const CustomerView = () => {
   };
 
   const navigate = useNavigate();
-
   const handleLogout = () => {
     localStorage.removeItem('user');
-    localStorage.removeItem('token'); // Also remove token
+    localStorage.removeItem('token');
     navigate('/apply');
   };
 
@@ -270,24 +222,17 @@ const CustomerView = () => {
   };
 
   const handleNotificationClick = async () => {
-    // Play bell sound when clicking notification
     playBellSound();
-    
     if (!user?.userId) return;
-
     try {
       const token = localStorage.getItem('token');
       await fetch(`${process.env.REACT_APP_API_URL}/api/notifications/mark-read/${user.userId}`, { 
         method: "PUT",
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        }
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
       });
     } catch (error) {
       console.error("Error marking notifications:", error);
     }
-
     setNotifications(0);
     setActiveMenu('profile');
     setMobileMenuOpen(false);
@@ -302,28 +247,23 @@ const CustomerView = () => {
 
   return (
     <div className="dashboard-container">
-      {/* TOP BAR */}
-      <header className="top-bar" style={{ textDecoration: 'none' }}>
+      <header className="top-bar">
         <div className="top-bar-left">
           <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
             {mobileMenuOpen ? <FaTimes /> : <FaBars />}
           </button>
-          <h1 className="dashboard-title" style={{ textDecoration: 'none' }}>
+          <h1 className="dashboard-title">
             <FaHome className="home-icon" />
             <span className="user-name">{firstName}</span>
           </h1>
         </div>
-
         <div className="top-bar-right">
-          {/* NOTIFICATION BELL */}
           <div className={`notification-bell ${notifications > 0 ? 'has-notification' : ''}`} onClick={handleNotificationClick}>
             <FaBell size={20} className="bell-icon" />
             <span className={`notification-badge ${notifications > 0 ? "show" : "hide"}`}>
               {notifications > 99 ? '99+' : notifications}
             </span>
           </div>
-
-          {/* AVATAR */}
           <div className="user-avatar" style={{ position: "relative" }}>
             <div onClick={handleAvatarClick} style={{ cursor: "pointer" }}>
               {avatar ? (
@@ -332,7 +272,6 @@ const CustomerView = () => {
                 <div className="avatar-placeholder">{firstName?.charAt(0)}</div>
               )}
             </div>
-
             {showDropdown && (
               <AvatarDropdown
                 userId={user?.userId}
@@ -342,15 +281,11 @@ const CustomerView = () => {
               />
             )}
           </div>
-
           <span className="welcome-text">{firstName}</span>
           <button className="logout-btn" onClick={handleLogout}><FaSignOutAlt /> Logout</button>
         </div>
       </header>
-
-      {/* CONTENT */}
       <div className="dashboard-content">
-        {/* SIDEBAR */}
         <nav className={`sidebar-cards ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <div className="menu-cards-grid">
             {menuItems.map(item => {
@@ -371,8 +306,6 @@ const CustomerView = () => {
             })}
           </div>
         </nav>
-
-        {/* MAIN CONTENT */}
         <main className="main-content">
           {user ? renderContent() : (
             <div className="loading-container">
