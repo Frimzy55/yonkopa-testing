@@ -57,15 +57,6 @@ export const validateFile = (file, fieldName, options = {}) => {
 
 
 
-
-
-
-
-
-
-
-
-
 export const validatePhoneNumber = (phone, fieldName = "Phone number") => {
   if (!phone?.trim()) {
     return `${fieldName} is required`;
