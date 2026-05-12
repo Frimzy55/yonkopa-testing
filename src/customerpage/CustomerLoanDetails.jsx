@@ -152,7 +152,6 @@ const LoanDetails = ({ formData, handleInputChange, errors, touchedFields, handl
               <option value="Medical Emergency">Medical Emergency</option>
               <option value="Home Improvement">Home Improvement</option>
               <option value="Vehicle Purchase">Vehicle Purchase</option>
-              <option value="Debt Consolidation">Debt Consolidation</option>
               <option value="Wedding">Wedding</option>
               <option value="Other">Other</option>
             </select>

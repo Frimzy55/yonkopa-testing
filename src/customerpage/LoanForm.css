@@ -1360,3 +1360,171 @@ html, body {
 .summary-card:nth-child(2) { animation-delay: 0.2s; }
 .summary-card:nth-child(3) { animation-delay: 0.3s; }
 .summary-card:nth-child(4) { animation-delay: 0.4s; }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ========== EXTREME MOBILE EXPANSION ========== */
+/* Targets very small screens & forces full width */
+
+@media (max-width: 768px) {
+  /* Override main container – full width, no padding */
+  .content-section {
+    max-width: 100% !important;
+    width: 100% !important;
+    margin: 0 !important;
+    padding: 1rem !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+  }
+
+  /* Form container – no constraints */
+  .loan-form,
+  .form-step {
+    width: 100% !important;
+    padding: 0 !important;
+    margin: 0 !important;
+  }
+
+  /* All form grids → single column, full width */
+  .form-grid,
+  .form-grid.two-columns,
+  .form-grid.three-columns {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+    width: 100% !important;
+  }
+
+  /* Every form group takes full width */
+  .form-group,
+  .form-group.full-width {
+    width: 100% !important;
+    margin: 0 !important;
+  }
+
+  /* Inputs, selects, textareas – full width, larger tap area */
+  .form-group input,
+  .form-group select,
+  .form-group textarea,
+  .input-with-icon input,
+  .readonly-field {
+    width: 100% !important;
+    padding: 1rem !important;
+    font-size: 1rem !important;
+    box-sizing: border-box !important;
+  }
+
+  /* File upload area – full width, taller */
+  .file-upload-area {
+    padding: 1.5rem !important;
+    width: 100% !important;
+    box-sizing: border-box !important;
+  }
+
+  /* Buttons – full width, stacked, larger touch */
+  .form-navigation {
+    flex-direction: column !important;
+    gap: 0.75rem !important;
+    width: 100% !important;
+    padding: 0.5rem 0 1rem !important;
+  }
+  .btn-prev,
+  .btn-next,
+  .btn-submit {
+    width: 100% !important;
+    margin-left: 0 !important;
+    padding: 1rem !important;
+    font-size: 1rem !important;
+  }
+
+  /* Profile picture – centered but smaller */
+  .profile-upload-section {
+    margin: 0 auto 1rem;
+  }
+  .profile-upload-circle {
+    width: 100px;
+    height: 100px;
+  }
+
+  /* Loan summary – full width cards */
+  .loan-summary-dashboard {
+    padding: 1rem !important;
+    margin: 1rem 0 !important;
+    width: 100% !important;
+  }
+  .summary-stats-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    gap: 1rem !important;
+  }
+  .summary-card {
+    width: 100% !important;
+    padding: 1rem !important;
+    box-sizing: border-box !important;
+  }
+  .card-value {
+    font-size: 1.25rem !important;
+  }
+
+  /* Fees section – column layout */
+  .fees-info {
+    flex-direction: column !important;
+    text-align: center !important;
+  }
+  .fees-amount {
+    text-align: center !important;
+  }
+
+  /* Breakdown toggle – full width */
+  .breakdown-toggle {
+    width: 100% !important;
+    padding: 1rem !important;
+  }
+
+  /* Remove any leftover side margins */
+  body, html {
+    overflow-x: hidden !important;
+  }
+  * {
+    max-width: 100% !important;
+    box-sizing: border-box !important;
+  }
+}
+
+/* Extra small (≤480px) – even bigger touch targets */
+@media (max-width: 480px) {
+  .content-section {
+    padding: 0.75rem !important;
+  }
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    padding: 1rem 0.75rem !important;
+    font-size: 1rem !important;
+  }
+  .btn-prev,
+  .btn-next,
+  .btn-submit {
+    padding: 1rem 0.75rem !important;
+  }
+  .profile-upload-circle {
+    width: 80px;
+    height: 80px;
+  }
+  .summary-card {
+    padding: 0.75rem !important;
+  }
+}

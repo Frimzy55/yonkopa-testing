@@ -24,6 +24,52 @@ import {
   FaTimes
 } from "react-icons/fa";
 
+// Helper function to create beep sounds programmatically
+const createBeepSound = (frequency, duration, volume = 0.3) => {
+  try {
+    const audioContext = new (window.AudioContext || window.webkitAudioContext)();
+    const sampleRate = audioContext.sampleRate;
+    const samples = duration * sampleRate;
+    const buffer = audioContext.createBuffer(1, samples, sampleRate);
+    const data = buffer.getChannelData(0);
+    
+    for (let i = 0; i < samples; i++) {
+      // Create sine wave
+      data[i] = Math.sin(2 * Math.PI * frequency * i / sampleRate) * volume;
+      // Add fade in and fade out
+      if (i < samples * 0.1) {
+        data[i] *= (i / (samples * 0.1));
+      }
+      if (i > samples * 0.9) {
+        data[i] *= (1 - (i - samples * 0.9) / (samples * 0.1));
+      }
+    }
+    
+    return {
+      play: () => {
+        try {
+          const newSource = audioContext.createBufferSource();
+          newSource.buffer = buffer;
+          newSource.connect(audioContext.destination);
+          
+          if (audioContext.state === 'suspended') {
+            audioContext.resume().then(() => {
+              newSource.start();
+            }).catch(err => console.log("Audio context resume error:", err));
+          } else {
+            newSource.start();
+          }
+        } catch (err) {
+          console.log("Sound play error:", err);
+        }
+      }
+    };
+  } catch (error) {
+    console.error("Web Audio API error:", error);
+    return null;
+  }
+};
+
 const CustomerView = () => {
   const [user, setUser] = useState(null);
   const [activeMenu, setActiveMenu] = useState('kyc');
@@ -32,9 +78,12 @@ const CustomerView = () => {
   const [avatar, setAvatar] = useState(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const prevNotificationsRef = useRef(0);
-
-  const notificationAudio = useRef(null); // Audio element ref
-  const [audioUnlocked, setAudioUnlocked] = useState(false); // Unlock audio for autoplay
+  const [audioUnlocked, setAudioUnlocked] = useState(false);
+  
+  // Audio refs
+  const notificationSound = useRef(null);
+  const bellSound = useRef(null);
+  const audioContextRef = useRef(null);
 
   // Load user from localStorage
   useEffect(() => {
@@ -42,18 +91,58 @@ const CustomerView = () => {
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  // Unlock audio on first click anywhere
+  // Initialize audio with Web Audio API (no external files needed)
   useEffect(() => {
-    const unlockAudio = () => {
-      if (notificationAudio.current && !audioUnlocked) {
-        notificationAudio.current.play().catch(() => {});
-        notificationAudio.current.pause();
-        notificationAudio.current.currentTime = 0;
-        setAudioUnlocked(true);
+    try {
+      // Create audio context
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      
+      // Create notification sound (higher pitch, longer)
+      notificationSound.current = createBeepSound(880, 0.5, 0.2);
+      
+      // Create bell click sound (lower pitch, shorter)
+      bellSound.current = createBeepSound(660, 0.15, 0.15);
+      
+      console.log("Sounds created successfully");
+    } catch (error) {
+      console.error("Failed to create sounds:", error);
+      // Create silent fallback
+      notificationSound.current = { play: () => {} };
+      bellSound.current = { play: () => {} };
+    }
+  }, []);
+
+  // Unlock audio on first user interaction
+  useEffect(() => {
+    const unlockAudio = async () => {
+      if (!audioUnlocked && audioContextRef.current) {
+        try {
+          await audioContextRef.current.resume();
+          setAudioUnlocked(true);
+          console.log("Audio unlocked successfully");
+        } catch (err) {
+          console.log("Audio unlock failed:", err);
+        }
       }
     };
-    window.addEventListener('click', unlockAudio, { once: true });
-    return () => window.removeEventListener('click', unlockAudio);
+    
+    // Unlock on any user interaction
+    const handleUserInteraction = () => {
+      unlockAudio();
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('touchstart', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+    };
+    
+    window.addEventListener('click', handleUserInteraction);
+    window.addEventListener('touchstart', handleUserInteraction);
+    window.addEventListener('keydown', handleUserInteraction);
+    
+    return () => {
+      window.removeEventListener('click', handleUserInteraction);
+      window.removeEventListener('touchstart', handleUserInteraction);
+      window.removeEventListener('keydown', handleUserInteraction);
+    };
   }, [audioUnlocked]);
 
   // Close mobile menu on resize
@@ -67,43 +156,65 @@ const CustomerView = () => {
 
   // Fetch notifications periodically and play sound for new notifications
   useEffect(() => {
-  if (!user?.userId || !audioUnlocked) return;
+    if (!user?.userId) return;
 
-  const fetchNotifications = async () => {
-    try {
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/notifications/${user.userId}`);
-      const data = await res.json();
-      const unreadCount = data.filter(n => n.isRead === 0).length;
+    const fetchNotifications = async () => {
+      try {
+        const token = localStorage.getItem('token'); // Get auth token
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/notifications/${user.userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (res.status === 403) {
+          console.error("Authentication failed for notifications");
+          return;
+        }
+        
+        const data = await res.json();
+        const unreadCount = data.filter(n => n.isRead === 0).length;
 
-      // ✅ Compare with previous value safely
-      if (unreadCount > prevNotificationsRef.current && notificationAudio.current) {
-        notificationAudio.current.play().catch(err =>
-          console.error("Audio play error:", err)
-        );
+        // Play sound only if audio is unlocked and new notification arrived
+        if (unreadCount > prevNotificationsRef.current && audioUnlocked && notificationSound.current) {
+          notificationSound.current.play();
+        }
+
+        // Update ref + state
+        prevNotificationsRef.current = unreadCount;
+        setNotifications(unreadCount);
+
+      } catch (error) {
+        console.error("Notification fetch error:", error);
       }
+    };
 
-      // ✅ Update ref + state
-      prevNotificationsRef.current = unreadCount;
-      setNotifications(unreadCount);
+    fetchNotifications();
+    const interval = setInterval(fetchNotifications, 5000);
 
-    } catch (error) {
-      console.error("Notification error:", error);
-    }
-  };
+    return () => clearInterval(interval);
+  }, [user, audioUnlocked]);
 
-  fetchNotifications();
-  const interval = setInterval(fetchNotifications, 1000);
-
-  return () => clearInterval(interval);
-}, [user, audioUnlocked]);
-
-  // Fetch avatar
+  // Fetch avatar with authentication
   useEffect(() => {
     if (!user?.userId) return;
 
     const fetchAvatar = async () => {
       try {
-        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/kyc/avatar/${user.userId}`);
+        const token = localStorage.getItem('token');
+        const res = await fetch(`${process.env.REACT_APP_API_URL}/api/kyc/avatar/${user.userId}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        if (res.status === 403) {
+          console.error("Authentication failed for avatar fetch");
+          return;
+        }
+        
         const data = await res.json();
         if (data?.avatar) setAvatar(data.avatar);
       } catch (error) {
@@ -113,6 +224,17 @@ const CustomerView = () => {
 
     fetchAvatar();
   }, [user]);
+
+  // Function to play bell click sound
+  const playBellSound = () => {
+    if (bellSound.current && audioUnlocked) {
+      try {
+        bellSound.current.play();
+      } catch (err) {
+        console.log("Bell sound play error:", err);
+      }
+    }
+  };
 
   const menuItems = [
     { id: 'kyc', label: 'Complete KYC', icon: <FaIdCard />, description: 'Complete KYC And Profile', color: '#e67e22' },
@@ -127,25 +249,20 @@ const CustomerView = () => {
       case 'kyc': return <CustomerCompleteKyc user={user} />;
       case 'viewKyc': return <CustomerKycDetails user={user} />;
       case 'loan': return <CustomerApplyLoan user={user} />;
-      case 'loanStatus': return <CustomerLoanStatus user={user}  onApplyLoan={() => setActiveMenu('loan')}  />;
+      case 'loanStatus': return <CustomerLoanStatus user={user} onApplyLoan={() => setActiveMenu('loan')} />;
       case 'loanrepay': return <CustomerRepayloan user={user} />;
       case 'profile': return <NotificationsSupport user={user} />;
       default: return <DashboardHome user={user} />;
     }
   };
 
-  /*const handleLogout = () => {
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
     localStorage.removeItem('user');
-   // window.location.href = '/';
-      window.location.hash = '#/';
-  };*/
-
-const navigate = useNavigate();
-
-const handleLogout = () => {
-  localStorage.removeItem('user');
-  navigate('/apply');
-};
+    localStorage.removeItem('token'); // Also remove token
+    navigate('/apply');
+  };
 
   const handleMenuClick = (itemId) => {
     setActiveMenu(itemId);
@@ -153,10 +270,20 @@ const handleLogout = () => {
   };
 
   const handleNotificationClick = async () => {
+    // Play bell sound when clicking notification
+    playBellSound();
+    
     if (!user?.userId) return;
 
     try {
-      await fetch(`${process.env.REACT_APP_API_URL}/api/notifications/mark-read/${user.userId}`, { method: "PUT" });
+      const token = localStorage.getItem('token');
+      await fetch(`${process.env.REACT_APP_API_URL}/api/notifications/mark-read/${user.userId}`, { 
+        method: "PUT",
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      });
     } catch (error) {
       console.error("Error marking notifications:", error);
     }
@@ -175,9 +302,6 @@ const handleLogout = () => {
 
   return (
     <div className="dashboard-container">
-      {/* Notification Audio */}
-      <audio ref={notificationAudio} src="/sounds/notifications.mp3" />
-
       {/* TOP BAR */}
       <header className="top-bar" style={{ textDecoration: 'none' }}>
         <div className="top-bar-left">
@@ -191,11 +315,11 @@ const handleLogout = () => {
         </div>
 
         <div className="top-bar-right">
-          {/* NOTIFICATION */}
-          <div className="notification-bell" onClick={handleNotificationClick}>
-            <FaBell size={20} />
+          {/* NOTIFICATION BELL */}
+          <div className={`notification-bell ${notifications > 0 ? 'has-notification' : ''}`} onClick={handleNotificationClick}>
+            <FaBell size={20} className="bell-icon" />
             <span className={`notification-badge ${notifications > 0 ? "show" : "hide"}`}>
-              {notifications}
+              {notifications > 99 ? '99+' : notifications}
             </span>
           </div>
 
@@ -211,7 +335,7 @@ const handleLogout = () => {
 
             {showDropdown && (
               <AvatarDropdown
-                userId={user.userId}
+                userId={user?.userId}
                 onClose={() => setShowDropdown(false)}
                 onChangePassword={handleChangePassword}
                 onViewKyc={handleViewKyc}
@@ -232,7 +356,8 @@ const handleLogout = () => {
             {menuItems.map(item => {
               const isDisabled = ['loanrepay', 'profile'].includes(item.id);
               return (
-                <div key={item.id} className={`menu-card ${activeMenu === item.id ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
+                <div key={item.id} 
+                     className={`menu-card ${activeMenu === item.id ? 'active' : ''} ${isDisabled ? 'disabled' : ''}`}
                      onClick={() => !isDisabled && handleMenuClick(item.id)}
                      style={{ borderLeftColor: item.color }}>
                   <div className="menu-card-icon" style={{ backgroundColor: item.color }}>{item.icon}</div>
