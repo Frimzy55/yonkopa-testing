@@ -19,17 +19,9 @@
   return null;
 };*/
 
-
 export const validateFile = (file, fieldName, options = {}) => {
   const {
-    allowedTypes = [
-      "image/jpeg",
-      "image/png",
-      "image/jpg",
-      "image/webp",
-      "image/heic",
-      "image/heif"
-    ],
+    allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"],
     maxSize = 25 * 1024 * 1024,
     required = true
   } = options;
@@ -38,11 +30,18 @@ export const validateFile = (file, fieldName, options = {}) => {
     return `${fieldName} is required`;
   }
 
-  if (file && !allowedTypes.includes(file.type)) {
+  if (!file) return null;
+
+  const fileName = file.name?.toLowerCase() || "";
+  const isValidExtension = allowedExtensions.some(ext =>
+    fileName.endsWith(ext)
+  );
+
+  if (!isValidExtension) {
     return `Only JPG, PNG, WEBP, HEIC images are allowed`;
   }
 
-  if (file && file.size > maxSize) {
+  if (file.size > maxSize) {
     return `File size must be less than ${maxSize / (1024 * 1024)}MB`;
   }
 
