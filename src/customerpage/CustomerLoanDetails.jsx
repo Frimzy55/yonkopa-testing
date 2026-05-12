@@ -334,40 +334,7 @@ const LoanDetails = ({ formData, handleInputChange, errors, touchedFields, handl
           </div>
         </div>
 
-        {/* Loan Details Breakdown */}
-        <div className="loan-breakdown">
-          <button className="breakdown-toggle" onClick={() => {
-            const details = document.querySelector('.breakdown-details');
-            if (details) details.classList.toggle('show');
-          }}>
-            <span>View Payment Breakdown</span>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-              <polyline points="6 9 12 15 18 9" />
-            </svg>
-          </button>
-          
-          <div className="breakdown-details">
-            <div className="breakdown-item">
-              <span>Principal Amount:</span>
-              <strong>GHS {parseFloat(formData.loanAmount || 0).toFixed(2)}</strong>
-            </div>
-            <div className="breakdown-item">
-              <span>Total Interest:</span>
-              <strong>GHS {loanSummary.interest.toFixed(2)}</strong>
-            </div>
-            <div className="breakdown-item">
-              <span>Processing Fees:</span>
-              <strong>GHS {loanSummary.loanFees.toFixed(2)}</strong>
-            </div>
-            <div className="breakdown-item total">
-              <span>Total Amount to Repay:</span>
-              <strong>GHS {loanSummary.totalInterest.toFixed(2)}</strong>
-            </div>
-            <div className="breakdown-note">
-              <small>* Fees are deducted upfront from the loan amount</small>
-            </div>
-          </div>
-        </div>
+        {/* The "View Payment Breakdown" section has been removed */}
       </div>
     </div>
   );
