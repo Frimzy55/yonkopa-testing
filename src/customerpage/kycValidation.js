@@ -1,7 +1,7 @@
 // kycValidation.js
 
 // Validation helper functions
-export const validateFile = (file, fieldName, options = {}) => {
+/*export const validateFile = (file, fieldName, options = {}) => {
   const { allowedTypes = ["image/jpeg", "image/png", "image/jpg"], maxSize = 5 * 1024 * 1024, required = true } = options;
   
   if (required && !file) {
@@ -17,7 +17,55 @@ export const validateFile = (file, fieldName, options = {}) => {
   }
   
   return null;
+};*/
+
+
+export const validateFile = (file, fieldName, options = {}) => {
+  const {
+    allowedTypes = [
+      "image/jpeg",
+      "image/png",
+      "image/jpg",
+      "image/webp",
+      "image/heic",
+      "image/heif"
+    ],
+    maxSize = 25 * 1024 * 1024,
+    required = true
+  } = options;
+
+  if (required && !file) {
+    return `${fieldName} is required`;
+  }
+
+  if (file && !allowedTypes.includes(file.type)) {
+    return `Only JPG, PNG, WEBP, HEIC images are allowed`;
+  }
+
+  if (file && file.size > maxSize) {
+    return `File size must be less than ${maxSize / (1024 * 1024)}MB`;
+  }
+
+  return null;
 };
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 export const validatePhoneNumber = (phone, fieldName = "Phone number") => {
   if (!phone?.trim()) {
