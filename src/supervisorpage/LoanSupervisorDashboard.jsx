@@ -397,8 +397,12 @@ const visibleMenuItems = useMemo(() => {
     try {
       const user = JSON.parse(localStorage.getItem("user"));
 
-      const response = await fetch(
+     /* const response = await fetch(
         `http://localhost:5000/tasks2/${user.userId}`
+      );*/
+
+      const response = await fetch(
+     `${process.env.REACT_APP_API_URL}/tasks2/${user.userId}`
       );
 
       const data = await response.json();
