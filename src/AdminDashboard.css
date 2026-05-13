@@ -294,3 +294,58 @@ button:focus {
 .sidebar-collapsed .menu-arrow {
   display: none;
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Force sidebar container to have zero left padding */
+.sidebar,
+.bg-dark {
+  padding-left: 0 !important;
+  padding-right: 0 !important;   /* optional: also remove right padding for symmetry */
+}
+
+/* Make menu items start exactly at the left edge */
+.menu-item,
+.submenu-item,
+.report-item,
+.nested-item {
+  padding-left: 0 !important;     /* no space on the left */
+  padding-right: 8px !important;  /* keep some right padding for readability (adjust as needed) */
+}
+
+/* If you use a sidebar header, also align it to the left edge */
+.sidebar-header {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Submenu indentation still works, but the first level items will start at the edge */
+.submenu-item {
+  padding-left: 1.5rem !important;   /* adjust as needed – relative to edge */
+}
+
+.report-item {
+  padding-left: 2.5rem !important;
+}
+
+.nested-item {
+  padding-left: 1.5rem !important;
+}
+
+/* Ensure the active indicator line stays visible at the very edge */
+.menu-item.active::before,
+.submenu-item.active::before {
+  left: 0;
+}
