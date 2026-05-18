@@ -82,7 +82,7 @@ import LienEnquiries from './internal-account/LienEnquiries';
 
 // Admin Components
 import UserManagement from './admin/UserManagement';
-import Roles from './admin/Roles';
+import Role from './admin/Role';
 
 // My Approvals Components
 import ApproveUserCreation from './my-approvals/ApproveUserCreation';
@@ -725,7 +725,7 @@ const AdminDashboard = () => {
     if (activeMenu === 'Admin') {
       const adminComponents = {
         'User Management': UserManagement,
-        'Add Roles': Roles,
+        'Add Roles': Role,
       };
       if (activeSubMenu && adminComponents[activeSubMenu]) {
         const Component = adminComponents[activeSubMenu];

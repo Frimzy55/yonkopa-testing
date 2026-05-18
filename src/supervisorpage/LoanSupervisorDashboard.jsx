@@ -6,6 +6,8 @@ import { useNavigate } from 'react-router-dom';
 import { useNavigation } from '../hooks/useNavigation';
 import { useScrollPersistence } from '../hooks/useScrollPersistence';
 
+
+import DashboardContent from './DashboardContent'; 
 // UI Components
 import { Sidebar } from '../components/Sidebar';
 import { TopNavbar } from '../components/TopNavbars';
@@ -229,18 +231,24 @@ import GLTransactionReport from '../reports/gl-reports/GLTransactionReport';
 const LoanSupervisorDashboard = () => {
   const navigate = useNavigate();
 
-  // Get logged-in user from localStorage
-  const originalUser = JSON.parse(localStorage.getItem('user')) || {};
+    // Get logged-in user from localStorage (memoized to prevent unnecessary re-renders)
+  const originalUser = useMemo(() => {
+    return JSON.parse(localStorage.getItem('user')) || {};
+  }, []); // Empty dependency array – only runs once on mount
 
   // For the welcome card – use the real user's name (or fallback)
-  const realUserName = originalUser?.fullName || originalUser?.name || 'Loan Supervisor';
+  const realUserName = useMemo(() => {
+    return originalUser?.fullName || originalUser?.name || 'Loan Supervisor';
+  }, [originalUser]);
 
   // For the top bar – override the name to "Loan Supervisor"
-  const userForTopBar = {
-    ...originalUser,
-    fullName: 'Loan Supervisor',
-    name: 'Loan Supervisor',
-  };
+  const userForTopBar = useMemo(() => {
+    return {
+      ...originalUser,
+      fullName: 'Loan Supervisor',
+      name: 'Loan Supervisor',
+    };
+  }, [originalUser]);
 
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [isMobile, setIsMobile] = useState(false);
@@ -287,60 +295,98 @@ const normalize = (str) =>
   str.toLowerCase().replace(/\s+/g, "_");
 
 
-
-
 const visibleMenuItems = useMemo(() => {
   const dashboardMenu = menuItems.find(item => item.name === 'Dashboard');
+  if (!userTasks.length) return [dashboardMenu];
 
-  if (!userTasks.length) {
-    return [dashboardMenu];
-  }
+  // Normalise: lowercase, spaces and special chars become underscores
+  const normalise = (str) =>
+    str.toLowerCase().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
+
+  // Build a set of normalised task names for quick lookup
+  const normalisedTasks = userTasks.map(t => normalise(t.task_name));
+
+  // Check if a given hierarchical path (e.g., "account_create_account") is granted
+  const hasPermission = (pathParts) => {
+    const fullPath = pathParts.join('_');
+    return normalisedTasks.some(task => task === fullPath || task.startsWith(fullPath + '_'));
+  };
 
   const filtered = menuItems
     .filter(menu => menu.name !== 'Dashboard')
     .map((menu) => {
-      const menuKey = normalize(menu.name);
-      const matchingTasks = userTasks.filter((task) =>
-        task.task_name.startsWith(menuKey)
-      );
-      if (!matchingTasks.length) return null;
+      const menuKey = normalise(menu.name);
+      // Does the user have any task belonging to this main menu?
+      const hasMainMenu = normalisedTasks.some(task => task.startsWith(menuKey));
+      if (!hasMainMenu) return null;
 
-      const filteredSubMenus = menu.subMenus
-        ?.map((sub) => {
-          const subKey = normalize(sub.name);
-          const subTasks = matchingTasks.filter((task) =>
-            task.task_name.includes(subKey)
-          );
-          if (!subTasks.length) return null;
+      // Process sub‑menus
+      let filteredSubMenus = null;
+      if (menu.subMenus && menu.subMenus.length) {
+        filteredSubMenus = menu.subMenus
+          .map((sub) => {
+            const subKey = normalise(sub.name);
+            const fullSubPath = `${menuKey}_${subKey}`;
+            const hasSubMenu = normalisedTasks.some(task => task.startsWith(fullSubPath));
+            if (!hasSubMenu) return null;
 
-          // Filter nested menus (if any)
-          const filteredNestedMenus = sub.nestedMenus?.filter((nested) => {
-            const nestedKey = normalize(nested.name);
-            return subTasks.some((task) =>
-              task.task_name.includes(nestedKey)
-            );
-          });
+            // Process nested menus inside this sub‑menu
+            let filteredNested = null;
+            if (sub.nestedMenus && sub.nestedMenus.length) {
+              filteredNested = sub.nestedMenus.filter(nested => {
+                const nestedKey = normalise(nested.name);
+                const fullNestedPath = `${fullSubPath}_${nestedKey}`;
+                return normalisedTasks.some(task => task.startsWith(fullNestedPath));
+              });
+            }
 
-          // Only keep nestedMenus property if it has items, otherwise remove it
-          const updatedSub = { ...sub };
-          if (filteredNestedMenus && filteredNestedMenus.length > 0) {
-            updatedSub.nestedMenus = filteredNestedMenus;
-          } else {
-            delete updatedSub.nestedMenus;
-          }
-          return updatedSub;
-        })
-        .filter(Boolean);
+            // Process reports inside this sub‑menu
+            let filteredReports = null;
+            if (sub.reports && sub.reports.length) {
+              filteredReports = sub.reports.filter(report => {
+                const reportKey = normalise(report.name);
+                const fullReportPath = `${fullSubPath}_${reportKey}`;
+                return normalisedTasks.some(task => task.startsWith(fullReportPath));
+              });
+            }
 
-      return {
-        ...menu,
-        subMenus: filteredSubMenus || [],
-      };
+            // Build the sub‑menu object (only keep granted children)
+            const updatedSub = { ...sub };
+            if (filteredNested && filteredNested.length) updatedSub.nestedMenus = filteredNested;
+            else delete updatedSub.nestedMenus;
+
+            if (filteredReports && filteredReports.length) updatedSub.reports = filteredReports;
+            else delete updatedSub.reports;
+
+            return updatedSub;
+          })
+          .filter(Boolean);
+      }
+
+      // Process top‑level reports directly under the main menu (e.g., Reports menu)
+      let topLevelReports = null;
+      if (menu.reports && menu.reports.length) {
+        topLevelReports = menu.reports.filter(report => {
+          const reportKey = normalise(report.name);
+          const fullReportPath = `${menuKey}_${reportKey}`;
+          return normalisedTasks.some(task => task.startsWith(fullReportPath));
+        });
+      }
+
+      const updatedMenu = { ...menu };
+      if (filteredSubMenus && filteredSubMenus.length) updatedMenu.subMenus = filteredSubMenus;
+      else delete updatedMenu.subMenus;
+
+      if (topLevelReports && topLevelReports.length) updatedMenu.reports = topLevelReports;
+      else delete updatedMenu.reports;
+
+      return updatedMenu;
     })
     .filter(Boolean);
 
   return [dashboardMenu, ...filtered];
 }, [userTasks]);
+
 
 
 
@@ -669,9 +715,14 @@ useEffect(() => {
     );
   }, [navigation]);
 
-  // ---------- Render content (full copy from AdminDashboard) ----------
+    // ---------- Render content ----------
   const renderContent = useCallback(() => {
     const { activeMenu, activeSubMenu, activeNestedMenu, activeReportName } = navigation;
+
+    // Dashboard Section – use the extracted component
+    if (activeMenu === 'Dashboard') {
+      return <DashboardContent realUserName={realUserName} user={originalUser} />;
+    }
 
     // Customer Section
     if (activeMenu === 'Customer') {
@@ -1034,70 +1085,14 @@ useEffect(() => {
       );
     }
 
-    // Dashboard
-    if (activeMenu === 'Dashboard') {
-      return (
-        <div className="mt-4">
-          <div className="row g-3 mb-4">
-            <div className="col-md-3">
-              <div className="card p-3 text-center">
-                <h6>Total Portfolio Value</h6>
-                <h4 className="text-primary">GHS 12,480,000</h4>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="card p-3 text-center">
-                <h6>Active Customers</h6>
-                <h4>12,480</h4>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="card p-3 text-center">
-                <h6>Active Accounts</h6>
-                <h4>8,315</h4>
-              </div>
-            </div>
-            <div className="col-md-3">
-              <div className="card p-3 text-center">
-                <h6>Portfolio At Risk (PAR)</h6>
-                <h4 className="text-danger">4.8%</h4>
-              </div>
-            </div>
-          </div>
-          <div className="row g-3 mb-4">
-            <div className="col-md-6">
-              <div className="card p-3">
-                <h6>Analytics Overview</h6>
-                <div style={{ height: '150px', background: '#f1f1f1' }}></div>
-              </div>
-            </div>
-            <div className="col-md-6">
-              <div className="card p-3">
-                <h6>Quick Create Customer</h6>
-                <button className="btn btn-primary mt-2">+ New Customer</button>
-              </div>
-            </div>
-          </div>
-          <div className="card p-3">
-            <h6>Recent Activities</h6>
-            <ul className="list-unstyled mb-0">
-              <li>New customer created - IND000123</li>
-              <li>Loan approved - LN004512</li>
-              <li>Deposit posted - GHS 4,500</li>
-              <li>KYC pending review - 12 accounts</li>
-            </ul>
-          </div>
-        </div>
-      );
-    }
-
+    // Fallback (should not happen)
     return (
       <div className="bg-light p-4 rounded-3 text-center">
         <i className={`bi ${menuItems.find(m => m.name === activeMenu)?.icon || 'bi-grid'} fs-1 text-secondary`}></i>
         <p className="mt-2 mb-0">Manage your {activeMenu.toLowerCase()} here.</p>
       </div>
     );
-  }, [navigation, renderMyApprovalsContent]);
+  }, [navigation, renderMyApprovalsContent, realUserName, originalUser]);
 
   const formatDateTime = (date) => {
     const options = {

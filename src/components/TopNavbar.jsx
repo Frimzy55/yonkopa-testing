@@ -15,6 +15,8 @@ export const TopNavbar = memo(({
   userDropdownRef,
   handleProfile,
   handleSettings,
+  handleChangePassword,   // new prop
+  handleUploadPhoto,      // new prop
   handleLogout
 }) => {
   
@@ -128,6 +130,8 @@ export const TopNavbar = memo(({
             {isUserDropdownOpen && (
               <ul className="dropdown-menu dropdown-menu-end show" style={{ position: 'absolute', inset: '0px auto auto 0px', margin: '0px', transform: 'translate(0px, 45px)' }}>
                 <li><button className="dropdown-item" onClick={handleProfile}><i className="bi bi-person me-2"></i>Profile</button></li>
+                <li><button className="dropdown-item" onClick={handleChangePassword}><i className="bi bi-key me-2"></i>Change Password</button></li>
+                <li><button className="dropdown-item" onClick={handleUploadPhoto}><i className="bi bi-camera me-2"></i>Upload Photo</button></li>
                 <li><button className="dropdown-item" onClick={handleSettings}><i className="bi bi-gear me-2"></i>Settings</button></li>
                 <li><hr className="dropdown-divider" /></li>
                 <li><button className="dropdown-item text-danger" onClick={handleLogout}><i className="bi bi-box-arrow-right me-2"></i>Logout</button></li>

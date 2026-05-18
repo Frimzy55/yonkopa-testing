@@ -6,7 +6,8 @@ const CreateUserModal = ({ show, onClose, onUserCreated, editingUser }) => {
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState({
     full_name: '',
-    identifier: '', // This can be either email or phone
+    username: '',                 // <-- NEW FIELD
+    identifier: '',
     password: '',
     confirmPassword: '',
     role: 'customer'
@@ -18,6 +19,7 @@ const CreateUserModal = ({ show, onClose, onUserCreated, editingUser }) => {
     if (editingUser) {
       setFormData({
         full_name: editingUser.full_name || '',
+        username: editingUser.username || '',    // <-- populate username if exists
         identifier: editingUser.email || editingUser.phone || '',
         password: '',
         confirmPassword: '',
@@ -61,6 +63,20 @@ const CreateUserModal = ({ show, onClose, onUserCreated, editingUser }) => {
       return false;
     }
 
+    // NEW: Validate username
+    if (!formData.username.trim()) {
+      toast.error('Username is required');
+      return false;
+    }
+    if (formData.username.length < 3) {
+      toast.error('Username must be at least 3 characters');
+      return false;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(formData.username)) {
+      toast.error('Username can only contain letters, numbers, and underscores');
+      return false;
+    }
+
     const identifierError = validateIdentifier(formData.identifier);
     if (identifierError) {
       toast.error(identifierError);
@@ -100,6 +116,7 @@ const CreateUserModal = ({ show, onClose, onUserCreated, editingUser }) => {
   const resetForm = () => {
     setFormData({
       full_name: '',
+      username: '',        // reset username
       identifier: '',
       password: '',
       confirmPassword: '',
@@ -107,58 +124,55 @@ const CreateUserModal = ({ show, onClose, onUserCreated, editingUser }) => {
     });
   };
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
+    if (!validateForm()) return;
 
+    setLoading(true);
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+    try {
+      const token = localStorage.getItem('token');
 
-  if (!validateForm()) return;
+      const userData = {
+        fullName: formData.full_name,
+        username: formData.username,      // <-- include username
+        identifier: formData.identifier,
+        role: formData.role
+      };
 
-  setLoading(true);
+      if (!editingUser) {
+        userData.password = formData.password;
+        userData.confirmPassword = formData.confirmPassword;
 
-  try {
-    const token = localStorage.getItem('token');
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/signup2`,
+          userData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-    const userData = {
-      fullName: formData.full_name,
-      identifier: formData.identifier,
-      role: formData.role
-    };
+        toast.success('User created successfully');
+      } else {
+        await axios.put(
+          `${process.env.REACT_APP_API_URL}/users/${editingUser.id}`,
+          userData,
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
 
-    if (!editingUser) {
-      userData.password = formData.password;
-      userData.confirmPassword = formData.confirmPassword;
+        toast.success('User updated successfully');
+      }
 
-      await axios.post(
-        `${process.env.REACT_APP_API_URL}/signup2`,
-        userData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
+      resetForm();
+      onUserCreated?.();
+      onClose();
 
-      toast.success('User created successfully');
-    } else {
-      await axios.put(
-        `${process.env.REACT_APP_API_URL}/users/${editingUser.id}`,
-        userData,
-        { headers: { Authorization: `Bearer ${token}` } }
-      );
-
-      toast.success('User updated successfully');
+    } catch (error) {
+      console.error(error);
+      toast.error(error.response?.data?.message || 'Failed to save user');
+    } finally {
+      setLoading(false);
     }
-
-    resetForm();
-    onUserCreated?.();
-    onClose();
-
-  } catch (error) {
-    console.error(error);
-    toast.error(error.response?.data?.message || 'Failed to save user');
-  } finally {
-    setLoading(false);
-  }
-};
-
+  };
 
   const getIdentifierType = () => {
     if (!formData.identifier) return '';
@@ -201,6 +215,30 @@ const handleSubmit = async (e) => {
                   required
                   disabled={loading}
                 />
+              </div>
+
+              {/* NEW USERNAME FIELD */}
+              <div className="mb-3">
+                <label className="form-label">Username *</label>
+                <input
+                  type="text"
+                  className="form-control"
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  placeholder="Enter username (letters, numbers, underscores)"
+                  required
+                  disabled={loading}
+                />
+                {formData.username && formData.username.length < 3 && (
+                  <small className="text-danger">Username must be at least 3 characters</small>
+                )}
+                {formData.username && formData.username.length >= 3 && /^[a-zA-Z0-9_]+$/.test(formData.username) && (
+                  <small className="text-success">✓ Username available</small>
+                )}
+                {formData.username && !/^[a-zA-Z0-9_]+$/.test(formData.username) && (
+                  <small className="text-danger">Only letters, numbers, and underscores allowed</small>
+                )}
               </div>
 
               <div className="mb-3">

@@ -3,7 +3,7 @@
   top: 60px;
   right: 20px;
   width: 180px;
-  background: rgb(58, 70, 236);
+  background: rgb(58, 141, 236);
   border-radius: 8px;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
   z-index: 1000;
@@ -18,7 +18,7 @@
 }
 
 .dropdown-item:hover {
-  background-color: #6156fa;
+  background-color: #3ea6fc;
 }
 
 .dropdown-item.logout {

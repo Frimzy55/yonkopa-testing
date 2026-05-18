@@ -11,8 +11,7 @@ import CustomerLoanStatus from './CustomerLoanStatus';
 import CustomerRepayloan from './CustomerRepayloan';
 import AvatarDropdown from './AvatarDropdown';
 
-// Import custom sound files from src/sounds
-import notificationSoundFile from '../sounds/notifications.mp3';   // adjust relative path if needed
+import notificationSoundFile from '../sounds/notifications.mp3';
 import bellSoundFile from '../sounds/new-notification.wav';
 
 import {
@@ -25,7 +24,10 @@ import {
   FaSignOutAlt,
   FaHome,
   FaBars,
-  FaTimes
+  FaTimes,
+  FaTimesCircle,
+  FaEye,
+  FaEyeSlash
 } from "react-icons/fa";
 
 const CustomerView = () => {
@@ -37,11 +39,36 @@ const CustomerView = () => {
   const [showDropdown, setShowDropdown] = useState(false);
   const prevNotificationsRef = useRef(0);
   const [audioUnlocked, setAudioUnlocked] = useState(false);
+
+  // Toast state
+  const [toast, setToast] = useState({ show: false, message: '', type: 'success' });
+
+  // Password modal states
+  const [showPasswordModal, setShowPasswordModal] = useState(false);
+  const [oldPassword, setOldPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [loadingPwd, setLoadingPwd] = useState(false);
+  const [pwdError, setPwdError] = useState("");
   
-  // Audio refs for custom sounds
+  // Password visibility toggles
+  const [showOldPwd, setShowOldPwd] = useState(false);
+  const [showNewPwd, setShowNewPwd] = useState(false);
+  const [showConfirmPwd, setShowConfirmPwd] = useState(false);
+
   const notificationSound = useRef(null);
   const bellSound = useRef(null);
   const audioContextRef = useRef(null);
+
+  // Auto-hide toast after 3 seconds
+  useEffect(() => {
+    if (toast.show) {
+      const timer = setTimeout(() => {
+        setToast({ ...toast, show: false });
+      }, 3000);
+      return () => clearTimeout(timer);
+    }
+  }, [toast]);
 
   // Load user from localStorage
   useEffect(() => {
@@ -49,25 +76,16 @@ const CustomerView = () => {
     if (storedUser) setUser(JSON.parse(storedUser));
   }, []);
 
-  // Initialize custom audio from imported files
+  // Initialize custom audio
   useEffect(() => {
     try {
-      // Create AudioContext only for unlocking (required by browsers)
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      
-      // Use imported audio files
       notificationSound.current = new Audio(notificationSoundFile);
       bellSound.current = new Audio(bellSoundFile);
-      
-      // Set volume (0.0 to 1.0)
       notificationSound.current.volume = 0.8;
       bellSound.current.volume = 0.8;
-      
-      // Preload sounds
       notificationSound.current.load();
       bellSound.current.load();
-      
-      console.log("Custom sounds loaded successfully from src/sounds");
     } catch (error) {
       console.error("Failed to load custom sounds:", error);
       notificationSound.current = { play: () => {} };
@@ -75,19 +93,17 @@ const CustomerView = () => {
     }
   }, []);
 
-  // Unlock audio on first user interaction
+  // Unlock audio on user interaction
   useEffect(() => {
     const unlockAudio = async () => {
       if (!audioUnlocked && audioContextRef.current) {
         try {
           await audioContextRef.current.resume();
           setAudioUnlocked(true);
-          console.log("Audio unlocked successfully");
         } catch (err) {
           console.log("Audio unlock failed:", err);
         }
       }
-      // Helps unlock HTML5 Audio on iOS
       const dummyAudio = new Audio();
       dummyAudio.play().catch(e => console.log("Dummy audio unlock attempt:", e));
     };
@@ -119,7 +135,7 @@ const CustomerView = () => {
     return () => window.removeEventListener('resize', handleResize);
   }, []);
 
-  // Fetch notifications periodically and play sound for new notifications
+  // Fetch notifications periodically and play sound for new ones
   useEffect(() => {
     if (!user?.userId) return;
 
@@ -239,14 +255,98 @@ const CustomerView = () => {
   };
 
   const handleAvatarClick = () => setShowDropdown(!showDropdown);
-  const handleChangePassword = () => { alert("Navigate to Change Password Page"); setShowDropdown(false); };
   const handleViewKyc = () => { setActiveMenu('viewKyc'); setShowDropdown(false); };
+  
+  // Open password modal (called from dropdown)
+  const openPasswordModal = () => {
+    setShowDropdown(false);
+    setPwdError("");
+    setOldPassword("");
+    setNewPassword("");
+    setConfirmPassword("");
+    setShowOldPwd(false);
+    setShowNewPwd(false);
+    setShowConfirmPwd(false);
+    setShowPasswordModal(true);
+  };
+
+  // Handle password change submission
+  const handleChangePassword = async () => {
+    if (!oldPassword || !newPassword || !confirmPassword) {
+      setPwdError("Please fill all fields");
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPwdError("New passwords do not match");
+      return;
+    }
+    if (newPassword.length < 6) {
+      setPwdError("Password must be at least 6 characters");
+      return;
+    }
+
+    setLoadingPwd(true);
+    setPwdError("");
+
+    try {
+      const token = localStorage.getItem("token");
+      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/auth/change-password`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          userId: user.userId,
+          oldPassword,
+          newPassword,
+        }),
+      });
+
+      let data;
+      try {
+        data = await res.json();
+      } catch {
+        data = {};
+      }
+
+      if (!res.ok) {
+        setPwdError(data.message || "Password change failed");
+        return;
+      }
+
+      setToast({
+        show: true,
+        message: "Password updated successfully!",
+        type: "success"
+      });
+      
+      setShowPasswordModal(false);
+      setOldPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err) {
+      console.error(err);
+      setPwdError("Server error. Please try again later.");
+    } finally {
+      setLoadingPwd(false);
+    }
+  };
 
   const displayName = user?.fullName || 'User';
   const firstName = displayName.split(' ')[0];
 
   return (
     <div className="dashboard-container">
+      {/* Toast Notification */}
+      {toast.show && (
+        <div className={`custom-toast ${toast.type}`}>
+          <div className="toast-content">
+            <span className="toast-message">{toast.message}</span>
+          </div>
+        </div>
+      )}
+
       <header className="top-bar">
         <div className="top-bar-left">
           <button className="mobile-menu-toggle" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
@@ -264,27 +364,105 @@ const CustomerView = () => {
               {notifications > 99 ? '99+' : notifications}
             </span>
           </div>
-          <div className="user-avatar" style={{ position: "relative" }}>
-            <div onClick={handleAvatarClick} style={{ cursor: "pointer" }}>
+          
+          {/* Avatar with chevron */}
+          <div className="user-avatar">
+            <div 
+              onClick={handleAvatarClick} 
+              style={{ display: "flex", alignItems: "center", gap: "6px", cursor: "pointer" }}
+            >
               {avatar ? (
-                <img src={`${process.env.REACT_APP_API_URL.replace(/\/$/, "")}/uploads/${avatar}`} alt="avatar" className="avatar-img" />
+                <img 
+                  src={`${process.env.REACT_APP_API_URL.replace(/\/$/, "")}/uploads/${avatar}`} 
+                  alt="avatar" 
+                  className="avatar-img" 
+                />
               ) : (
                 <div className="avatar-placeholder">{firstName?.charAt(0)}</div>
               )}
+              <span className="avatar-chevron">▼</span>
             </div>
             {showDropdown && (
               <AvatarDropdown
                 userId={user?.userId}
                 onClose={() => setShowDropdown(false)}
-                onChangePassword={handleChangePassword}
+                onChangePassword={openPasswordModal}
                 onViewKyc={handleViewKyc}
               />
             )}
           </div>
-          <span className="welcome-text">{firstName}</span>
+
+         
           <button className="logout-btn" onClick={handleLogout}><FaSignOutAlt /> Logout</button>
         </div>
       </header>
+
+      {/* Password Change Modal with toggle visibility */}
+      {showPasswordModal && (
+        <div className="modal-overlay" onClick={() => setShowPasswordModal(false)}>
+          <div className="password-modal" onClick={(e) => e.stopPropagation()}>
+            <div className="modal-header">
+              <h3>Change Password</h3>
+              <FaTimesCircle className="close-icon" onClick={() => setShowPasswordModal(false)} />
+            </div>
+            <div className="modal-body">
+              {pwdError && <div className="error-message">{pwdError}</div>}
+              
+              <div className="input-group">
+                <label>Old Password</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showOldPwd ? "text" : "password"}
+                    value={oldPassword}
+                    onChange={(e) => setOldPassword(e.target.value)}
+                    placeholder="Enter current password"
+                  />
+                  <button type="button" className="toggle-pwd-btn" onClick={() => setShowOldPwd(!showOldPwd)}>
+                    {showOldPwd ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label>New Password</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showNewPwd ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password (min 6 characters)"
+                  />
+                  <button type="button" className="toggle-pwd-btn" onClick={() => setShowNewPwd(!showNewPwd)}>
+                    {showNewPwd ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+
+              <div className="input-group">
+                <label>Confirm New Password</label>
+                <div className="password-input-wrapper">
+                  <input
+                    type={showConfirmPwd ? "text" : "password"}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                  />
+                  <button type="button" className="toggle-pwd-btn" onClick={() => setShowConfirmPwd(!showConfirmPwd)}>
+                    {showConfirmPwd ? <FaEyeSlash /> : <FaEye />}
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div className="modal-footer">
+              <button className="cancel-btn" onClick={() => setShowPasswordModal(false)}>Cancel</button>
+              <button className="submit-btn" onClick={handleChangePassword} disabled={loadingPwd}>
+                {loadingPwd ? "Updating..." : "Update Password"}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="dashboard-content">
         <nav className={`sidebar-cards ${mobileMenuOpen ? 'mobile-open' : ''}`}>
           <div className="menu-cards-grid">

@@ -1,75 +1,462 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { availablePermissions, getGroupedPermissions, menuItems } from './permissions';
 
 const Roles = () => {
   const [roles, setRoles] = useState([]);
+  const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
+  const [showStaffPermissionsModal, setShowStaffPermissionsModal] = useState(false);
   const [editingRole, setEditingRole] = useState(null);
+  const [editingStaff, setEditingStaff] = useState(null);
+  const [viewingRole, setViewingRole] = useState(null);
+  const [viewingStaff, setViewingStaff] = useState(null);
+  const [openDropdown, setOpenDropdown] = useState(null);
+  const [dropdownPosition, setDropdownPosition] = useState({});
+  const [showResetPasswordModal, setShowResetPasswordModal] = useState(false);
+  const [selectedStaff, setSelectedStaff] = useState(null);
+  const [newPassword, setNewPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [expandedMenus, setExpandedMenus] = useState({});
+  const [expandedSubMenus, setExpandedSubMenus] = useState({});
+  const [expandedNestedMenus, setExpandedNestedMenus] = useState({});
   const [formData, setFormData] = useState({
     name: '',
     description: '',
     permissions: []
   });
+  
+  const dropdownRefs = useRef({});
+  const buttonRefs = useRef({});
 
-  // Available permissions
-  const availablePermissions = [
-    { id: 'view_dashboard', name: 'View Dashboard', category: 'General' },
-    { id: 'manage_customers', name: 'Manage Customers', category: 'Customer' },
-    { id: 'view_customers', name: 'View Customers', category: 'Customer' },
-    { id: 'create_customer', name: 'Create Customer', category: 'Customer' },
-    { id: 'edit_customer', name: 'Edit Customer', category: 'Customer' },
-    { id: 'delete_customer', name: 'Delete Customer', category: 'Customer' },
-    { id: 'manage_accounts', name: 'Manage Accounts', category: 'Account' },
-    { id: 'view_accounts', name: 'View Accounts', category: 'Account' },
-    { id: 'create_account', name: 'Create Account', category: 'Account' },
-    { id: 'close_account', name: 'Close Account', category: 'Account' },
-    { id: 'teller_transactions', name: 'Teller Transactions', category: 'Teller' },
-    { id: 'deposit', name: 'Process Deposit', category: 'Teller' },
-    { id: 'withdraw', name: 'Process Withdrawal', category: 'Teller' },
-    { id: 'view_teller_summary', name: 'View Teller Summary', category: 'Teller' },
-    { id: 'manage_loans', name: 'Manage Loans', category: 'Loans' },
-    { id: 'approve_loans', name: 'Approve Loans', category: 'Loans' },
-    { id: 'disburse_loans', name: 'Disburse Loans', category: 'Loans' },
-    { id: 'manage_gl_accounts', name: 'Manage GL Accounts', category: 'Internal Accounts' },
-    { id: 'internal_transfers', name: 'Internal Transfers', category: 'Internal Accounts' },
-    { id: 'manage_users', name: 'Manage Users', category: 'Admin' },
-    { id: 'manage_roles', name: 'Manage Roles', category: 'Admin' },
-    { id: 'view_reports', name: 'View Reports', category: 'Reports' },
-    { id: 'batch_upload', name: 'Batch Upload', category: 'Batch Upload' },
-    { id: 'system_settings', name: 'System Settings', category: 'System' }
-  ];
+  // Toggle functions for menu expansion
+  const toggleMenu = (menuName) => {
+    setExpandedMenus(prev => ({
+      ...prev,
+      [menuName]: !prev[menuName]
+    }));
+  };
 
-  // Group permissions by category
-  const groupedPermissions = availablePermissions.reduce((groups, permission) => {
-    if (!groups[permission.category]) {
-      groups[permission.category] = [];
+  const toggleSubMenu = (menuName, subMenuName) => {
+    const key = `${menuName}_${subMenuName}`;
+    setExpandedSubMenus(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  const toggleNestedMenu = (menuName, subMenuName, nestedName) => {
+    const key = `${menuName}_${subMenuName}_${nestedName}`;
+    setExpandedNestedMenus(prev => ({
+      ...prev,
+      [key]: !prev[key]
+    }));
+  };
+
+  // Check if a permission is selected
+  const isPermissionSelected = (permissionId) => {
+    return formData.permissions.includes(permissionId);
+  };
+
+  // Handle permission selection from menu items
+  const handleMenuPermissionChange = (permissionId) => {
+    setFormData(prev => {
+      const newPermissions = prev.permissions.includes(permissionId)
+        ? prev.permissions.filter(p => p !== permissionId)
+        : [...prev.permissions, permissionId];
+      return { ...prev, permissions: newPermissions };
+    });
+  };
+
+  // Generate permission ID from menu item
+  const getPermissionId = (menuName, subMenuName = null, itemName = null) => {
+    if (itemName && subMenuName) {
+      return `${menuName.toLowerCase()}_${subMenuName.toLowerCase().replace(/ /g, '_')}_${itemName.toLowerCase().replace(/ /g, '_')}`;
+    } else if (subMenuName) {
+      return `${menuName.toLowerCase()}_${subMenuName.toLowerCase().replace(/ /g, '_')}`;
     }
-    groups[permission.category].push(permission);
-    return groups;
-  }, {});
+    return menuName.toLowerCase().replace(/ /g, '_');
+  };
 
-  useEffect(() => {
-    fetchRoles();
-  }, []);
+  // Reset Password functionality
+  const handleResetPassword = (staff) => {
+    setSelectedStaff(staff);
+    setNewPassword('');
+    setConfirmPassword('');
+    setShowResetPasswordModal(true);
+    setOpenDropdown(null);
+  };
 
-  const fetchRoles = async () => {
+  const submitPasswordReset = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast.error('Please enter password and confirm password');
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
+
     setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get('http://localhost:5000/api/roles', {
+      await axios.post(`${process.env.REACT_APP_API_URL}/reset-password`, {
+        userId: selectedStaff.userId,
+        password: newPassword
+      }, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      setRoles(response.data);
+      toast.success(`Password reset successfully for ${selectedStaff.full_name}`);
+      setShowResetPasswordModal(false);
     } catch (error) {
-      console.error('Error fetching roles:', error);
-      toast.error('Failed to fetch roles');
+      console.error('Error resetting password:', error);
+      toast.error(error.response?.data?.message || 'Failed to reset password');
     } finally {
       setLoading(false);
     }
   };
+
+  // Activate Staff
+  const handleActivateStaff = async (staff) => {
+    if (!window.confirm(`Are you sure you want to activate ${staff.full_name}?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${process.env.REACT_APP_API_URL}/activate-user/${staff.userId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(`${staff.full_name} has been activated successfully`);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error activating staff:', error);
+      toast.error(error.response?.data?.message || 'Failed to activate staff');
+    } finally {
+      setLoading(false);
+      setOpenDropdown(null);
+    }
+  };
+
+  // Deactivate Staff
+  const handleDeactivateStaff = async (staff) => {
+    if (!window.confirm(`Are you sure you want to deactivate ${staff.full_name}?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${process.env.REACT_APP_API_URL}/deactivate-user/${staff.userId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(`${staff.full_name} has been deactivated successfully`);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error deactivating staff:', error);
+      toast.error(error.response?.data?.message || 'Failed to deactivate staff');
+    } finally {
+      setLoading(false);
+      setOpenDropdown(null);
+    }
+  };
+
+  // Block Login
+  const handleBlockLogin = async (staff) => {
+    if (!window.confirm(`Are you sure you want to block login for ${staff.full_name}?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${process.env.REACT_APP_API_URL}/block-user/${staff.userId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(`Login blocked for ${staff.full_name}`);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error blocking login:', error);
+      toast.error(error.response?.data?.message || 'Failed to block login');
+    } finally {
+      setLoading(false);
+      setOpenDropdown(null);
+    }
+  };
+
+  // Unblock Login
+  const handleUnblockLogin = async (staff) => {
+    if (!window.confirm(`Are you sure you want to unblock login for ${staff.full_name}?`)) {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${process.env.REACT_APP_API_URL}/unblock-user/${staff.userId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(`Login unblocked for ${staff.full_name}`);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error unblocking login:', error);
+      toast.error(error.response?.data?.message || 'Failed to unblock login');
+    } finally {
+      setLoading(false);
+      setOpenDropdown(null);
+    }
+  };
+
+  // Render reports in menu
+  const renderReports = (reports, menuName, subMenuName) => {
+    if (!reports || reports.length === 0) return null;
+    
+    return (
+      <ul className="list-unstyled ms-4 mt-2">
+        {reports.map((report, idx) => {
+          const permissionId = getPermissionId(menuName, subMenuName, report.name);
+          return (
+            <li key={idx} className="mb-1">
+              <div className="d-flex align-items-center p-1 rounded hover-bg">
+                <input
+                  type="checkbox"
+                  className="form-check-input me-2"
+                  id={permissionId}
+                  checked={isPermissionSelected(permissionId)}
+                  onChange={() => handleMenuPermissionChange(permissionId)}
+                />
+                <i className={`${report.icon} me-2 text-success`}></i>
+                <label className="form-check-label small" htmlFor={permissionId}>
+                  {report.name}
+                </label>
+              </div>
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  // Render nested menus
+  const renderNestedMenus = (nestedMenus, menuName, subMenuName) => {
+    if (!nestedMenus || nestedMenus.length === 0) return null;
+    
+    return (
+      <ul className="list-unstyled ms-4 mt-2">
+        {nestedMenus.map((nested, idx) => {
+          const nestedKey = `${menuName}_${subMenuName}_${nested.name}`;
+          const hasNestedChildren = nested.nestedMenus && nested.nestedMenus.length > 0;
+          const hasReports = nested.reports && nested.reports.length > 0;
+          const permissionId = getPermissionId(menuName, subMenuName, nested.name);
+          
+          return (
+            <li key={idx} className="mb-2">
+              {hasNestedChildren || hasReports ? (
+                <>
+                  <div 
+                    className="d-flex align-items-center p-2 rounded hover-bg cursor-pointer"
+                    style={{ cursor: 'pointer', backgroundColor: '#f8f9fa' }}
+                  >
+                    <i 
+                      className={`bi ${expandedNestedMenus[nestedKey] ? 'bi-chevron-down' : 'bi-chevron-right'} me-2 text-info`}
+                      onClick={() => toggleNestedMenu(menuName, subMenuName, nested.name)}
+                      style={{ cursor: 'pointer' }}
+                    ></i>
+                    <input
+                      type="checkbox"
+                      className="form-check-input me-2"
+                      id={permissionId}
+                      checked={isPermissionSelected(permissionId)}
+                      onChange={() => handleMenuPermissionChange(permissionId)}
+                    />
+                    <i className={`${nested.icon} me-2 text-primary`}></i>
+                    <label className="form-check-label fw-semibold" htmlFor={permissionId}>
+                      {nested.name}
+                    </label>
+                  </div>
+                  {expandedNestedMenus[nestedKey] && (
+                    <>
+                      {hasNestedChildren && renderNestedMenus(nested.nestedMenus, menuName, `${subMenuName}_${nested.name}`)}
+                      {hasReports && renderReports(nested.reports, menuName, `${subMenuName}_${nested.name}`)}
+                    </>
+                  )}
+                </>
+              ) : (
+                <div className="d-flex align-items-center p-2 rounded hover-bg ms-3">
+                  <input
+                    type="checkbox"
+                    className="form-check-input me-2"
+                    id={permissionId}
+                    checked={isPermissionSelected(permissionId)}
+                    onChange={() => handleMenuPermissionChange(permissionId)}
+                  />
+                  <i className={`${nested.icon} me-2 text-secondary`}></i>
+                  <label className="form-check-label" htmlFor={permissionId}>
+                    {nested.name}
+                  </label>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  // Render sub menus
+  const renderSubMenus = (subMenus, menuName) => {
+    if (!subMenus || subMenus.length === 0) return null;
+    
+    return (
+      <ul className="list-unstyled mt-2 ms-4">
+        {subMenus.map((subMenu, idx) => {
+          const subMenuKey = `${menuName}_${subMenu.name}`;
+          const hasNested = subMenu.nestedMenus && subMenu.nestedMenus.length > 0;
+          const hasReports = subMenu.reports && subMenu.reports.length > 0;
+          const hasContent = hasNested || hasReports;
+          const permissionId = getPermissionId(menuName, subMenu.name);
+          
+          return (
+            <li key={idx} className="mb-2">
+              {hasContent ? (
+                <>
+                  <div 
+                    className="d-flex align-items-center p-2 rounded hover-bg cursor-pointer"
+                    style={{ cursor: 'pointer', backgroundColor: '#e9ecef' }}
+                  >
+                    <i 
+                      className={`bi ${expandedSubMenus[subMenuKey] ? 'bi-chevron-down' : 'bi-chevron-right'} me-2 text-info`}
+                      onClick={() => toggleSubMenu(menuName, subMenu.name)}
+                      style={{ cursor: 'pointer' }}
+                    ></i>
+                    <input
+                      type="checkbox"
+                      className="form-check-input me-2"
+                      id={permissionId}
+                      checked={isPermissionSelected(permissionId)}
+                      onChange={() => handleMenuPermissionChange(permissionId)}
+                    />
+                    <i className={`${subMenu.icon} me-2 text-primary`}></i>
+                    <label className="form-check-label fw-semibold" htmlFor={permissionId}>
+                      {subMenu.name}
+                    </label>
+                  </div>
+                  {expandedSubMenus[subMenuKey] && (
+                    <div className="mt-2">
+                      {hasNested && renderNestedMenus(subMenu.nestedMenus, menuName, subMenu.name)}
+                      {hasReports && renderReports(subMenu.reports, menuName, subMenu.name)}
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div className="d-flex align-items-center p-2 rounded hover-bg">
+                  <input
+                    type="checkbox"
+                    className="form-check-input me-2"
+                    id={permissionId}
+                    checked={isPermissionSelected(permissionId)}
+                    onChange={() => handleMenuPermissionChange(permissionId)}
+                  />
+                  <i className={`${subMenu.icon} me-2 text-secondary`}></i>
+                  <label className="form-check-label" htmlFor={permissionId}>
+                    {subMenu.name}
+                  </label>
+                </div>
+              )}
+            </li>
+          );
+        })}
+      </ul>
+    );
+  };
+
+  // Group permissions by category
+  const groupedPermissions = getGroupedPermissions();
+
+  // Fetch roles
+ /* const fetchRoles = useCallback(() => {
+    const enumRoles = [
+      { id: 2, name: 'loan_officer', description: 'Can process and manage loan applications', permissions: ['view_dashboard', 'view_customers', 'manage_loans', 'approve_loans', 'disburse_loans'] },
+      { id: 3, name: 'supervisor', description: 'Supervises loan officers and daily operations', permissions: ['view_dashboard', 'manage_customers', 'manage_loans', 'approve_loans', 'view_reports'] },
+      { id: 4, name: 'manager', description: 'Manages branch operations and staff', permissions: ['view_dashboard', 'manage_customers', 'manage_loans', 'approve_loans', 'manage_users', 'view_reports'] },
+      { id: 5, name: 'admin', description: 'Full system access', permissions: ['view_dashboard', 'manage_customers', 'manage_accounts', 'manage_loans', 'manage_users', 'manage_roles', 'view_reports', 'system_settings'] }
+    ];
+
+    setLoading(true);
+    try {
+      setRoles(enumRoles);
+    } catch (error) {
+      console.error('Error loading roles:', error);
+      toast.error('Failed to load roles');
+    } finally {
+      setLoading(false);
+    }
+  }, []);*/
+
+
+  const fetchRoles = useCallback(() => {
+  setLoading(true);
+  try {
+    setRoles([]); // no default roles anymore
+  } catch (error) {
+    console.error('Error loading roles:', error);
+    toast.error('Failed to load roles');
+  } finally {
+    setLoading(false);
+  }
+}, []);
+
+  // Fetch users - Updated to handle status field
+  const fetchUsers = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/getusers`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      
+      // Map the backend status to is_active and is_blocked for compatibility
+      const mappedUsers = response.data.map(user => ({
+        ...user,
+        userId: user.id, // Map id to userId for consistency
+        is_active: user.status === 'active',
+        is_blocked: user.status === 'blocked'
+      }));
+      
+      setUsers(mappedUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to fetch users');
+    }
+  }, []);
+
+  useEffect(() => {
+   // fetchRoles();
+    fetchUsers();
+  }, [ fetchUsers]); 
+
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdown && 
+          !event.target.closest('.custom-dropdown') && 
+          !event.target.closest('.dropdown-item')) {
+        setOpenDropdown(null);
+        setDropdownPosition({});
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [openDropdown]);
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -79,30 +466,15 @@ const Roles = () => {
     });
   };
 
-  const handlePermissionChange = (permissionId) => {
-    setFormData(prev => {
-      const newPermissions = prev.permissions.includes(permissionId)
-        ? prev.permissions.filter(p => p !== permissionId)
-        : [...prev.permissions, permissionId];
-      return { ...prev, permissions: newPermissions };
-    });
-  };
-
-  const handleSelectAll = (category, permissions) => {
-    const categoryPermissions = permissions.map(p => p.id);
-    const allSelected = categoryPermissions.every(p => formData.permissions.includes(p));
+  const handleSelectAllPermissions = () => {
+    const allPermissionIds = availablePermissions.map(p => p.id);
+    const allSelected = allPermissionIds.every(p => formData.permissions.includes(p));
     
-    setFormData(prev => {
-      let newPermissions;
-      if (allSelected) {
-      
-        newPermissions = prev.permissions.filter(p => !categoryPermissions.includes(p));
-      } else {
-        // Select all in category
-        newPermissions = [...new Set([...prev.permissions, ...categoryPermissions])];
-      }
-      return { ...prev, permissions: newPermissions };
-    });
+    if (allSelected) {
+      setFormData(prev => ({ ...prev, permissions: [] }));
+    } else {
+      setFormData(prev => ({ ...prev, permissions: allPermissionIds }));
+    }
   };
 
   const validateForm = () => {
@@ -114,66 +486,181 @@ const Roles = () => {
   };
 
   const handleSubmit = async (e) => {
-    e.preventDefault();
-    
-    if (!validateForm()) {
-      return;
+  e.preventDefault();
+
+  if (!validateForm()) {
+    return;
+  }
+
+  setLoading(true);
+
+  try {
+    const token = localStorage.getItem("token");
+
+    // =========================================
+    // UPDATE STAFF PERMISSIONS / TASKS
+    // =========================================
+    if (editingStaff) {
+
+      // Send selected checkbox permissions as tasks
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/assign-tasks`,
+        {
+          userId: editingStaff.userId,
+          staff_name: editingStaff.full_name,
+          tasks: formData.permissions
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`
+          }
+        }
+      );
+
+      toast.success(
+        `Permissions updated successfully for ${editingStaff.full_name}`
+      );
+
     }
 
-    setLoading(true);
-    
-    try {
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: { Authorization: `Bearer ${token}` }
+    // =========================================
+    // UPDATE ROLE
+    // =========================================
+    else if (editingRole) {
+
+      const updatedRoles = roles.map((role) =>
+        role.name === editingRole.name
+          ? {
+              ...role,
+              ...formData
+            }
+          : role
+      );
+
+      setRoles(updatedRoles);
+
+      toast.success("Role updated successfully");
+    }
+
+    // =========================================
+    // CREATE NEW ROLE
+    // =========================================
+    else {
+
+      const newRole = {
+        id: roles.length + 2,
+        name: formData.name.toLowerCase().replace(/\s/g, "_"),
+        description: formData.description,
+        permissions: formData.permissions
       };
 
-      if (editingRole) {
-        await axios.put(`http://localhost:5000/api/roles/${editingRole.id}`, formData, config);
-        toast.success('Role updated successfully');
-      } else {
-        await axios.post('http://localhost:5000/api/roles', formData, config);
-        toast.success('Role created successfully');
-      }
-      
-      resetForm();
-      fetchRoles();
-    } catch (error) {
-      console.error('Error saving role:', error);
-      toast.error(error.response?.data?.message || 'Failed to save role');
-    } finally {
-      setLoading(false);
-    }
-  };
+      setRoles([...roles, newRole]);
 
-  const handleEdit = (role) => {
+      toast.success("Role created successfully");
+    }
+
+    // Reset form
+    resetForm();
+
+  } catch (error) {
+
+    console.error("Error saving role:", error);
+
+    toast.error(
+      error.response?.data?.message || "Failed to save permissions/tasks"
+    );
+
+  } finally {
+
+    setLoading(false);
+
+  }
+};
+
+  /*const handleEdit = (role) => {
     setEditingRole(role);
+    setEditingStaff(null);
     setFormData({
       name: role.name,
       description: role.description || '',
       permissions: role.permissions || []
     });
     setShowModal(true);
-  };
+    setOpenDropdown(null);
+  };*/
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this role? This will affect all users with this role.')) {
-      setLoading(true);
-      try {
-        const token = localStorage.getItem('token');
-        await axios.delete(`http://localhost:5000/api/roles/${id}`, {
-          headers: { Authorization: `Bearer ${token}` }
-        });
-        toast.success('Role deleted successfully');
-        fetchRoles();
-      } catch (error) {
-        console.error('Error deleting role:', error);
-        toast.error('Failed to delete role');
-      } finally {
-        setLoading(false);
+
+
+const handleViewStaffPermissions = async (staff) => {
+  try {
+
+    const token = localStorage.getItem("token");
+
+    const response = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/user-tasks/${staff.userId}`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`
+        }
       }
-    }
-  };
+    );
+
+    const permissions = response.data.tasks || [];
+
+    setViewingStaff(staff);
+
+    setViewingRole({
+      name: staff.role,
+      description: `${staff.role} permissions`,
+      permissions
+    });
+
+    setShowStaffPermissionsModal(true);
+    setOpenDropdown(null);
+
+  } catch (error) {
+
+    console.error("Error fetching staff permissions:", error);
+
+    toast.error(
+      error.response?.data?.message ||
+      "Failed to fetch staff permissions"
+    );
+  }
+};
+
+
+
+const handleEditStaffRole = async (staff) => {
+  try {
+    const token = localStorage.getItem("token");
+
+    // fetch current staff permissions from backend
+    const res = await axios.get(
+      `${process.env.REACT_APP_API_URL}/api/user-tasks/${staff.userId}`,
+      {
+        headers: { Authorization: `Bearer ${token}` }
+      }
+    );
+
+    const permissions = res.data.tasks || [];
+
+    setEditingStaff(staff);
+
+    setFormData({
+      name: staff.role, // keep role name as label only
+      description: `${staff.role} permissions`,
+      permissions: permissions
+    });
+
+    setShowModal(true);
+  } catch (error) {
+    console.error(error);
+    toast.error("Failed to load staff permissions");
+  } finally {
+    setOpenDropdown(null);
+  }
+};
 
   const resetForm = () => {
     setFormData({
@@ -182,12 +669,113 @@ const Roles = () => {
       permissions: []
     });
     setEditingRole(null);
+    setEditingStaff(null);
     setShowModal(false);
   };
 
-  const getUserCount = (roleId) => {
-    // This would come from API in real implementation
-    return 0;
+  const getStaffMembers = () => {
+    const staffRoles = ['loan_officer', 'supervisor', 'manager', 'admin'];
+    return users.filter(user => staffRoles.includes(user.role));
+  };
+
+  const getRoleBadgeColor = (roleName) => {
+    const colors = {
+      'admin': 'primary',
+      'manager': 'primary',
+      'supervisor': 'primary',
+      'loan_officer': 'primary'
+    };
+    return colors[roleName] || 'secondary';
+  };
+
+  const getRoleDisplayName = (roleName) => {
+    const names = {
+      'loan_officer': 'Loan Officer',
+      'supervisor': 'Supervisor',
+      'manager': 'Manager',
+      'admin': 'Admin'
+    };
+    return names[roleName] || roleName;
+  };
+
+  // Updated status badge function to use status field
+  const getStatusBadge = (user) => {
+    if (user.status) {
+      switch(user.status.toLowerCase()) {
+        case 'active':
+          return <span className="badge bg-success">Active</span>;
+        case 'inactive':
+          return <span className="badge bg-secondary">Inactive</span>;
+        case 'blocked':
+          return <span className="badge bg-danger">Blocked</span>;
+        default:
+          return <span className="badge bg-secondary">{user.status}</span>;
+      }
+    }
+    
+    // Fallback logic
+    if (user.is_blocked) {
+      return <span className="badge bg-danger">Blocked</span>;
+    }
+    if (user.is_active === false) {
+      return <span className="badge bg-secondary">Inactive</span>;
+    }
+    return <span className="badge bg-success">Active</span>;
+  };
+
+  const displayContactInfo = (user) => {
+    const hasEmail = user.email && user.email.trim() !== '';
+    const hasPhone = user.phone && user.phone.trim() !== '';
+    
+    if (hasEmail && hasPhone) {
+      return `${user.email} / ${user.phone}`;
+    } else if (hasEmail) {
+      return user.email;
+    } else if (hasPhone) {
+      return user.phone;
+    }
+    return '—';
+  };
+
+  const staffMembers = getStaffMembers();
+
+  const toggleDropdown = (staffId, event) => {
+    event.stopPropagation();
+    
+    if (openDropdown === staffId) {
+      setOpenDropdown(null);
+      setDropdownPosition({});
+      return;
+    }
+    
+    const button = event.currentTarget;
+    if (button && button.getBoundingClientRect) {
+      const rect = button.getBoundingClientRect();
+      const viewportHeight = window.innerHeight;
+      const spaceBelow = viewportHeight - rect.bottom;
+      const spaceAbove = rect.top;
+      const dropdownHeight = 450;
+      
+      let top, bottom;
+      
+      if (spaceBelow < dropdownHeight && spaceAbove > spaceBelow) {
+        bottom = viewportHeight - rect.top + 10;
+        top = 'auto';
+      } else {
+        top = rect.bottom + 5;
+        bottom = 'auto';
+      }
+      
+      setDropdownPosition({
+        position: 'fixed',
+        top: top,
+        bottom: bottom,
+        left: rect.left,
+        zIndex: 9999
+      });
+    }
+    
+    setOpenDropdown(staffId);
   };
 
   return (
@@ -197,125 +785,207 @@ const Roles = () => {
       {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-          <h4 className="mb-1">Role Management</h4>
-          <p className="text-muted mb-0">Manage user roles and access permissions</p>
+          <h4 className="mb-1">Staff Management</h4>
+          <p className="text-muted mb-0">Manage staff members, roles, and permissions</p>
         </div>
-        <button 
-          className="btn btn-primary"
-          onClick={() => setShowModal(true)}
-        >
-          <i className="bi bi-shield-plus me-2"></i>
-          Create Role
-        </button>
+        
       </div>
 
       {/* Summary Cards */}
       <div className="row mb-4">
-        <div className="col-md-4 mb-3">
+        <div className="col-md-3 mb-3">
           <div className="card bg-primary bg-opacity-10 border-0">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h6 className="text-muted mb-1">Total Roles</h6>
-                  <h3 className="mb-0">{roles.length}</h3>
+                  <h6 className="text-muted mb-1">Total Staff</h6>
+                  <h3 className="mb-0">{staffMembers.length}</h3>
                 </div>
-                <i className="bi bi-shield-lock fs-1 text-primary"></i>
+                <i className="bi bi-people fs-1 text-primary"></i>
               </div>
             </div>
           </div>
         </div>
-        <div className="col-md-4 mb-3">
+        <div className="col-md-3 mb-3">
           <div className="card bg-success bg-opacity-10 border-0">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h6 className="text-muted mb-1">System Roles</h6>
-                  <h3 className="mb-0">
-                    {roles.filter(role => role.name === 'Admin' || role.name === 'Super Admin').length}
-                  </h3>
+                  <h6 className="text-muted mb-1">Loan Officers</h6>
+                  <h3 className="mb-0">{staffMembers.filter(u => u.role === 'loan_officer').length}</h3>
                 </div>
-                <i className="bi bi-star-fill fs-1 text-success"></i>
+                <i className="bi bi-person-check fs-1 text-success"></i>
               </div>
             </div>
           </div>
         </div>
-        <div className="col-md-4 mb-3">
+        <div className="col-md-3 mb-3">
+          <div className="card bg-warning bg-opacity-10 border-0">
+            <div className="card-body">
+              <div className="d-flex justify-content-between align-items-center">
+                <div>
+                  <h6 className="text-muted mb-1">Supervisors</h6>
+                  <h3 className="mb-0">{staffMembers.filter(u => u.role === 'supervisor').length}</h3>
+                </div>
+                <i className="bi bi-person-badge fs-1 text-warning"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="col-md-3 mb-3">
           <div className="card bg-info bg-opacity-10 border-0">
             <div className="card-body">
               <div className="d-flex justify-content-between align-items-center">
                 <div>
-                  <h6 className="text-muted mb-1">Custom Roles</h6>
-                  <h3 className="mb-0">
-                    {roles.filter(role => role.name !== 'Admin' && role.name !== 'Super Admin').length}
-                  </h3>
+                  <h6 className="text-muted mb-1">Managers & Admins</h6>
+                  <h3 className="mb-0">{staffMembers.filter(u => u.role === 'manager' || u.role === 'admin').length}</h3>
                 </div>
-                <i className="bi bi-person-badge fs-1 text-info"></i>
+                <i className="bi bi-shield-lock fs-1 text-info"></i>
               </div>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Roles Table */}
+      {/* Main Staff Table */}
       <div className="card">
         <div className="card-header bg-white">
-          <h6 className="mb-0">System Roles & Permissions</h6>
+          <h5 className="mb-0">
+            <i className="bi bi-table me-2"></i>
+            All Staff Members
+          </h5>
         </div>
-        <div className="card-body p-0">
-          {loading && !roles.length ? (
+        <div className="card-body">
+          {loading && !staffMembers.length ? (
             <div className="text-center p-5">
               <div className="spinner-border text-primary" role="status">
                 <span className="visually-hidden">Loading...</span>
               </div>
-              <p className="mt-2 text-muted">Loading roles...</p>
+              <p className="mt-2 text-muted">Loading staff members...</p>
             </div>
-          ) : roles.length === 0 ? (
+          ) : staffMembers.length === 0 ? (
             <div className="text-center p-5">
-              <i className="bi bi-shield-lock fs-1 text-muted"></i>
-              <p className="mt-2 text-muted">No roles found. Create your first role!</p>
+              <i className="bi bi-people fs-1 text-muted"></i>
+              <p className="mt-2 text-muted">No staff members found.</p>
             </div>
           ) : (
             <div className="table-responsive">
-              <table className="table table-hover mb-0">
-                <thead className="table-light">
+              <table className="table table-hover table-striped">
+                <thead>
                   <tr>
-                    <th>Role Name</th>
-                    <th>Description</th>
-                    <th>Permissions</th>
-                    <th>Users</th>
-                    <th>Actions</th>
+                    <th style={{ width: '5%' }}>User ID</th>
+                    <th style={{ width: '15%' }}>Full Name</th>
+                    <th style={{ width: '20%' }}>Contact Information</th>
+                    <th style={{ width: '12%' }}>Role</th>
+                    <th style={{ width: '10%' }}>Status</th>
+                    <th style={{ width: '13%' }}>Joined Date</th>
+                    <th style={{ width: '25%' }}>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {roles.map((role) => (
-                    <tr key={role.id}>
+                  {staffMembers.map((staff, idx) => (
+                    <tr key={staff.userId}>
                       <td className="fw-semibold">
-                        <i className="bi bi-shield-check me-2 text-primary"></i>
-                        {role.name}
+                        <span className="badge bg-secondary">#{staff.userId}</span>
                       </td>
-                      <td>{role.description || '—'}</td>
+                      <td className="fw-semibold">
+                        {staff.full_name || staff.username || '—'}
+                      </td>
                       <td>
-                        <span className="badge bg-info">
-                          {role.permissions?.length || 0} permissions
+                        <small>{displayContactInfo(staff)}</small>
+                      </td>
+                      <td>
+                        <span className={`badge bg-${getRoleBadgeColor(staff.role)}`}>
+                          {getRoleDisplayName(staff.role)}
                         </span>
                       </td>
-                      <td>{getUserCount(role.id)}</td>
+                      <td>{getStatusBadge(staff)}</td>
                       <td>
-                        <button 
-                          className="btn btn-sm btn-outline-primary me-2"
-                          onClick={() => handleEdit(role)}
-                          title="Edit Role"
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                        <button 
-                          className="btn btn-sm btn-outline-danger"
-                          onClick={() => handleDelete(role.id)}
-                          title="Delete Role"
-                          disabled={role.name === 'Admin' || role.name === 'Super Admin'}
-                        >
-                          <i className="bi bi-trash"></i>
-                        </button>
+                        {staff.created_at 
+                          ? new Date(staff.created_at).toLocaleDateString() 
+                          : '—'}
+                      </td>
+                      <td className="position-relative">
+                        <div className="custom-dropdown">
+                          <button
+                            ref={el => buttonRefs.current[staff.userId] = el}
+                            className="btn btn-sm btn-secondary dropdown-toggle"
+                            type="button"
+                            onClick={(e) => toggleDropdown(staff.userId, e)}
+                          >
+                            <i className="bi bi-gear me-1"></i>
+                            Actions
+                          </button>
+                          {openDropdown === staff.userId && (
+                            <div 
+                              ref={el => dropdownRefs.current[staff.userId] = el}
+                              className="custom-dropdown-menu show"
+                              style={dropdownPosition}
+                            >
+                              <button
+                                className="dropdown-item"
+                                onClick={() => handleViewStaffPermissions(staff)}
+                              >
+                                <i className="bi bi-eye me-2"></i>
+                                View Permissions
+                              </button>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => handleEditStaffRole(staff)}
+                                disabled={staff.role === 'admin'}
+                              >
+                                <i className="bi bi-pencil me-2"></i>
+                                Edit Role Permissions
+                              </button>
+                              <div className="dropdown-divider"></div>
+                              <button
+                                className="dropdown-item"
+                                onClick={() => handleResetPassword(staff)}
+                              >
+                                <i className="bi bi-key me-2"></i>
+                                Reset Password
+                              </button>
+                              {staff.status === 'active' ? (
+                                <button
+                                  className="dropdown-item text-warning"
+                                  onClick={() => handleDeactivateStaff(staff)}
+                                  disabled={staff.role === 'admin'}
+                                >
+                                  <i className="bi bi-pause-circle me-2"></i>
+                                  Deactivate
+                                </button>
+                              ) : staff.status === 'inactive' ? (
+                                <button
+                                  className="dropdown-item text-success"
+                                  onClick={() => handleActivateStaff(staff)}
+                                  disabled={staff.role === 'admin'}
+                                >
+                                  <i className="bi bi-play-circle me-2"></i>
+                                  Activate
+                                </button>
+                              ) : null}
+                              {staff.status === 'blocked' ? (
+                                <button
+                                  className="dropdown-item text-success"
+                                  onClick={() => handleUnblockLogin(staff)}
+                                  disabled={staff.role === 'admin'}
+                                >
+                                  <i className="bi bi-unlock me-2"></i>
+                                  Unblock Login
+                                </button>
+                              ) : staff.status === 'active' ? (
+                                <button
+                                  className="dropdown-item text-danger"
+                                  onClick={() => handleBlockLogin(staff)}
+                                  disabled={staff.role === 'admin'}
+                                >
+                                  <i className="bi bi-lock me-2"></i>
+                                  Block Login
+                                </button>
+                              ) : null}
+                            </div>
+                          )}
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -326,19 +996,117 @@ const Roles = () => {
         </div>
       </div>
 
-      {/* Modal for Create/Edit Role */}
+      {/* Reset Password Modal */}
+      {showResetPasswordModal && selectedStaff && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }} tabIndex="-1">
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header bg-primary text-white">
+                <h5 className="modal-title">
+                  <i className="bi bi-key me-2"></i>
+                  Reset Password for: {selectedStaff.full_name} (User ID: #{selectedStaff.userId})
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close btn-close-white" 
+                  onClick={() => setShowResetPasswordModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="mb-3">
+                  <label className="form-label">New Password</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    placeholder="Enter new password"
+                  />
+                  <small className="text-muted">Password must be at least 6 characters long</small>
+                </div>
+                <div className="mb-3">
+                  <label className="form-label">Confirm Password</label>
+                  <input
+                    type="password"
+                    className="form-control"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm new password"
+                  />
+                </div>
+              </div>
+              <div className="modal-footer">
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => setShowResetPasswordModal(false)}
+                >
+                  Cancel
+                </button>
+                <button 
+                  type="button" 
+                  className="btn btn-primary" 
+                  onClick={submitPasswordReset}
+                  disabled={loading}
+                >
+                  {loading ? (
+                    <>
+                      <span className="spinner-border spinner-border-sm me-2"></span>
+                      Resetting...
+                    </>
+                  ) : (
+                    'Reset Password'
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Create/Edit Role Modal with Menu Tree */}
       {showModal && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }} tabIndex="-1">
           <div className="modal-dialog modal-xl">
             <div className="modal-content">
-              <div className="modal-header">
+              <div className="modal-header bg-light">
                 <h5 className="modal-title">
-                  {editingRole ? 'Edit Role' : 'Create New Role'}
+                  {editingRole ? (
+                    editingStaff ? (
+                      <>
+                        <i className="bi bi-person-badge me-2"></i>
+                        Editing Permissions for: {editingStaff.full_name} (User ID: #{editingStaff.userId})
+                      </>
+                    ) : (
+                      <>
+                        <i className="bi bi-pencil-square me-2"></i>
+                        Edit Role: {editingRole.name.replace('_', ' ').toUpperCase()}
+                      </>
+                    )
+                  ) : (
+                    <>
+                      <i className="bi bi-plus-circle me-2"></i>
+                      Create New Role & Assign Permissions
+                    </>
+                  )}
                 </h5>
                 <button type="button" className="btn-close" onClick={resetForm}></button>
               </div>
               <form onSubmit={handleSubmit}>
                 <div className="modal-body">
+                  {/* Staff editing info alert */}
+                  {editingStaff && (
+                    <div className="alert alert-info mb-3">
+                      <i className="bi bi-info-circle-fill me-2"></i>
+                      <strong>Editing permissions for staff member:</strong> {editingStaff.full_name} (User ID: #{editingStaff.userId})
+                      <br />
+                      <small className="text-muted">
+                        Role: {getRoleDisplayName(editingStaff.role)} | 
+                        Status: {getStatusBadge(editingStaff)}
+                      </small>
+                    </div>
+                  )}
+                  
                   <div className="row mb-3">
                     <div className="col-md-6">
                       <label className="form-label">Role Name *</label>
@@ -349,8 +1117,15 @@ const Roles = () => {
                         value={formData.name}
                         onChange={handleInputChange}
                         required
-                        placeholder="Enter role name (e.g., Teller, Account Manager)"
+                        placeholder="Enter role name"
+                        disabled={editingRole?.name === 'admin' || !!editingStaff}
                       />
+                      {editingStaff && (
+                        <small className="text-muted">
+                          <i className="bi bi-info-circle me-1"></i>
+                          Role name cannot be changed when editing staff permissions
+                        </small>
+                      )}
                     </div>
                     <div className="col-md-6">
                       <label className="form-label">Description</label>
@@ -366,45 +1141,76 @@ const Roles = () => {
                   </div>
 
                   <hr />
-                  <h6 className="mb-3">Permissions</h6>
                   
-                  {Object.entries(groupedPermissions).map(([category, permissions]) => (
-                    <div key={category} className="mb-4">
-                      <div className="d-flex justify-content-between align-items-center mb-2">
-                        <h6 className="mb-0 text-primary">{category}</h6>
-                        <button
-                          type="button"
-                          className="btn btn-sm btn-outline-secondary"
-                          onClick={() => handleSelectAll(category, permissions)}
-                        >
-                          {permissions.every(p => formData.permissions.includes(p.id)) 
-                            ? 'Deselect All' 
-                            : 'Select All'}
-                        </button>
-                      </div>
-                      <div className="row">
-                        {permissions.map(permission => (
-                          <div key={permission.id} className="col-md-4 mb-2">
-                            <div className="form-check">
+                  <div className="d-flex justify-content-between align-items-center mb-3">
+                    <h6 className="mb-0">Menu Permissions (Click on blue headings to expand)</h6>
+                    <button
+                      type="button"
+                      className="btn btn-sm btn-outline-primary"
+                      onClick={handleSelectAllPermissions}
+                    >
+                      Select All Permissions
+                    </button>
+                  </div>
+                  
+                  <div className="menu-tree">
+                    {menuItems.map((menu, idx) => {
+                      const menuPermissionId = getPermissionId(menu.name);
+                      return (
+                        <div key={idx} className="mb-3 border rounded">
+                          <div 
+                            className="d-flex justify-content-between align-items-center p-3 bg-primary bg-opacity-10 rounded-top cursor-pointer"
+                            style={{ cursor: 'pointer', transition: 'all 0.3s ease' }}
+                          >
+                            <div className="d-flex align-items-center">
+                              <i 
+                                className={`bi ${expandedMenus[menu.name] ? 'bi-chevron-down' : 'bi-chevron-right'} me-3 text-primary fs-5`}
+                                onClick={() => toggleMenu(menu.name)}
+                                style={{ cursor: 'pointer' }}
+                              ></i>
                               <input
                                 type="checkbox"
-                                className="form-check-input"
-                                id={permission.id}
-                                checked={formData.permissions.includes(permission.id)}
-                                onChange={() => handlePermissionChange(permission.id)}
+                                className="form-check-input me-3"
+                                id={menuPermissionId}
+                                checked={isPermissionSelected(menuPermissionId)}
+                                onChange={() => handleMenuPermissionChange(menuPermissionId)}
+                                disabled={menu.name === 'Dashboard'}
                               />
-                              <label className="form-check-label" htmlFor={permission.id}>
-                                {permission.name}
+                              <i className={`${menu.icon} me-3 text-primary fs-4`}></i>
+                              <label className="form-check-label h5 mb-0 text-primary" htmlFor={menuPermissionId}>
+                                {menu.name}
                               </label>
                             </div>
+                            <div className="d-flex align-items-center">
+                              {menu.subMenus && menu.subMenus.length > 0 && (
+                                <span className="badge bg-primary me-2">
+                                  {menu.subMenus.length} items
+                                </span>
+                              )}
+                              <i 
+                                className={`bi ${expandedMenus[menu.name] ? 'bi-chevron-up' : 'bi-chevron-down'} text-primary`}
+                                onClick={() => toggleMenu(menu.name)}
+                                style={{ cursor: 'pointer' }}
+                              ></i>
+                            </div>
                           </div>
-                        ))}
-                      </div>
-                      {category !== Object.keys(groupedPermissions)[Object.keys(groupedPermissions).length - 1] && (
-                        <hr className="my-3" />
-                      )}
-                    </div>
-                  ))}
+                          
+                          {expandedMenus[menu.name] && (
+                            <div className="p-3 border-top">
+                              {menu.subMenus && menu.subMenus.length > 0 ? (
+                                renderSubMenus(menu.subMenus, menu.name)
+                              ) : (
+                                <div className="text-muted text-center py-3">
+                                  <i className="bi bi-info-circle me-2"></i>
+                                  No sub-menus available
+                                </div>
+                              )}
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
                 <div className="modal-footer">
                   <button type="button" className="btn btn-secondary" onClick={resetForm}>
@@ -414,10 +1220,10 @@ const Roles = () => {
                     {loading ? (
                       <>
                         <span className="spinner-border spinner-border-sm me-2"></span>
-                        Saving...
+                        {editingStaff ? 'Updating Permissions...' : 'Saving...'}
                       </>
                     ) : (
-                      editingRole ? 'Update Role' : 'Create Role'
+                      editingRole ? (editingStaff ? 'Update Staff Permissions' : 'Update Role') : 'Create Role'
                     )}
                   </button>
                 </div>
@@ -426,6 +1232,201 @@ const Roles = () => {
           </div>
         </div>
       )}
+
+      {/* View Staff Permissions Modal */}
+      {showStaffPermissionsModal && viewingStaff && viewingRole && (
+        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)', zIndex: 1050 }} tabIndex="-1">
+          <div className="modal-dialog modal-lg">
+            <div className="modal-content">
+              <div className="modal-header bg-light">
+                <h5 className="modal-title">
+                  <i className="bi bi-person-badge me-2"></i>
+                  Permissions for: {viewingStaff.full_name} (User ID: #{viewingStaff.userId})
+                </h5>
+                <button 
+                  type="button" 
+                  className="btn-close" 
+                  onClick={() => setShowStaffPermissionsModal(false)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                <div className="row mb-3">
+                  <div className="col-md-4">
+                    <p><strong>User ID:</strong> #{viewingStaff.userId}</p>
+                  </div>
+                  <div className="col-md-4">
+                    <p><strong>Staff Name:</strong> {viewingStaff.full_name}</p>
+                  </div>
+                  <div className="col-md-4">
+                    <p><strong>Role:</strong> 
+                      <span className={`badge bg-${getRoleBadgeColor(viewingStaff.role)} ms-2`}>
+                        {getRoleDisplayName(viewingStaff.role)}
+                      </span>
+                    </p>
+                  </div>
+                </div>
+                <div className="row mb-3">
+                  <div className="col-md-12">
+                    <p><strong>Role Description:</strong> {viewingRole.description || 'No description'}</p>
+                  </div>
+                </div>
+                <hr />
+                <h6 className="mb-3">Assigned Permissions ({viewingRole.permissions?.length || 0})</h6>
+                
+                {Object.entries(groupedPermissions).map(([category, permissions]) => {
+                  const categoryPermissions = permissions.filter(p => 
+                    viewingRole.permissions?.includes(p.id)
+                  );
+                  
+                  if (categoryPermissions.length === 0) return null;
+                  
+                  return (
+                    <div key={category} className="mb-4">
+                      <h6 className="mb-2 text-primary">{category}</h6>
+                      <div className="row">
+                        {categoryPermissions.map(permission => (
+                          <div key={permission.id} className="col-md-6 mb-2">
+                            <i className="bi bi-check-circle-fill text-success me-2"></i>
+                            {permission.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+              <div className="modal-footer">
+                
+                <button 
+                  type="button" 
+                  className="btn btn-secondary" 
+                  onClick={() => setShowStaffPermissionsModal(false)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      <style>
+        {`
+          .cursor-pointer {
+            cursor: pointer;
+          }
+          .hover-bg:hover {
+            background-color: #f8f9fa !important;
+          }
+          .menu-tree {
+            max-height: 500px;
+            overflow-y: auto;
+          }
+          .menu-tree::-webkit-scrollbar {
+            width: 8px;
+          }
+          .menu-tree::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+          }
+          .menu-tree::-webkit-scrollbar-thumb {
+            background: #888;
+            border-radius: 4px;
+          }
+          .menu-tree::-webkit-scrollbar-thumb:hover {
+            background: #555;
+          }
+          
+          .custom-dropdown {
+            position: relative;
+            display: inline-block;
+          }
+          
+          .custom-dropdown-menu {
+            min-width: 240px;
+            padding: 0.5rem 0;
+            margin: 0;
+            font-size: 0.875rem;
+            color: #212529;
+            text-align: left;
+            list-style: none;
+            background-color: #fff;
+            background-clip: padding-box;
+            border: 1px solid rgba(0, 0, 0, 0.15);
+            border-radius: 0.375rem;
+            box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.175);
+          }
+          
+          .custom-dropdown-menu .dropdown-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 0.6rem 1rem;
+            clear: both;
+            font-weight: 400;
+            color: #212529;
+            text-align: inherit;
+            text-decoration: none;
+            white-space: nowrap;
+            background-color: transparent;
+            border: 0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+          
+          .custom-dropdown-menu .dropdown-item:hover {
+            background-color: #f8f9fa;
+            color: #0d6efd;
+          }
+          
+          .custom-dropdown-menu .dropdown-item:active {
+            background-color: #e9ecef;
+          }
+          
+          .custom-dropdown-menu .dropdown-item.disabled,
+          .custom-dropdown-menu .dropdown-item:disabled {
+            color: #6c757d;
+            pointer-events: none;
+            background-color: transparent;
+            cursor: not-allowed;
+            opacity: 0.6;
+          }
+          
+          .custom-dropdown-menu .dropdown-divider {
+            height: 0;
+            margin: 0.5rem 0;
+            overflow: hidden;
+            border-top: 1px solid #e9ecef;
+          }
+          
+          .custom-dropdown-menu .text-warning {
+            color: #ffc107 !important;
+          }
+          
+          .custom-dropdown-menu .text-success {
+            color: #198754 !important;
+          }
+          
+          .custom-dropdown-menu .text-danger {
+            color: #dc3545 !important;
+          }
+          
+          .custom-dropdown-menu .dropdown-item.text-warning:hover {
+            background-color: #fff3cd;
+            color: #ffc107 !important;
+          }
+          
+          .custom-dropdown-menu .dropdown-item.text-success:hover {
+            background-color: #d1e7dd;
+            color: #198754 !important;
+          }
+          
+          .custom-dropdown-menu .dropdown-item.text-danger:hover {
+            background-color: #f8d7da;
+            color: #dc3545 !important;
+          }
+        `}
+      </style>
     </div>
   );
 };
