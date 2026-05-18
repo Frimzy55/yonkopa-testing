@@ -5,7 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import { menuItems } from '../menuItems';
 import { getAllPermissionsFromMenu } from './permissionsUtils';
 import { fetchUsers, resetPassword, activateUser, deactivateUser, blockUserLogin, unblockUserLogin, removeUserTask, assignTasks, fetchUserTasks } from './staffService';
-import { filterStaffMembers, getRoleDisplayName } from './staffHelpers';
+import { filterStaffMembers } from './staffHelpers';   // ← fixed trailing comma
 import StaffTable from './StaffTable';
 import ResetPasswordModal from './ResetPasswordModal';
 import StaffPermissionsModal from './StaffPermissionsModal';
@@ -49,24 +49,27 @@ const Roles = () => {
     loadUsers();
   }, [loadUsers]);
 
-  // Filter staff
-  const getStaffList = () => {
+  // Stable function to get staff list (only depends on users)
+  const getStaffList = useCallback(() => {
     const staffRoles = ['loan_officer', 'supervisor', 'manager', 'admin'];
     return users.filter(u => staffRoles.includes(u.role));
-  };
+  }, [users]);
 
+  // Filter staff based on search term – now includes getStaffList as dependency
   useEffect(() => {
     if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
     searchTimeoutRef.current = setTimeout(() => {
-      const filtered = filterStaffMembers(getStaffList(), searchTerm);
+      const staff = getStaffList();
+      const filtered = filterStaffMembers(staff, searchTerm);
       setFilteredStaff(filtered);
     }, 300);
     return () => clearTimeout(searchTimeoutRef.current);
-  }, [users, searchTerm]);
+  }, [getStaffList, searchTerm]);   // ✅ dependency added
 
+  // Keep filtered staff in sync when users change (without search)
   useEffect(() => {
     setFilteredStaff(getStaffList());
-  }, [users]);
+  }, [getStaffList]);   // ✅ dependency added
 
   // UI helpers
   const resetModalForm = () => {

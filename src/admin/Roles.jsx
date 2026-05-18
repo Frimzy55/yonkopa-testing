@@ -8,7 +8,6 @@ import { menuItems } from '../menuItems';
 // HELPER FUNCTIONS TO GENERATE PERMISSIONS FROM MENU ITEMS
 // ============================================================
 
-// Generate a consistent permission ID
 const getPermissionId = (menuName, subMenuName = null, itemName = null) => {
   if (itemName && subMenuName) {
     return `${menuName.toLowerCase()}_${subMenuName.toLowerCase().replace(/ /g, '_')}_${itemName.toLowerCase().replace(/ /g, '_')}`;
@@ -18,29 +17,23 @@ const getPermissionId = (menuName, subMenuName = null, itemName = null) => {
   return menuName.toLowerCase().replace(/ /g, '_');
 };
 
-// Recursively flatten all permissions from menuItems
 const flattenPermissions = (items, parentMenu = null, parentSubMenu = null) => {
   let permissions = [];
   for (const item of items) {
-    // Reports (special case for Reports submenu)
     if (item.reports && Array.isArray(item.reports)) {
       for (const report of item.reports) {
         const id = getPermissionId(parentMenu, parentSubMenu, report.name);
         permissions.push({ id, name: report.name, category: parentMenu });
       }
     }
-    // Nested menus
     if (item.nestedMenus && Array.isArray(item.nestedMenus)) {
       permissions.push(...flattenPermissions(item.nestedMenus, parentMenu, item.name));
     }
-    // Sub menus
     if (item.subMenus && Array.isArray(item.subMenus)) {
-      // Add the submenu itself as a permission (if needed)
       const subMenuId = getPermissionId(item.name, item.name);
       permissions.push({ id: subMenuId, name: item.name, category: item.name });
       permissions.push(...flattenPermissions(item.subMenus, item.name, null));
     }
-    // Leaf menu item (no children) – but skip Dashboard if you don't want a permission for it
     else if (!item.subMenus && !item.nestedMenus && !item.reports && item.name !== 'Dashboard') {
       const id = parentSubMenu 
         ? getPermissionId(parentMenu, parentSubMenu, item.name)
@@ -51,24 +44,11 @@ const flattenPermissions = (items, parentMenu = null, parentSubMenu = null) => {
   return permissions;
 };
 
-// Get all available permissions (list of { id, name, category })
 const getAllPermissionsFromMenu = () => {
   const perms = flattenPermissions(menuItems);
-  // Remove duplicates by id
   const unique = {};
   perms.forEach(p => { unique[p.id] = p; });
   return Object.values(unique);
-};
-
-// Group permissions by top-level category (first-level menu name)
-const getGroupedPermissionsFromMenu = () => {
-  const allPerms = getAllPermissionsFromMenu();
-  const grouped = {};
-  allPerms.forEach(perm => {
-    if (!grouped[perm.category]) grouped[perm.category] = [];
-    grouped[perm.category].push(perm);
-  });
-  return grouped;
 };
 
 const groupPermissionsByCategory = (permissions, availablePermissions) => {
@@ -114,7 +94,6 @@ const Roles = () => {
     permissions: []
   });
   
-  // Search state
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredStaffMembers, setFilteredStaffMembers] = useState([]);
   const searchTimeoutRef = useRef(null);
@@ -122,32 +101,126 @@ const Roles = () => {
   const dropdownRefs = useRef({});
   const buttonRefs = useRef({});
 
-  // Get permissions from menuItems (generated once)
   const availablePermissions = getAllPermissionsFromMenu();
-  const groupedPermissions = getGroupedPermissionsFromMenu();
 
-  // Toggle functions for menu expansion
+  // ======================== Helper functions ========================
+  const getRoleDisplayName = (roleName) => {
+    const names = { 'loan_officer': 'Loan Officer', 'supervisor': 'Supervisor', 'manager': 'Manager', 'admin': 'Admin' };
+    return names[roleName] || roleName;
+  };
+
+  const getStatusText = (user) => {
+    if (user.status) {
+      switch(user.status.toLowerCase()) {
+        case 'active': return 'Active';
+        case 'inactive': return 'Inactive';
+        case 'blocked': return 'Blocked';
+        default: return user.status;
+      }
+    }
+    if (user.is_blocked) return 'Blocked';
+    if (user.is_active === false) return 'Inactive';
+    return 'Active';
+  };
+
+  const getRoleBadgeColor = (roleName) => {
+    const colors = { 'admin': 'primary', 'manager': 'primary', 'supervisor': 'primary', 'loan_officer': 'primary' };
+    return colors[roleName] || 'secondary';
+  };
+
+  const getStatusBadge = (user) => {
+    if (user.status) {
+      switch(user.status.toLowerCase()) {
+        case 'active': return <span className="badge bg-success">Active</span>;
+        case 'inactive': return <span className="badge bg-secondary">Inactive</span>;
+        case 'blocked': return <span className="badge bg-danger">Blocked</span>;
+        default: return <span className="badge bg-secondary">{user.status}</span>;
+      }
+    }
+    if (user.is_blocked) return <span className="badge bg-danger">Blocked</span>;
+    if (user.is_active === false) return <span className="badge bg-secondary">Inactive</span>;
+    return <span className="badge bg-success">Active</span>;
+  };
+
+  const displayContactInfo = (user) => {
+    const hasEmail = user.email && user.email.trim() !== '';
+    const hasPhone = user.phone && user.phone.trim() !== '';
+    if (hasEmail && hasPhone) return `${user.email} / ${user.phone}`;
+    if (hasEmail) return user.email;
+    if (hasPhone) return user.phone;
+    return '—';
+  };
+
+  // ======================== Staff list and filtering ========================
+  const getStaffMembers = useCallback(() => {
+    const staffRoles = ['loan_officer', 'supervisor', 'manager', 'admin'];
+    return users.filter(user => staffRoles.includes(user.role));
+  }, [users]);
+
+  const filterStaff = useCallback((staffList, term) => {
+    if (!term.trim()) return staffList;
+    const lowerTerm = term.toLowerCase();
+    return staffList.filter(staff => {
+      const userIdMatch = staff.userId?.toString().includes(lowerTerm);
+      const usernameMatch = staff.username?.toLowerCase().includes(lowerTerm);
+      const fullNameMatch = staff.full_name?.toLowerCase().includes(lowerTerm);
+      const emailMatch = staff.email?.toLowerCase().includes(lowerTerm);
+      const phoneMatch = staff.phone?.toLowerCase().includes(lowerTerm);
+      const roleMatch = getRoleDisplayName(staff.role).toLowerCase().includes(lowerTerm);
+      const statusMatch = getStatusText(staff).toLowerCase().includes(lowerTerm);
+      return userIdMatch || usernameMatch || fullNameMatch || emailMatch || phoneMatch || roleMatch || statusMatch;
+    });
+  }, []);
+
+  useEffect(() => {
+    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    searchTimeoutRef.current = setTimeout(() => {
+      const staffList = getStaffMembers();
+      const filtered = filterStaff(staffList, searchTerm);
+      setFilteredStaffMembers(filtered);
+    }, 300);
+    return () => {
+      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
+    };
+  }, [users, searchTerm, getStaffMembers, filterStaff]);
+
+  // ======================== API calls ========================
+  const fetchUsers = useCallback(async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/getusers`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const mappedUsers = response.data.map(user => ({
+        ...user,
+        userId: user.id,
+        is_active: user.status === 'active',
+        is_blocked: user.status === 'blocked'
+      }));
+      setUsers(mappedUsers);
+    } catch (error) {
+      console.error('Error fetching users:', error);
+      toast.error('Failed to fetch users');
+    }
+  }, []);
+
+  useEffect(() => {
+    fetchUsers();
+  }, [fetchUsers]);
+
+  // ======================== Permission rendering helpers ========================
   const toggleMenu = (menuName) => {
-    setExpandedMenus(prev => ({
-      ...prev,
-      [menuName]: !prev[menuName]
-    }));
+    setExpandedMenus(prev => ({ ...prev, [menuName]: !prev[menuName] }));
   };
 
   const toggleSubMenu = (menuName, subMenuName) => {
     const key = `${menuName}_${subMenuName}`;
-    setExpandedSubMenus(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+    setExpandedSubMenus(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const toggleNestedMenu = (menuName, subMenuName, nestedName) => {
     const key = `${menuName}_${subMenuName}_${nestedName}`;
-    setExpandedNestedMenus(prev => ({
-      ...prev,
-      [key]: !prev[key]
-    }));
+    setExpandedNestedMenus(prev => ({ ...prev, [key]: !prev[key] }));
   };
 
   const isPermissionSelected = (permissionId) => {
@@ -163,149 +236,6 @@ const Roles = () => {
     });
   };
 
-  // Reset Password functionality
-  const handleResetPassword = (staff) => {
-    setSelectedStaff(staff);
-    setNewPassword('');
-    setConfirmPassword('');
-    setShowResetPasswordModal(true);
-    setOpenDropdown(null);
-  };
-
-  const submitPasswordReset = async () => {
-    if (!newPassword || !confirmPassword) {
-      toast.error('Please enter password and confirm password');
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      toast.error('Passwords do not match');
-      return;
-    }
-    if (newPassword.length < 6) {
-      toast.error('Password must be at least 6 characters long');
-      return;
-    }
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.post(`${process.env.REACT_APP_API_URL}/reset-password`, {
-        userId: selectedStaff.userId,
-        password: newPassword
-      }, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success(`Password reset successfully for ${selectedStaff.full_name}`);
-      setShowResetPasswordModal(false);
-    } catch (error) {
-      console.error('Error resetting password:', error);
-      toast.error(error.response?.data?.message || 'Failed to reset password');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Activate / Deactivate / Block / Unblock
-  const handleActivateStaff = async (staff) => {
-    if (!window.confirm(`Are you sure you want to activate ${staff.full_name}?`)) return;
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.put(`${process.env.REACT_APP_API_URL}/activate-user/${staff.userId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success(`${staff.full_name} has been activated successfully`);
-      fetchUsers();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to activate staff');
-    } finally {
-      setLoading(false);
-      setOpenDropdown(null);
-    }
-  };
-
-  const handleDeactivateStaff = async (staff) => {
-    if (!window.confirm(`Are you sure you want to deactivate ${staff.full_name}?`)) return;
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.put(`${process.env.REACT_APP_API_URL}/deactivate-user/${staff.userId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success(`${staff.full_name} has been deactivated successfully`);
-      fetchUsers();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to deactivate staff');
-    } finally {
-      setLoading(false);
-      setOpenDropdown(null);
-    }
-  };
-
-  const handleBlockLogin = async (staff) => {
-    if (!window.confirm(`Are you sure you want to block login for ${staff.full_name}?`)) return;
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.put(`${process.env.REACT_APP_API_URL}/block-user/${staff.userId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success(`Login blocked for ${staff.full_name}`);
-      fetchUsers();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to block login');
-    } finally {
-      setLoading(false);
-      setOpenDropdown(null);
-    }
-  };
-
-  const handleUnblockLogin = async (staff) => {
-    if (!window.confirm(`Are you sure you want to unblock login for ${staff.full_name}?`)) return;
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.put(`${process.env.REACT_APP_API_URL}/unblock-user/${staff.userId}`, {}, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      toast.success(`Login unblocked for ${staff.full_name}`);
-      fetchUsers();
-    } catch (error) {
-      toast.error(error.response?.data?.message || 'Failed to unblock login');
-    } finally {
-      setLoading(false);
-      setOpenDropdown(null);
-    }
-  };
-
-  // Remove a single permission from a staff member
-  const handleRemovePermission = async (staff, taskName) => {
-    if (!window.confirm(`Remove permission "${taskName}" from ${staff.full_name}?`)) return;
-    setLoading(true);
-    try {
-      const token = localStorage.getItem('token');
-      await axios.delete(`${process.env.REACT_APP_API_URL}/remove-task`, {
-        headers: { Authorization: `Bearer ${token}` },
-        data: { userId: staff.userId, task: taskName }
-      });
-      toast.success(`Permission "${taskName}" removed successfully`);
-      
-      if (viewingStaff && viewingStaff.userId === staff.userId && viewingRole) {
-        const updatedPermissions = viewingRole.permissions.filter(p => p !== taskName);
-        setViewingRole({
-          ...viewingRole,
-          permissions: updatedPermissions
-        });
-      }
-      fetchUsers();
-    } catch (error) {
-      console.error('Error removing permission:', error);
-      toast.error(error.response?.data?.message || 'Failed to remove permission');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Render helpers for reports, nested menus, submenus
   const renderReports = (reports, menuName, subMenuName) => {
     if (!reports || reports.length === 0) return null;
     return (
@@ -427,54 +357,188 @@ const Roles = () => {
     );
   };
 
-  // Fetch roles (simplified – no default roles)
-  const fetchRoles = useCallback(() => {
+  // ======================== User action handlers ========================
+  const handleResetPassword = (staff) => {
+    setSelectedStaff(staff);
+    setNewPassword('');
+    setConfirmPassword('');
+    setShowResetPasswordModal(true);
+    setOpenDropdown(null);
+  };
+
+  const submitPasswordReset = async () => {
+    if (!newPassword || !confirmPassword) {
+      toast.error('Please enter password and confirm password');
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      toast.error('Passwords do not match');
+      return;
+    }
+    if (newPassword.length < 6) {
+      toast.error('Password must be at least 6 characters long');
+      return;
+    }
     setLoading(true);
     try {
-      setRoles([]);
+      const token = localStorage.getItem('token');
+      await axios.post(`${process.env.REACT_APP_API_URL}/reset-password`, {
+        userId: selectedStaff.userId,
+        password: newPassword
+      }, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(`Password reset successfully for ${selectedStaff.full_name}`);
+      setShowResetPasswordModal(false);
     } catch (error) {
-      console.error('Error loading roles:', error);
-      toast.error('Failed to load roles');
+      console.error('Error resetting password:', error);
+      toast.error(error.response?.data?.message || 'Failed to reset password');
     } finally {
       setLoading(false);
     }
-  }, []);
+  };
 
-  // Fetch users from API
-  const fetchUsers = useCallback(async () => {
+  const handleActivateStaff = async (staff) => {
+    if (!window.confirm(`Are you sure you want to activate ${staff.full_name}?`)) return;
+    setLoading(true);
     try {
       const token = localStorage.getItem('token');
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/getusers`, {
+      await axios.put(`${process.env.REACT_APP_API_URL}/activate-user/${staff.userId}`, {}, {
         headers: { Authorization: `Bearer ${token}` }
       });
-      const mappedUsers = response.data.map(user => ({
-        ...user,
-        userId: user.id,
-        is_active: user.status === 'active',
-        is_blocked: user.status === 'blocked'
-      }));
-      setUsers(mappedUsers);
+      toast.success(`${staff.full_name} has been activated successfully`);
+      fetchUsers();
     } catch (error) {
-      console.error('Error fetching users:', error);
-      toast.error('Failed to fetch users');
+      toast.error(error.response?.data?.message || 'Failed to activate staff');
+    } finally {
+      setLoading(false);
+      setOpenDropdown(null);
     }
-  }, []);
+  };
 
-  useEffect(() => {
-    fetchUsers();
-  }, [fetchUsers]);
+  const handleDeactivateStaff = async (staff) => {
+    if (!window.confirm(`Are you sure you want to deactivate ${staff.full_name}?`)) return;
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${process.env.REACT_APP_API_URL}/deactivate-user/${staff.userId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(`${staff.full_name} has been deactivated successfully`);
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to deactivate staff');
+    } finally {
+      setLoading(false);
+      setOpenDropdown(null);
+    }
+  };
 
-  // Close dropdown when clicking outside
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (openDropdown && !event.target.closest('.custom-dropdown') && !event.target.closest('.dropdown-item')) {
-        setOpenDropdown(null);
-        setDropdownPosition({});
+  const handleBlockLogin = async (staff) => {
+    if (!window.confirm(`Are you sure you want to block login for ${staff.full_name}?`)) return;
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${process.env.REACT_APP_API_URL}/block-user/${staff.userId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(`Login blocked for ${staff.full_name}`);
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to block login');
+    } finally {
+      setLoading(false);
+      setOpenDropdown(null);
+    }
+  };
+
+  const handleUnblockLogin = async (staff) => {
+    if (!window.confirm(`Are you sure you want to unblock login for ${staff.full_name}?`)) return;
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.put(`${process.env.REACT_APP_API_URL}/unblock-user/${staff.userId}`, {}, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      toast.success(`Login unblocked for ${staff.full_name}`);
+      fetchUsers();
+    } catch (error) {
+      toast.error(error.response?.data?.message || 'Failed to unblock login');
+    } finally {
+      setLoading(false);
+      setOpenDropdown(null);
+    }
+  };
+
+  const handleRemovePermission = async (staff, taskName) => {
+    if (!window.confirm(`Remove permission "${taskName}" from ${staff.full_name}?`)) return;
+    setLoading(true);
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${process.env.REACT_APP_API_URL}/remove-task`, {
+        headers: { Authorization: `Bearer ${token}` },
+        data: { userId: staff.userId, task: taskName }
+      });
+      toast.success(`Permission "${taskName}" removed successfully`);
+      
+      if (viewingStaff && viewingStaff.userId === staff.userId && viewingRole) {
+        const updatedPermissions = viewingRole.permissions.filter(p => p !== taskName);
+        setViewingRole({
+          ...viewingRole,
+          permissions: updatedPermissions
+        });
       }
-    };
-    document.addEventListener('click', handleClickOutside);
-    return () => document.removeEventListener('click', handleClickOutside);
-  }, [openDropdown]);
+      fetchUsers();
+    } catch (error) {
+      console.error('Error removing permission:', error);
+      toast.error(error.response?.data?.message || 'Failed to remove permission');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleViewStaffPermissions = async (staff) => {
+    try {
+      const token = localStorage.getItem("token");
+      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/user-tasks/${staff.userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const permissions = response.data.tasks || [];
+      setViewingStaff(staff);
+      setViewingRole({
+        name: staff.role,
+        description: `${staff.role} permissions`,
+        permissions
+      });
+      setShowStaffPermissionsModal(true);
+      setOpenDropdown(null);
+    } catch (error) {
+      console.error("Error fetching staff permissions:", error);
+      toast.error(error.response?.data?.message || "Failed to fetch staff permissions");
+    }
+  };
+
+  const handleEditStaffRole = async (staff) => {
+    try {
+      const token = localStorage.getItem("token");
+      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/user-tasks/${staff.userId}`, {
+        headers: { Authorization: `Bearer ${token}` }
+      });
+      const permissions = res.data.tasks || [];
+      setEditingStaff(staff);
+      setFormData({
+        name: staff.role,
+        description: `${staff.role} permissions`,
+        permissions: permissions
+      });
+      setShowModal(true);
+    } catch (error) {
+      console.error(error);
+      toast.error("Failed to load staff permissions");
+    } finally {
+      setOpenDropdown(null);
+    }
+  };
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -537,49 +601,6 @@ const Roles = () => {
     }
   };
 
-  const handleViewStaffPermissions = async (staff) => {
-    try {
-      const token = localStorage.getItem("token");
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/user-tasks/${staff.userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const permissions = response.data.tasks || [];
-      setViewingStaff(staff);
-      setViewingRole({
-        name: staff.role,
-        description: `${staff.role} permissions`,
-        permissions
-      });
-      setShowStaffPermissionsModal(true);
-      setOpenDropdown(null);
-    } catch (error) {
-      console.error("Error fetching staff permissions:", error);
-      toast.error(error.response?.data?.message || "Failed to fetch staff permissions");
-    }
-  };
-
-  const handleEditStaffRole = async (staff) => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await axios.get(`${process.env.REACT_APP_API_URL}/api/user-tasks/${staff.userId}`, {
-        headers: { Authorization: `Bearer ${token}` }
-      });
-      const permissions = res.data.tasks || [];
-      setEditingStaff(staff);
-      setFormData({
-        name: staff.role,
-        description: `${staff.role} permissions`,
-        permissions: permissions
-      });
-      setShowModal(true);
-    } catch (error) {
-      console.error(error);
-      toast.error("Failed to load staff permissions");
-    } finally {
-      setOpenDropdown(null);
-    }
-  };
-
   const resetForm = () => {
     setFormData({ name: '', description: '', permissions: [] });
     setEditingRole(null);
@@ -587,97 +608,9 @@ const Roles = () => {
     setShowModal(false);
   };
 
-  const getStaffMembers = () => {
-    const staffRoles = ['loan_officer', 'supervisor', 'manager', 'admin'];
-    return users.filter(user => staffRoles.includes(user.role));
-  };
-
-  const getRoleBadgeColor = (roleName) => {
-    const colors = { 'admin': 'primary', 'manager': 'primary', 'supervisor': 'primary', 'loan_officer': 'primary' };
-    return colors[roleName] || 'secondary';
-  };
-
-  const getRoleDisplayName = (roleName) => {
-    const names = { 'loan_officer': 'Loan Officer', 'supervisor': 'Supervisor', 'manager': 'Manager', 'admin': 'Admin' };
-    return names[roleName] || roleName;
-  };
-
-  const getStatusBadge = (user) => {
-    if (user.status) {
-      switch(user.status.toLowerCase()) {
-        case 'active': return <span className="badge bg-success">Active</span>;
-        case 'inactive': return <span className="badge bg-secondary">Inactive</span>;
-        case 'blocked': return <span className="badge bg-danger">Blocked</span>;
-        default: return <span className="badge bg-secondary">{user.status}</span>;
-      }
-    }
-    if (user.is_blocked) return <span className="badge bg-danger">Blocked</span>;
-    if (user.is_active === false) return <span className="badge bg-secondary">Inactive</span>;
-    return <span className="badge bg-success">Active</span>;
-  };
-
-  const getStatusText = (user) => {
-    if (user.status) {
-      switch(user.status.toLowerCase()) {
-        case 'active': return 'Active';
-        case 'inactive': return 'Inactive';
-        case 'blocked': return 'Blocked';
-        default: return user.status;
-      }
-    }
-    if (user.is_blocked) return 'Blocked';
-    if (user.is_active === false) return 'Inactive';
-    return 'Active';
-  };
-
-  const displayContactInfo = (user) => {
-    const hasEmail = user.email && user.email.trim() !== '';
-    const hasPhone = user.phone && user.phone.trim() !== '';
-    if (hasEmail && hasPhone) return `${user.email} / ${user.phone}`;
-    if (hasEmail) return user.email;
-    if (hasPhone) return user.phone;
-    return '—';
-  };
-
-  const filterStaff = useCallback((staffList, term) => {
-    if (!term.trim()) return staffList;
-    const lowerTerm = term.toLowerCase();
-    return staffList.filter(staff => {
-      const userIdMatch = staff.userId?.toString().includes(lowerTerm);
-      const usernameMatch = staff.username?.toLowerCase().includes(lowerTerm);
-      const fullNameMatch = staff.full_name?.toLowerCase().includes(lowerTerm);
-      const emailMatch = staff.email?.toLowerCase().includes(lowerTerm);
-      const phoneMatch = staff.phone?.toLowerCase().includes(lowerTerm);
-      const roleMatch = getRoleDisplayName(staff.role).toLowerCase().includes(lowerTerm);
-      const statusMatch = getStatusText(staff).toLowerCase().includes(lowerTerm);
-      return userIdMatch || usernameMatch || fullNameMatch || emailMatch || phoneMatch || roleMatch || statusMatch;
-    });
-  }, []);
-
-  // Update filtered list with debounce
-  useEffect(() => {
-    if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    searchTimeoutRef.current = setTimeout(() => {
-      const staffList = getStaffMembers();
-      const filtered = filterStaff(staffList, searchTerm);
-      setFilteredStaffMembers(filtered);
-    }, 300);
-    return () => {
-      if (searchTimeoutRef.current) clearTimeout(searchTimeoutRef.current);
-    };
-  }, [users, searchTerm, filterStaff]);
-
-  // Initial load
-  useEffect(() => {
-    const staffList = getStaffMembers();
-    setFilteredStaffMembers(staffList);
-  }, [users]);
-
   const handleClearSearch = () => {
     setSearchTerm('');
   };
-
-  const staffMembers = getStaffMembers();
 
   const toggleDropdown = (staffId, event) => {
     event.stopPropagation();
@@ -711,6 +644,19 @@ const Roles = () => {
     }
     setOpenDropdown(staffId);
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (openDropdown && !event.target.closest('.custom-dropdown') && !event.target.closest('.dropdown-item')) {
+        setOpenDropdown(null);
+        setDropdownPosition({});
+      }
+    };
+    document.addEventListener('click', handleClickOutside);
+    return () => document.removeEventListener('click', handleClickOutside);
+  }, [openDropdown]);
+
+  const staffMembers = getStaffMembers();
 
   return (
     <div className="roles-container">
