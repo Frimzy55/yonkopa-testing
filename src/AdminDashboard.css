@@ -2,7 +2,7 @@
 html, body, #root {
   height: 100%;
   margin: 0;
-  overflow: hidden;          /* kills outer scrollbar */
+  overflow: hidden;
 }
 
 * {
@@ -30,12 +30,11 @@ html, body, #root {
 
 /* ================== LAYOUT WRAPPER ================== */
 .d-flex.vh-100 {
-  height: calc(100vh - 60px) !important;   /* fills remaining space below navbar */
-  margin-top: 60px !important;             /* pushes down below fixed navbar */
+  height: calc(100vh - 60px) !important;
+  margin-top: 60px !important;
   overflow: hidden;
 }
 
-/* Sidebar + Content wrapper */
 .flex-grow-1 {
   overflow: hidden !important;
   width: 100%;
@@ -46,15 +45,15 @@ html, body, #root {
 
 /* ================== SIDEBAR ================== */
 .sidebar, .bg-dark {
-  height: 100% !important;                 /* fills parent wrapper height */
-  overflow-y: auto !important;             /* sidebar scrolls if needed */
+  height: 100% !important;
+  overflow-y: auto !important;
   overflow-x: hidden;
   background-color: #1e293b !important;
   scrollbar-width: thin;
   padding-left: 0 !important;
   padding-right: 0 !important;
-  width: 250px;                            /* expanded width */
-  transition: width 0.3s ease;             /* smooth collapse/expand */
+  width: 250px;
+  transition: width 0.3s ease;
 }
 
 /* Sidebar custom scrollbar */
@@ -76,16 +75,15 @@ html, body, #root {
   background: #718096;
 }
 
-/* Sidebar menu container */
 .sidebar-menu-container {
   overflow: visible !important;
   height: auto !important;
 }
 
 /* ================== STEPPED MENU INDENTATION ================== */
-/* Main menu items – flush left */
+/* Main menu items */
 .menu-item {
-  padding-left: 0.75rem !important;   /* small breathing room for active line */
+  padding-left: 0.75rem !important;
   padding-right: 8px !important;
   display: flex !important;
   align-items: center !important;
@@ -95,7 +93,7 @@ html, body, #root {
   border-radius: 6px;
   cursor: pointer;
   background-color: transparent;
-  color: white !important;            /* MAIN MENU → WHITE */
+  color: white !important;
   margin-bottom: 2px;
   text-align: left;
   transition: all 0.2s ease;
@@ -104,35 +102,35 @@ html, body, #root {
   position: relative;
 }
 
-
-
-/* Submenu items – first level indentation (tight) */
+/* Submenu items */
 .submenu-item {
   padding-left: 0.75rem !important;
   padding-right: 8px !important;
-  color: #60a5fa !important;          /* LIGHT BLUE - highly visible on dark bg */
+  color: #60a5fa !important;
+  position: relative;
 }
 
-/* Optional: make submenu icons the same light blue */
 .submenu-item .submenu-icon {
   color: #60a5fa !important;
 }
 
-/* Nested items (sub-submenu) – slight indent */
+/* Nested items */
 .nested-item {
   padding-left: 1.25rem !important;
   padding-right: 8px !important;
-  color: #8adee4 !important;          /* NESTED → ORANGE */
+  color: #8adee4 !important;
+  position: relative;
 }
 
-/* Report items – slightly more indent */
+/* Report items */
 .report-item {
   padding-left: 1.75rem !important;
   padding-right: 8px !important;
-  color: #f97316 !important;          /* REPORT (also nested) → ORANGE */
+  color: #8adee4 !important;
+  position: relative;
 }
 
-/* Hover & active states */
+/* Hover state – consistent for all */
 .menu-item:hover,
 .submenu-item:hover,
 .report-item:hover,
@@ -141,6 +139,7 @@ html, body, #root {
   color: #fff !important;
 }
 
+/* Active state – consistent gradient for all */
 .menu-item.active,
 .submenu-item.active,
 .report-item.active,
@@ -149,9 +148,11 @@ html, body, #root {
   color: #fff !important;
 }
 
-/* Active indicator line at the very left edge */
+/* Active indicator line – now for ALL levels */
 .menu-item.active::before,
-.submenu-item.active::before {
+.submenu-item.active::before,
+.nested-item.active::before,
+.report-item.active::before {
   content: '';
   position: absolute;
   left: 0;
@@ -196,13 +197,13 @@ html, body, #root {
 .submenu-text { font-size: 0.82rem; }
 .report-text, .nested-text { font-size: 0.78rem; }
 
-/* ================== ARROWS - VERY CLOSE TO TEXT ================== */
+/* ================== ARROWS ================== */
 .menu-arrow,
 .submenu-arrow {
   flex-shrink: 0;
-  width: 12px;                /* fixed narrow width prevents layout shift */
+  width: 12px;
   text-align: center;
-  margin-left: 0 !important;  /* directly adjacent to text – no gap */
+  margin-left: 0 !important;
   margin-right: 0;
   font-size: 0.7rem;
   transition: transform 0.2s ease;
@@ -210,7 +211,6 @@ html, body, #root {
   align-items: center;
   justify-content: center;
 }
-
 .menu-arrow svg,
 .submenu-arrow svg {
   width: 10px;
@@ -250,7 +250,6 @@ html, body, #root {
   scrollbar-width: thin;
   scrollbar-color: #888 #f1f1f1;
 }
-
 .dashboard-content-area::-webkit-scrollbar {
   width: 8px;
   height: 8px;
@@ -301,13 +300,10 @@ button:focus {
 }
 
 /* ================== COLLAPSED SIDEBAR STYLES ================== */
-/* When collapsed, width becomes small */
 .bg-dark.sidebar-collapsed,
 .sidebar-collapsed {
   width: 70px !important;
 }
-
-/* Hide all text, arrows, and titles when collapsed */
 .sidebar-collapsed .menu-text,
 .sidebar-collapsed .submenu-text,
 .sidebar-collapsed .report-text,
@@ -317,8 +313,6 @@ button:focus {
 .sidebar-collapsed .sidebar-title {
   display: none;
 }
-
-/* Keep icons visible, increase size slightly, and center them */
 .sidebar-collapsed .menu-icon,
 .sidebar-collapsed .submenu-icon,
 .sidebar-collapsed .report-icon,
@@ -326,8 +320,6 @@ button:focus {
   margin-right: 0;
   font-size: 1.25rem;
 }
-
-/* Center the menu items (no text) */
 .sidebar-collapsed .menu-item,
 .sidebar-collapsed .submenu-item,
 .sidebar-collapsed .report-item,
@@ -335,17 +327,15 @@ button:focus {
   justify-content: center !important;
   padding: 0.75rem 0 !important;
 }
-
-/* Optionally hide submenus entirely when collapsed (cleaner look) */
 .sidebar-collapsed .submenu-container,
 .sidebar-collapsed .nested-container,
 .sidebar-collapsed .report-container {
   display: none;
 }
-
-/* Keep the active indicator line visible even when collapsed */
 .sidebar-collapsed .menu-item.active::before,
-.sidebar-collapsed .submenu-item.active::before {
+.sidebar-collapsed .submenu-item.active::before,
+.sidebar-collapsed .nested-item.active::before,
+.sidebar-collapsed .report-item.active::before {
   left: 0;
   height: 60%;
 }
@@ -366,8 +356,6 @@ button:focus {
     padding-right: 0.75rem;
   }
   .full-width-navbar .navbar-brand { font-size: 1rem; }
-
-  /* On mobile, collapsed width can be a bit smaller */
   .bg-dark.sidebar-collapsed,
   .sidebar-collapsed {
     width: 60px !important;
