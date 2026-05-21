@@ -9,12 +9,19 @@ import {
   AlertCircle,
   CheckCircle,
   Info,
+  Copy,
+  Check,
+  CreditCard,
 } from "react-feather";
 
 const NotificationsSupport = ({ user }) => {
   const [notifications, setNotifications] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [kycCode, setKycCode] = useState(null);
+  const [kycLoading, setKycLoading] = useState(true);
+  const [copySuccess, setCopySuccess] = useState(false);
 
+  // Fetch notifications
   useEffect(() => {
     if (!user) return;
 
@@ -35,6 +42,40 @@ const NotificationsSupport = ({ user }) => {
     fetchNotifications();
   }, [user]);
 
+  // Fetch KYC code (same endpoint as in CustomerCompleteKyc)
+  useEffect(() => {
+    if (!user?.userId) return;
+
+    const fetchKycCode = async () => {
+      try {
+        const res = await fetch(
+          `${process.env.REACT_APP_API_URL}/api/kyc/check/${user.userId}`
+        );
+        const data = await res.json();
+        if (data.hasKyc && data.kycCode) {
+          setKycCode(data.kycCode);
+        } else {
+          setKycCode(null);
+        }
+      } catch (error) {
+        console.error("Error fetching KYC code:", error);
+        setKycCode(null);
+      } finally {
+        setKycLoading(false);
+      }
+    };
+
+    fetchKycCode();
+  }, [user]);
+
+  // Copy to clipboard handler
+  const handleCopyCode = () => {
+    if (!kycCode) return;
+    navigator.clipboard.writeText(kycCode);
+    setCopySuccess(true);
+    setTimeout(() => setCopySuccess(false), 2000);
+  };
+
   // Helper: icon based on notification type
   const getNotificationIcon = (type) => {
     switch (type?.toLowerCase()) {
@@ -49,7 +90,7 @@ const NotificationsSupport = ({ user }) => {
   };
 
   // Loading skeleton
-  if (loading) {
+  if (loading || kycLoading) {
     return (
       <div className="notifications-support-container">
         <div className="loading-skeleton">
@@ -69,6 +110,47 @@ const NotificationsSupport = ({ user }) => {
       </div>
 
       <div className="ns-grid">
+        {/* KYC CODE CARD - Professional display with copy */}
+        <div className="ns-card kyc-card">
+          <div className="card-header">
+            <CreditCard size={20} />
+            <h3>Your KYC Code</h3>
+          </div>
+          <div className="card-body">
+            {kycCode ? (
+              <div className="kyc-code-display">
+                <div className="kyc-code-value">{kycCode}</div>
+                <button
+                  className="copy-btn"
+                  onClick={handleCopyCode}
+                  title="Copy KYC code"
+                >
+                  {copySuccess ? (
+                    <>
+                      <Check size={16} /> Copied!
+                    </>
+                  ) : (
+                    <>
+                      <Copy size={16} /> Copy
+                    </>
+                  )}
+                </button>
+                <div className="security-note-card">
+                  ⚠️ Do not share this code with anyone. It is your unique identity proof.
+                </div>
+              </div>
+            ) : (
+              <div className="empty-state small">
+                <CreditCard size={28} strokeWidth={1.5} />
+                <p>KYC not completed</p>
+                <span>
+                  Please complete your KYC to receive a unique KYC code.
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Notifications Section */}
         <div className="ns-card notifications-card">
           <div className="card-header">
@@ -89,7 +171,10 @@ const NotificationsSupport = ({ user }) => {
             ) : (
               <ul className="notifications-list">
                 {notifications.map((note) => (
-                  <li key={note.id} className={`notification-item ${!note.isRead ? "unread" : ""}`}>
+                  <li
+                    key={note.id}
+                    className={`notification-item ${!note.isRead ? "unread" : ""}`}
+                  >
                     <div className="notification-icon">
                       {getNotificationIcon(note.type)}
                     </div>
@@ -134,8 +219,7 @@ const NotificationsSupport = ({ user }) => {
                 <Phone size={20} />
                 <div>
                   <strong>Phone Support</strong>
-                  <span>+233 24 193 3741
-                  </span>
+                  <span>+233 24 193 3741</span>
                 </div>
               </a>
             </div>
@@ -172,7 +256,7 @@ const NotificationsSupport = ({ user }) => {
         /* Grid layout */
         .ns-grid {
           display: grid;
-          grid-template-columns: 1fr 1fr;
+          grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
           gap: 1.5rem;
         }
 
@@ -222,6 +306,60 @@ const NotificationsSupport = ({ user }) => {
 
         .card-body {
           padding: 1.25rem 1.5rem;
+        }
+
+        /* KYC Code Display */
+        .kyc-code-display {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 1rem;
+        }
+
+        .kyc-code-value {
+          font-family: "SF Mono", "Fira Code", "Courier New", monospace;
+          font-size: 1.8rem;
+          font-weight: 700;
+          letter-spacing: 2px;
+          background: linear-gradient(135deg, #f8f9ff 0%, #eef2ff 100%);
+          padding: 0.75rem 1.5rem;
+          border-radius: 16px;
+          color: #1e3a8a;
+          border: 1px solid #e0e7ff;
+          width: 100%;
+          text-align: center;
+          word-break: break-all;
+        }
+
+        .copy-btn {
+          display: inline-flex;
+          align-items: center;
+          gap: 0.5rem;
+          background: #1e3a8a;
+          border: none;
+          padding: 0.5rem 1.2rem;
+          border-radius: 60px;
+          color: white;
+          font-size: 0.85rem;
+          font-weight: 500;
+          cursor: pointer;
+          transition: all 0.2s ease;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        .copy-btn:hover {
+          background: #0f2b6d;
+          transform: scale(0.98);
+        }
+
+        .security-note-card {
+          font-size: 0.7rem;
+          color: #e67e22;
+          background: #fff4e6;
+          padding: 0.5rem 1rem;
+          border-radius: 40px;
+          text-align: center;
+          width: 100%;
         }
 
         /* Notifications list */
@@ -300,6 +438,10 @@ const NotificationsSupport = ({ user }) => {
           text-align: center;
           padding: 2rem 1rem;
           color: #8e9eae;
+        }
+
+        .empty-state.small {
+          padding: 1rem;
         }
 
         .empty-state svg {
@@ -409,6 +551,16 @@ const NotificationsSupport = ({ user }) => {
 
           .card-body {
             padding: 1rem;
+          }
+
+          .kyc-code-value {
+            font-size: 1.2rem;
+            padding: 0.5rem 1rem;
+          }
+
+          .copy-btn {
+            padding: 0.4rem 1rem;
+            font-size: 0.75rem;
           }
         }
       `}</style>

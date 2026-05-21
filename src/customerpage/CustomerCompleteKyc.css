@@ -1,4 +1,4 @@
-/* CustomerCompleteKyc.css - Fixed Mobile Scrolling with Visible Buttons */
+/* CustomerCompleteKyc.css - Professional Gradient Top Bar */
 
 * {
   box-sizing: border-box;
@@ -16,43 +16,62 @@
   position: relative;
 }
 
+/* ========================= */
+/* PROFESSIONAL GRADIENT TOP BAR (Heading + Step Cards) */
+/* ========================= */
 .content-section h2 {
   font-size: 1.5rem;
   margin-bottom: 20px;
-  color: #333;
+  background: linear-gradient(135deg, #1e2a5e 0%, #3b4b8a 100%);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  font-weight: 700;
+  letter-spacing: -0.3px;
   flex-shrink: 0;
 }
 
-/* Step Cards */
+/* Step Cards Container - Gradient background */
 .step-cards-container {
   display: flex;
   gap: 8px;
   margin-bottom: 24px;
   overflow-x: auto;
-  padding-bottom: 8px;
+  padding: 12px 16px;
   -webkit-overflow-scrolling: touch;
   flex-shrink: 0;
+  background: linear-gradient(105deg, #f9faff 0%, #eef2ff 100%);
+  border-radius: 20px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(2px);
 }
 
+/* Individual Step Cards */
 .step-card {
   flex: 1;
   min-width: 70px;
-  background: #f0f0f0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
   padding: 10px 5px;
   text-align: center;
-  border-radius: 8px;
+  border-radius: 14px;
   cursor: pointer;
-  transition: all 0.3s;
-  border: 2px solid transparent;
+  transition: all 0.3s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  border: 1px solid rgba(102, 126, 234, 0.2);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
 }
 
 .step-card:hover {
-  background: #e0e0e0;
+  background: rgba(255, 255, 255, 0.95);
+  transform: translateY(-2px);
+  border-color: rgba(102, 126, 234, 0.5);
 }
 
 .step-card.active {
   background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
   color: white;
+  border: none;
+  box-shadow: 0 6px 14px rgba(102, 126, 234, 0.3);
 }
 
 .step-card.completed {
@@ -71,6 +90,8 @@
   margin-top: 4px;
 }
 
+/* Rest of the CSS remains unchanged from your original, 
+   but kept here for completeness */
 /* Form Container */
 .kyc-form {
   background: white;
@@ -93,7 +114,6 @@
   flex: 1;
 }
 
-/* Ensure content inside form-step scrolls properly */
 .form-step::-webkit-scrollbar {
   width: 6px;
 }
@@ -458,6 +478,8 @@
   
   .step-cards-container {
     margin-bottom: 16px;
+    padding: 8px 12px;
+    border-radius: 16px;
   }
   
   .kyc-form {
@@ -466,9 +488,6 @@
   
   .form-step {
     padding: 16px;
-    /* Ensure this scrolls properly */
-    max-height: none;
-    height: auto;
   }
   
   .form-navigation {
@@ -484,10 +503,9 @@
   .form-navigation button {
     padding: 14px 8px;
     font-size: 15px;
-    min-height: 48px; /* Better touch target */
+    min-height: 48px;
   }
   
-  /* Better touch targets */
   .form-group input,
   .form-group select,
   .form-group textarea,
@@ -560,6 +578,7 @@
   
   .step-cards-container {
     gap: 12px;
+    padding: 16px 20px;
   }
   
   .step-card {
@@ -630,4 +649,224 @@
   .doc-grid {
     grid-template-columns: repeat(3, 1fr);
   }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* Professional KYC Code Box */
+.kyc-code-box.professional {
+  background: linear-gradient(135deg, #f8f9ff 0%, #f0f2f8 100%);
+  border-radius: 20px;
+  padding: 1.5rem 2rem;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+}
+
+.kyc-code-value-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.kyc-code-value {
+  font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+  font-size: 1.8rem;
+  font-weight: 600;
+  letter-spacing: 1px;
+  background: white;
+  padding: 0.4rem 1rem;
+  border-radius: 12px;
+  color: #1e3a8a;
+  border: 1px solid #e2e8f0;
+  display: inline-block;
+  word-break: break-all;
+}
+
+.copy-code-btn {
+  background: #1e3a8a;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 40px;
+  color: white;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.copy-code-btn:hover {
+  background: #0f2b6d;
+  transform: scale(0.98);
+}
+
+/* Responsive */
+@media (max-width: 640px) {
+  .kyc-code-value {
+    font-size: 1.2rem;
+  }
+  .copy-code-btn {
+    padding: 0.4rem 1rem;
+    font-size: 0.75rem;
+  }
+}
+
+
+
+
+
+
+
+
+/* ============================================
+   CRAZY PROFESSIONAL BUTTONS (compact & elegant)
+   ============================================ */
+.btn-crazy {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0.6rem 1.5rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  border: none;
+  border-radius: 60px;   /* pill shape – modern */
+  transition: all 0.25s cubic-bezier(0.2, 0.9, 0.4, 1.1);
+  cursor: pointer;
+  background: #f0f0f0;
+  color: #1e2a5e;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+}
+
+/* Primary crazy button (dark blue gradient) */
+.btn-crazy-primary {
+  background: linear-gradient(105deg, #6176d3 0%, #4a5c96 100%);
+  color: white;
+  box-shadow: 0 6px 14px rgba(30, 42, 94, 0.25);
+}
+.btn-crazy-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(30, 42, 94, 0.35);
+  background: linear-gradient(105deg, #2b3b6e 0%, #1e2a5e 100%);
+}
+
+/* Success crazy button (green gradient) */
+.btn-crazy-success {
+  background: linear-gradient(135deg, #2ecc71 0%, #27ae60 100%);
+  color: white;
+  box-shadow: 0 6px 14px rgba(46, 204, 113, 0.3);
+}
+.btn-crazy-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 12px 20px rgba(46, 204, 113, 0.4);
+}
+
+/* Outline crazy button */
+.btn-crazy-outline {
+  background: transparent;
+  border: 2px solid #1e2a5e;
+  color: #1e2a5e;
+  box-shadow: none;
+}
+.btn-crazy-outline:hover {
+  background: #1e2a5e;
+  color: white;
+  transform: translateY(-2px);
+}
+
+/* Secondary crazy button (gray) */
+.btn-crazy-secondary {
+  background: #6c757d;
+  color: white;
+  box-shadow: 0 4px 10px rgba(108, 117, 125, 0.2);
+}
+.btn-crazy-secondary:hover {
+  background: #5a6268;
+  transform: translateY(-2px);
+}
+
+/* Disabled state */
+.btn-crazy:disabled,
+.btn-crazy.disabled {
+  opacity: 0.6;
+  transform: none;
+  cursor: not-allowed;
+}
+
+/* Mobile friendly */
+@media (max-width: 576px) {
+  .btn-crazy {
+    padding: 0.5rem 1.2rem;
+    font-size: 0.85rem;
+  }
+}
+
+
+
+
+
+
+
+
+.kyc-card {
+  color: #e5e7eb;
+}
+
+.kyc-header h3 {
+  color: #2563eb;
+}
+
+.kyc-subtitle {
+  color: #94a3b8;
+}
+
+.section-title {
+  color: #0f172a;
+}
+
+.kyc-label {
+  color: #64748b;
+  font-weight: 600;
+}
+
+.kyc-value {
+  color: #1e293b;
+  font-weight: 500;
+}
+
+.kyc-code-label {
+  color: #94a3b8;
+}
+
+.kyc-code-value {
+  color: #2563eb;
+  font-weight: 700;
+  letter-spacing: 1px;
+}
+
+.copy-code-btn {
+  background: #eff6ff;
+  color: #2563eb;
+  border: 1px solid #bfdbfe;
+}
+
+.copy-code-btn:hover {
+  background: #dbeafe;
+  color: #1d4ed8;
 }

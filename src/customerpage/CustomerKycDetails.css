@@ -1,111 +1,280 @@
+/* CustomerKycDetails.css - Professional Redesign */
+
 .kyc-container {
-  padding: 20px;
-  background: #f5f5f5;
-  min-height: 100vh;
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
 }
 
-.kyc-title {
-  margin-bottom: 20px;
-  font-size: 24px;
-  font-weight: bold;
-  color: #333;
+/* Header */
+.kyc-header {
+  margin-bottom: 2rem;
+  text-align: center;
 }
 
+.kyc-header h2 {
+  font-size: 1.8rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem;
+  background: linear-gradient(135deg, #1e2a5e, #3b4b8a);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+}
+
+.kyc-header p {
+  color: #5b6e8c;
+  font-size: 0.95rem;
+  margin: 0;
+}
+
+/* Grid layout */
 .kyc-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fill, minmax(360px, 1fr));
+  gap: 1.5rem;
 }
 
+/* Cards */
 .kyc-card {
   background: white;
-  border-radius: 12px;
-  padding: 20px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
+  overflow: hidden;
+  transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.kyc-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+}
+
+/* Card header with icon */
+.card-header {
   display: flex;
-  flex-direction: column;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 1rem 1.25rem;
+  background: #fafcff;
+  border-bottom: 1px solid #eef2f6;
 }
 
-.kyc-card h3 {
-  margin: 0 0 15px 0;
-  color: #e67e22;
-  font-size: 18px;
+.card-header svg {
+  color: #2196f3;
+}
+
+.card-header h3 {
+  font-size: 1.1rem;
   font-weight: 600;
-  padding-bottom: 8px;
-  border-bottom: 2px solid #e67e22;
+  margin: 0;
+  color: #1a2c3e;
 }
 
-/* Improved alignment for all rows */
+/* Card body */
+.card-body {
+  padding: 1.25rem;
+}
+
+/* Info rows */
 .info-row {
   display: flex;
-  margin-bottom: 12px;
-  line-height: 1.5;
-  align-items: flex-start;
+  justify-content: space-between;
+  align-items: baseline;
+  padding: 0.6rem 0;
+  border-bottom: 1px dashed #f0f2f5;
+  font-size: 0.85rem;
+}
+
+.info-row:last-child {
+  border-bottom: none;
 }
 
 .info-label {
-  font-weight: 600;
-  color: #555;
-  width: 130px;  /* Fixed width for all labels */
-  flex-shrink: 0;
-  min-width: 130px; /* Ensures consistency */
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #5b6e8c;
+  font-weight: 500;
 }
 
 .info-value {
-  color: #333;
-  flex: 1;
+  color: #1e2a3a;
+  font-weight: 500;
+  text-align: right;
   word-break: break-word;
+  max-width: 60%;
 }
 
-/* Special handling for avatar to maintain alignment */
-.avatar-container {
+/* Document link */
+.doc-link {
+  background: #eef2ff;
+  padding: 0.2rem 0.7rem;
+  border-radius: 30px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: #1e3a8a;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+.doc-link:hover {
+  background: #d9e2ef;
+  color: #0f2b6d;
+}
+
+/* KYC code special card */
+.code-card {
+  background: linear-gradient(135deg, #f8f9ff, #eef2ff);
+  border: 1px solid #d9e2ef;
+}
+
+.code-header {
   display: flex;
-  justify-content: center;
   align-items: center;
-  min-height: 150px;
+  gap: 0.5rem;
+  padding: 1rem 1.25rem;
+  border-bottom: 1px solid #e0e7ff;
+}
+
+.code-header svg {
+  color: #1e3a8a;
+}
+
+.code-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  color: #1e3a8a;
+}
+
+.code-display {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 1rem;
+  padding: 1rem 1.25rem;
+}
+
+.code-value {
+  font-family: 'SF Mono', 'Fira Code', monospace;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 1px;
+  background: white;
+  padding: 0.3rem 1rem;
+  border-radius: 40px;
+  color: #1e3a8a;
+  border: 1px solid #cbd5e1;
+}
+
+.copy-code-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  background: #1e3a8a;
+  border: none;
+  padding: 0.4rem 1rem;
+  border-radius: 40px;
+  color: white;
+  font-size: 0.75rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.copy-code-btn:hover {
+  background: #0f2b6d;
+  transform: scale(0.98);
+}
+
+/* Reference groups */
+.ref-group {
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eef2f6;
+}
+
+.ref-group strong {
+  display: block;
+  font-size: 0.8rem;
+  color: #1e3a8a;
+  margin-bottom: 0.5rem;
+}
+
+.ref-group .info-row {
+  padding-left: 0.5rem;
+}
+
+/* Avatar section */
+.avatar-section {
+  text-align: center;
+  padding: 1rem;
 }
 
 .kyc-avatar {
   width: 120px;
   height: 120px;
-  border-radius: 10px;
   object-fit: cover;
-  display: block;
-  margin: 0 auto;
+  border-radius: 60px;
+  border: 3px solid #2196f3;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.no-image {
+  color: #8e9eae;
+  font-size: 0.85rem;
+  background: #f8fafd;
+  padding: 1rem;
+  border-radius: 16px;
+}
+
+/* Loading & error states */
+.kyc-loading, .kyc-error, .kyc-empty {
+  text-align: center;
+  padding: 3rem;
+  background: white;
+  border-radius: 20px;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.05);
 }
 
 .spinner {
-  border: 4px solid #f3f3f3;
-  border-top: 4px solid #e67e22;
-  border-radius: 50%;
   width: 40px;
   height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 20px auto;
+  border: 3px solid #e2e8f0;
+  border-top-color: #2196f3;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 1rem;
 }
 
 @keyframes spin {
-  0% { transform: rotate(0deg); }
-  100% { transform: rotate(360deg); }
+  to { transform: rotate(360deg); }
 }
 
-.error {
-  color: #d32f2f;
-  text-align: center;
-  padding: 20px;
-}
-
+/* Responsive */
 @media (max-width: 768px) {
+  .kyc-container {
+    padding: 1rem;
+  }
   .kyc-grid {
     grid-template-columns: 1fr;
+    gap: 1rem;
   }
-  
-  .info-label {
-    width: 110px;
-    min-width: 110px;
+  .info-row {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.25rem;
   }
-  
-  .kyc-container {
-    padding: 10px;
+  .info-value {
+    text-align: left;
+    max-width: 100%;
+  }
+  .code-display {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .copy-code-btn {
+    justify-content: center;
   }
 }

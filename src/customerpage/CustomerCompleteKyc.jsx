@@ -3,12 +3,13 @@ import PersonalInfo from "./KycPersonalInfo";
 import ContactInfo from "./KycContactInfo";
 import EmploymentInfo from "./KycEmploymentInfos";
 import ReferenceInfo from "./KycReferenceInfo";
+import KycFormView from "./KycFormView";
 import "./CustomerCompleteKyc.css";
-import { 
-  getStepErrors, 
+import {
+  getStepErrors,
   validateAllSteps,
   validatePhoneNumber,
-  validateNationalId 
+  validateNationalId,
 } from "./kycValidation";
 
 const CustomerCompleteKyc = ({ user }) => {
@@ -135,6 +136,8 @@ const CustomerCompleteKyc = ({ user }) => {
   }, [user]);
 
   // ==========================
+  // CHECK NATIONAL ID DUPLICATE
+  // ==========================
   const checkNationalIdDuplicate = useCallback(async (nationalId) => {
     const cleanId = nationalId?.trim().toUpperCase();
 
@@ -164,13 +167,13 @@ const CustomerCompleteKyc = ({ user }) => {
       const data = res.ok ? await res.json() : { exists: false };
 
       if (data.exists) {
-        setFormErrors(prev => ({
+        setFormErrors((prev) => ({
           ...prev,
-          nationalId: "❌ This National ID is already registered"
+          nationalId: "❌ This National ID is already registered",
         }));
         setNationalIdAvailable(false);
       } else {
-        setFormErrors(prev => {
+        setFormErrors((prev) => {
           const newErrors = { ...prev };
           if (newErrors.nationalId?.includes("already registered")) {
             delete newErrors.nationalId;
@@ -180,7 +183,6 @@ const CustomerCompleteKyc = ({ user }) => {
 
         setNationalIdAvailable(true);
       }
-
     } catch (err) {
       if (err.name !== "AbortError") {
         console.error(err);
@@ -189,7 +191,10 @@ const CustomerCompleteKyc = ({ user }) => {
       setCheckingNationalId(false);
     }
   }, []);
-  
+
+  // ==========================
+  // REAL-TIME NATIONAL ID VALIDATION (format + debounced duplicate)
+  // ==========================
   useEffect(() => {
     const id = formData.nationalId?.trim();
 
@@ -203,9 +208,9 @@ const CustomerCompleteKyc = ({ user }) => {
     const formatError = validateNationalId(id, { allowPartial: true });
 
     if (formatError) {
-      setFormErrors(prev => ({
+      setFormErrors((prev) => ({
         ...prev,
-        nationalId: formatError
+        nationalId: formatError,
       }));
       setNationalIdAvailable(false);
       return;
@@ -236,21 +241,24 @@ const CustomerCompleteKyc = ({ user }) => {
       case "referencePhone1":
       case "referencePhone2":
       case "referencePhone3":
-        const phoneError = validatePhoneNumber(value, name.replace(/([A-Z])/g, ' $1').toLowerCase());
+        const phoneError = validatePhoneNumber(
+          value,
+          name.replace(/([A-Z])/g, " $1").toLowerCase()
+        );
         if (phoneError) {
-          setFormErrors(prev => ({ ...prev, [name]: phoneError }));
+          setFormErrors((prev) => ({ ...prev, [name]: phoneError }));
         } else {
-          setFormErrors(prev => {
+          setFormErrors((prev) => {
             const newErrors = { ...prev };
             delete newErrors[name];
             return newErrors;
           });
         }
         break;
-      
+
       default:
         if (formErrors[name]) {
-          setFormErrors(prev => {
+          setFormErrors((prev) => {
             const newErrors = { ...prev };
             delete newErrors[name];
             return newErrors;
@@ -273,7 +281,7 @@ const CustomerCompleteKyc = ({ user }) => {
     if (!files || files.length === 0) return;
     setFormData((prev) => ({ ...prev, [name]: files[0] }));
     if (formErrors[name]) {
-      setFormErrors(prev => {
+      setFormErrors((prev) => {
         const newErrors = { ...prev };
         delete newErrors[name];
         return newErrors;
@@ -294,32 +302,35 @@ const CustomerCompleteKyc = ({ user }) => {
       });
 
       const token = localStorage.getItem("token");
-      const res = await fetch(`${process.env.REACT_APP_API_URL}/api/kyc/save-all`, {
-        method: "POST",
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        body: data,
-      });
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/kyc/save-all`,
+        {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: data,
+        }
+      );
       const result = await res.json();
-      
+
       if (!result.success && result.message?.includes("National ID")) {
-        setFormErrors(prev => ({
+        setFormErrors((prev) => ({
           ...prev,
-          nationalId: result.message
+          nationalId: result.message,
         }));
         setNationalIdAvailable(false);
         return false;
       }
-      
+
       // Capture the kycCode from the response
       if (result.success && result.kycCode) {
-        setFormData(prev => ({
+        setFormData((prev) => ({
           ...prev,
-          kycCode: result.kycCode
+          kycCode: result.kycCode,
         }));
       }
-      
+
       return result.success;
     } catch (err) {
       console.error(err);
@@ -335,10 +346,10 @@ const CustomerCompleteKyc = ({ user }) => {
       setCurrentStep((prev) => Math.min(prev + 1, 4));
       setFormErrors({});
     } else {
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
-  
+
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
     setFormErrors({});
@@ -349,45 +360,53 @@ const CustomerCompleteKyc = ({ user }) => {
   // ==========================
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
-    
+
     if (!nationalIdAvailable && formData.nationalId) {
-      setSubmitMessage({ 
-        type: "error", 
-        text: "❌ Cannot submit: This National ID has already been used for KYC verification." 
+      setSubmitMessage({
+        type: "error",
+        text: "❌ Cannot submit: This National ID has already been used for KYC verification.",
       });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    
+
     const { isValid, errors } = validateAllSteps(formData);
-    
+
     if (!isValid) {
-      const allErrors = { ...errors.step1, ...errors.step2, ...errors.step3, ...errors.step4 };
+      const allErrors = {
+        ...errors.step1,
+        ...errors.step2,
+        ...errors.step3,
+        ...errors.step4,
+      };
       setFormErrors(allErrors);
-      setSubmitMessage({ 
-        type: "error", 
-        text: "❌ Please complete all required fields correctly before submitting." 
+      setSubmitMessage({
+        type: "error",
+        text: "❌ Please complete all required fields correctly before submitting.",
       });
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      window.scrollTo({ top: 0, behavior: "smooth" });
       return;
     }
-    
+
     setSubmitting(true);
     const success = await saveAllKyc();
     setSubmitting(false);
 
     if (success) {
       setSubmitMessage({ type: "success", text: "✅ KYC submitted successfully!" });
-      
+
       // Ensure KYC code is preserved
-      setFormData(prev => ({
+      setFormData((prev) => ({
         ...prev,
-        kycCode: prev.kycCode || user?.kycCode || ""
+        kycCode: prev.kycCode || user?.kycCode || "",
       }));
 
       setSubmitted(true);
     } else {
-      setSubmitMessage({ type: "error", text: "❌ Failed to submit KYC. Please try again." });
+      setSubmitMessage({
+        type: "error",
+        text: "❌ Failed to submit KYC. Please try again.",
+      });
     }
   };
 
@@ -406,7 +425,7 @@ const CustomerCompleteKyc = ({ user }) => {
       isMobileLocked: false,
       isEmailLocked: false,
     };
-    
+
     switch (currentStep) {
       case 1:
         return <PersonalInfo {...stepProps} />;
@@ -430,12 +449,15 @@ const CustomerCompleteKyc = ({ user }) => {
       <div className="kyc-grid">
         <div className="kyc-item">
           <span className="kyc-label">KYC Code:</span>
-          <span className="kyc-value kyc-code-value">{formData.kycCode || "Pending"}</span>
+          <span className="kyc-value kyc-code-value">
+            {formData.kycCode || "Pending"}
+          </span>
         </div>
         <div className="kyc-item">
           <span className="kyc-label">Name:</span>
           <span className="kyc-value">
-            {formData.title} {formData.firstName} {formData.middleName} {formData.lastName}
+            {formData.title} {formData.firstName} {formData.middleName}{" "}
+            {formData.lastName}
           </span>
         </div>
         <div className="kyc-item">
@@ -455,7 +477,7 @@ const CustomerCompleteKyc = ({ user }) => {
   );
 
   // ==========================
-  // STEP CARDS (Green color removed)
+  // STEP CARDS COMPONENT (used inside KycFormView)
   // ==========================
   const StepCards = () => {
     const steps = [
@@ -475,7 +497,9 @@ const CustomerCompleteKyc = ({ user }) => {
           return (
             <div
               key={step.number}
-              className={`step-card ${isActive ? "active" : isCompleted ? "completed" : ""}`}
+              className={`step-card ${
+                isActive ? "active" : isCompleted ? "completed" : ""
+              }`}
               onClick={() => !isLocked && setCurrentStep(step.number)}
             >
               <div className="step-number">{step.number}</div>
@@ -488,122 +512,27 @@ const CustomerCompleteKyc = ({ user }) => {
   };
 
   // ==========================
-  // MAIN RENDER
+  // MAIN RENDER (delegated to KycFormView)
   // ==========================
   return (
-    <div className="content-section">
-      <h2>KYC Forms</h2>
-
-      {checkingKyc ? (
-        <p>Loading...</p>
-      ) : hasKyc ? (
-        <div className="kyc-preview">
-  <div className="kyc-card">
-    {/* Header Section */}
-    <div className="kyc-header">
-      <div className="kyc-icon">
-        <i className="bi bi-check-circle-fill"></i>✔
-      </div>
-      <h3>KYC Completed Successfully</h3>
-      <p className="kyc-subtitle">Your identity verification has been completed successfully.</p>
-    </div>
-    
-    {/* KYC Code Section */}
-    <div className="kyc-code-section">
-      <div className="kyc-code-box">
-        <span className="kyc-code-label">KYC Code</span>
-        <h2 className="kyc-code-value">{formData.kycCode}</h2>
-      </div>
-    </div>
-    
-    {/* Personal Information Section */}
-    <div className="kyc-info-section">
-      <h4 className="section-title">Personal Information</h4>
-      
-      <div className="kyc-items-grid">
-        <div className="kyc-item">
-          <div className="kyc-label">Full Name</div>
-          <div className="kyc-value">
-            {formData.title} {formData.firstName} {formData.middleName} {formData.lastName}
-          </div>
-        </div>
-        
-       
-        <div className="kyc-item">
-          <div className="kyc-label">Email Address</div>
-          <div className="kyc-value">{formData.email}</div>
-        </div>
-        
-      </div>
-    </div>
-  </div>
-</div>
-      ) : submitted ? (
-        renderPreview()
-      ) : (
-        <>
-          <StepCards />
-          <form className="kyc-form" onSubmit={handleFinalSubmit}>
-            {renderStep()}
-
-            {checkingNationalId && (
-              <div className="national-id-checking">
-                <span className="spinner-small"></span>
-                Verifying National ID...
-              </div>
-            )}
-
-            {Object.keys(formErrors).length > 0 && (
-              <div className="error-summary">
-                <h4>Please fix the following errors:</h4>
-                <ul>
-                  {Object.values(formErrors).map((error, index) => (
-                    <li key={index}>{error}</li>
-                  ))}
-                </ul>
-              </div>
-            )}
-
-            <div className="form-navigation mt-3">
-              {currentStep > 1 && (
-                <button type="button" onClick={prevStep} className="btn btn-secondary">
-                  Previous
-                </button>
-              )}
-              {currentStep < 4 && (
-                <button
-                  type="button"
-                  onClick={nextStep}
-                  className="btn btn-primary"
-                  disabled={
-                    checkingNationalId ||
-                    !nationalIdAvailable ||
-                    !!formErrors.nationalId
-                  }
-                >
-                  Next
-                </button>
-              )}
-              {currentStep === 4 && (
-                <button 
-                  type="submit" 
-                  disabled={submitting || !nationalIdAvailable} 
-                  className="btn btn-success"
-                >
-                  {submitting ? "Submitting..." : "Submit KYC"}
-                </button>
-              )}
-            </div>
-
-            {submitMessage && (
-              <div className={`alert alert-${submitMessage.type === "success" ? "success" : "danger"} mt-3`}>
-                {submitMessage.text}
-              </div>
-            )}
-          </form>
-        </>
-      )}
-    </div>
+    <KycFormView
+      checkingKyc={checkingKyc}
+      hasKyc={hasKyc}
+      submitted={submitted}
+      formData={formData}
+      renderPreview={renderPreview}
+      renderStep={renderStep}
+      checkingNationalId={checkingNationalId}
+      formErrors={formErrors}
+      currentStep={currentStep}
+      prevStep={prevStep}
+      nextStep={nextStep}
+      submitting={submitting}
+      nationalIdAvailable={nationalIdAvailable}
+      submitMessage={submitMessage}
+      handleFinalSubmit={handleFinalSubmit}
+      StepCards={StepCards}
+    />
   );
 };
 
