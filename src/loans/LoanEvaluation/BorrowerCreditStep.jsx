@@ -136,7 +136,7 @@ const BorrowerCreditStep = ({ loan, data, setData, onBack, onNext }) => {
 
   return (
     <>
-      <h5 className="mb-1">Borrower Credit Assessment</h5>
+      <h5 className="mb-1">Access customer Borrow Creditworthiness</h5>
       <p className="text-muted mb-3">
         Credit information for <strong>{loan?.applicant_fullName}</strong>
        

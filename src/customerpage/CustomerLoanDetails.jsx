@@ -151,8 +151,8 @@ const LoanDetails = ({ formData, handleInputChange, errors, touchedFields, handl
               <option value="Education">Education</option>
               <option value="Medical Emergency">Medical Emergency</option>
               <option value="Home Improvement">Home Improvement</option>
-              <option value="Vehicle Purchase">Vehicle Purchase</option>
-              <option value="Wedding">Wedding</option>
+              
+              <option value="Personal Use">Personal Use</option>
               <option value="Other">Other</option>
             </select>
             {getFieldError('loanPurpose') && (

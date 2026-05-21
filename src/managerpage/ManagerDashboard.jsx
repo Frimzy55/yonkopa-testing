@@ -282,91 +282,85 @@ const ManagerDashboard = () => {
   // Filter menu items based on user tasks (permissions)
   const normalize = (str) => str.toLowerCase().replace(/\s+/g, "_");
 
-  const visibleMenuItems = useMemo(() => {
-    const dashboardMenu = menuItems.find(item => item.name === 'Dashboard');
-    if (!userTasks.length) return [dashboardMenu];
-
-    // Normalise: lowercase, spaces and special chars become underscores
-    const normalise = (str) =>
-      str.toLowerCase().replace(/[\s-]+/g, '_').replace(/[^a-z0-9_]/g, '');
-
-    // Build a set of normalised task names for quick lookup
-    const normalisedTasks = userTasks.map(t => normalise(t.task_name));
-
-    const filtered = menuItems
-      .filter(menu => menu.name !== 'Dashboard')
-      .map((menu) => {
-        const menuKey = normalise(menu.name);
-        // Does the user have any task belonging to this main menu?
-        const hasMainMenu = normalisedTasks.some(task => task.startsWith(menuKey));
-        if (!hasMainMenu) return null;
-
-        // Process sub‑menus
-        let filteredSubMenus = null;
-        if (menu.subMenus && menu.subMenus.length) {
-          filteredSubMenus = menu.subMenus
-            .map((sub) => {
-              const subKey = normalise(sub.name);
-              const fullSubPath = `${menuKey}_${subKey}`;
-              const hasSubMenu = normalisedTasks.some(task => task.startsWith(fullSubPath));
-              if (!hasSubMenu) return null;
-
-              // Process nested menus inside this sub‑menu
-              let filteredNested = null;
-              if (sub.nestedMenus && sub.nestedMenus.length) {
-                filteredNested = sub.nestedMenus.filter(nested => {
-                  const nestedKey = normalise(nested.name);
-                  const fullNestedPath = `${fullSubPath}_${nestedKey}`;
-                  return normalisedTasks.some(task => task.startsWith(fullNestedPath));
-                });
-              }
-
-              // Process reports inside this sub‑menu
-              let filteredReports = null;
-              if (sub.reports && sub.reports.length) {
-                filteredReports = sub.reports.filter(report => {
-                  const reportKey = normalise(report.name);
-                  const fullReportPath = `${fullSubPath}_${reportKey}`;
-                  return normalisedTasks.some(task => task.startsWith(fullReportPath));
-                });
-              }
-
-              // Build the sub‑menu object (only keep granted children)
-              const updatedSub = { ...sub };
-              if (filteredNested && filteredNested.length) updatedSub.nestedMenus = filteredNested;
-              else delete updatedSub.nestedMenus;
-
-              if (filteredReports && filteredReports.length) updatedSub.reports = filteredReports;
-              else delete updatedSub.reports;
-
-              return updatedSub;
-            })
-            .filter(Boolean);
-        }
-
-        // Process top‑level reports directly under the main menu (e.g., Reports menu)
-        let topLevelReports = null;
-        if (menu.reports && menu.reports.length) {
-          topLevelReports = menu.reports.filter(report => {
-            const reportKey = normalise(report.name);
-            const fullReportPath = `${menuKey}_${reportKey}`;
-            return normalisedTasks.some(task => task.startsWith(fullReportPath));
-          });
-        }
-
-        const updatedMenu = { ...menu };
-        if (filteredSubMenus && filteredSubMenus.length) updatedMenu.subMenus = filteredSubMenus;
-        else delete updatedMenu.subMenus;
-
-        if (topLevelReports && topLevelReports.length) updatedMenu.reports = topLevelReports;
-        else delete updatedMenu.reports;
-
-        return updatedMenu;
-      })
-      .filter(Boolean);
-
-    return [dashboardMenu, ...filtered];
-  }, [userTasks]);
+ 
+ const visibleMenuItems = useMemo(() => {
+   const dashboardMenu = menuItems.find(item => item.name === 'Dashboard');
+   if (!userTasks.length) return [dashboardMenu];
+ 
+   const normalize = (str) =>
+     str.toLowerCase()
+       .replace(/[\s-]+/g, '_')
+       .replace(/[^a-z0-9_]/g, '');
+ 
+   const permissions = userTasks.map(t => normalize(t.task_name));
+ 
+   const hasFullAccessToMenu = (menuKey) =>
+     permissions.includes(menuKey);
+ 
+   const filtered = menuItems
+     .filter(menu => menu.name !== 'Dashboard')
+     .map(menu => {
+       const menuKey = normalize(menu.name);
+ 
+       const hasMenuAccess =
+         permissions.some(p => p.startsWith(menuKey));
+ 
+       if (!hasMenuAccess) return null;
+ 
+       // If user has ONLY menu-level permission → show EVERYTHING under it
+       const fullAccess = hasFullAccessToMenu(menuKey);
+ 
+       let subMenus = menu.subMenus || [];
+ 
+       if (!fullAccess) {
+         subMenus = subMenus
+           .map(sub => {
+             const subKey = normalize(sub.name);
+             const fullSubKey = `${menuKey}_${subKey}`;
+ 
+             const hasSubAccess = permissions.some(p =>
+               p.startsWith(fullSubKey)
+             );
+ 
+             if (!hasSubAccess) return null;
+ 
+             let nestedMenus = sub.nestedMenus || [];
+             let reports = sub.reports || [];
+ 
+             nestedMenus = fullAccess
+               ? nestedMenus
+               : nestedMenus.filter(n =>
+                   permissions.some(p =>
+                     p.startsWith(`${fullSubKey}_${normalize(n.name)}`)
+                   )
+                 );
+ 
+             reports = fullAccess
+               ? reports
+               : reports.filter(r =>
+                   permissions.some(p =>
+                     p.startsWith(`${fullSubKey}_${normalize(r.name)}`)
+                   )
+                 );
+ 
+             return {
+               ...sub,
+               nestedMenus: nestedMenus.length ? nestedMenus : undefined,
+               reports: reports.length ? reports : undefined
+             };
+           })
+           .filter(Boolean);
+       }
+ 
+       return {
+         ...menu,
+         subMenus: subMenus.length ? subMenus : undefined
+       };
+     })
+     .filter(Boolean);
+ 
+   return [dashboardMenu, ...filtered];
+ }, [menuItems, userTasks]);
 
   // Update date/time every second
   useEffect(() => {
