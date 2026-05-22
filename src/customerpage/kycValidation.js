@@ -95,7 +95,7 @@ export const validateName = (name, fieldName = "Name") => {
   return null;
 };
 
-export const validateDateOfBirth = (dateOfBirth) => {
+/*export const validateDateOfBirth = (dateOfBirth) => {
   if (!dateOfBirth) {
     return "Date of birth is required";
   }
@@ -119,6 +119,54 @@ export const validateDateOfBirth = (dateOfBirth) => {
   
   return null;
 };
+*/
+
+
+export const validateDateOfBirth = (dateOfBirth) => {
+  if (!dateOfBirth?.trim()) {
+    return "Date of birth is required";
+  }
+
+  // STRICT FORMAT VALIDATION: yyyy-mm-dd
+  const dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+
+  if (!dateRegex.test(dateOfBirth)) {
+  return "Invalid date format. Example: 1990-05-30";
+  }
+
+  // Validate actual date
+  const birthDate = new Date(dateOfBirth);
+
+  if (isNaN(birthDate.getTime())) {
+    return "Please enter a valid date";
+  }
+
+  const today = new Date();
+
+  let age = today.getFullYear() - birthDate.getFullYear();
+
+  const monthDiff =
+    today.getMonth() - birthDate.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 &&
+      today.getDate() < birthDate.getDate())
+  ) {
+    age--;
+  }
+
+  if (age < 18) {
+    return "You must be at least 18 years old";
+  }
+
+  if (age > 120) {
+    return "Please enter a valid date of birth";
+  }
+
+  return null;
+};
+
 
 // UPDATED: Added options parameter for partial validation
 export const validateNationalId = (nationalId, options = {}) => {

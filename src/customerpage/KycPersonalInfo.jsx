@@ -142,23 +142,31 @@ const PersonalInfo = ({
         </div>
 
         {/* Date of Birth */}
-        <div className="form-group">
-          <label>Date of Birth (yyyy-mm-dd)*</label>
-          <input
-            type="text"
-            name="dateOfBirth"
-            value={formData?.dateOfBirth || ""}
-            onChange={handleInputChange}
-             placeholder="(e.g., yyyy-mm-dd)"
-            required
-            className={formErrors?.dateOfBirth ? "error-input" : ""}
-          />
-          {formErrors?.dateOfBirth && (
-            <span className="error-message">
-              {formErrors.dateOfBirth}
-            </span>
-          )}
-        </div>
+       {/* Date of Birth */}
+<div className="form-group">
+  <label>Date of Birth (yyyy-mm-dd) *</label>
+
+  <input
+    type="text"
+    name="dateOfBirth"
+    value={formData?.dateOfBirth || ""}
+    onChange={handleInputChange}
+    placeholder="e.g., 1990-05-30"
+    required
+    pattern="\d{4}-\d{2}-\d{2}"
+    className={
+      formErrors?.dateOfBirth
+        ? "error-input"
+        : ""
+    }
+  />
+
+  {formErrors?.dateOfBirth && (
+    <span className="error-message">
+      {formErrors.dateOfBirth}
+    </span>
+  )}
+</div>
 
         {/* Gender */}
         <div className="form-group">
