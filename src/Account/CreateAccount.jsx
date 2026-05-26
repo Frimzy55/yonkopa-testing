@@ -11,7 +11,7 @@ const CreateAccount = () => {
     branch: "Head Office",
     image: null,
     account_name: "",
-    account_type: "Loan",
+    account_type: "",
   });
 
   const [preview, setPreview] = useState(null);
@@ -152,7 +152,7 @@ const CreateAccount = () => {
       branch: "Head Office",
       image: null,
       account_name: "",
-      account_type: "Loan",
+      account_type: "",
     });
     setPreview(null);
     setLocked(false);
@@ -272,33 +272,33 @@ const CreateAccount = () => {
 
         {/* ACCOUNT SECTION */}
         <div className="card mb-4">
-          <div className="card-body">
-            <h5 className="text-success">Account Setup</h5>
-            <div className="row g-3">
-              <div className="col-md-6">
-                <label>Account Name</label>
-                <input
-                  className="form-control"
-                  name="account_name"
-                  value={formData.account_name}
-                  onChange={handleChange}
-                />
-              </div>
-              <div className="col-md-6">
-                <label>Account Type</label>
-                <select
-                  className="form-select"
-                  name="account_type"
-                  value={formData.account_type}
-                  onChange={handleChange}
-                >
-                  <option value="Loan">Loan</option>
-                  <option value="Lien">Lien</option>
-                  <option value="Fixed Deposit">Fixed Deposit</option>
-                </select>
-              </div>
-            </div>
-          </div>
+          <div className="col-md-6">
+  <label className="form-label fw-bold">
+    Select Account Type
+  </label>
+
+  <select
+    className="form-select form-select-lg"
+    name="account_type"
+    value={formData.account_type}
+    onChange={handleChange}
+    required
+  >
+    <option value="">-- Select Account Type --</option>
+
+    <option value="Loan">
+      Loan Account
+    </option>
+
+    <option value="Lien">
+      Lien Account
+    </option>
+
+    <option value="Fixed Deposit">
+      Fixed Deposit Account
+    </option>
+  </select>
+</div>
         </div>
 
         {/* BUTTONS */}
