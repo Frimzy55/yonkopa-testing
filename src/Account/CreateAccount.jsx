@@ -154,7 +154,7 @@ const CreateAccount = () => {
       branch: "Head Office",
       image: null,
       account_name: "",
-      account_type: "Savings",
+      account_type: "Loan",
     });
     setPreview(null);
     setLocked(false);
