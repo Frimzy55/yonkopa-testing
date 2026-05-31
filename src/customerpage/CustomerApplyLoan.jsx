@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import LoanForm from "./CutomerLoanForm";
+//import { useLocation } from "react-router-dom"; // <-- ADD
 import "bootstrap/dist/css/bootstrap.min.css";
 
 const CustomerApplyLoan = ({ user }) => {
@@ -10,6 +11,11 @@ const CustomerApplyLoan = ({ user }) => {
   const [verifiedCustomer, setVerifiedCustomer] = useState(null);
   const [alreadyApplied, setAlreadyApplied] = useState(false);
   const [checking, setChecking] = useState(true);
+
+
+  //const location = useLocation();
+  // Use user from navigation state if available, otherwise from props
+  //const user = location.state?.user || propUser;
 
   useEffect(() => {
     if (user?.userId) {

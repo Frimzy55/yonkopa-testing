@@ -178,30 +178,7 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
 
         <p className="text-muted mb-4">Join Yonkopa to access quick and affordable loans</p>
 
-        {/* Success Message */}
-        {message && message.includes("success") && (
-          <div className="alert alert-success text-center py-2">
-            <i className="bi bi-check-circle-fill me-2"></i>
-            {message}
-          </div>
-        )}
-        
-        {/* Error Message */}
-        {message && !message.includes("success") && (
-          <div className="alert alert-danger text-center py-2">
-            <i className="bi bi-exclamation-triangle-fill me-2"></i>
-            {message}
-          </div>
-        )}
-
-        {/* Validation Message */}
-        {validationMessage && (
-          <div className="alert alert-warning text-center py-2">
-            <i className="bi bi-exclamation-circle-fill me-2"></i>
-            {validationMessage}
-          </div>
-        )}
-
+       
         <form onSubmit={handleSubmit} noValidate>
           {/* Full Name */}
           <div className="mb-3">
@@ -295,6 +272,35 @@ const SignUpPage = ({ onClose, onSwitchToLogin }) => {
               <div className="invalid-feedback d-block">{errors.confirmPassword}</div>
             )}
           </div>
+
+
+
+
+
+
+          {/* Success Message */}
+        {message && message.includes("success") && (
+          <div className="alert alert-success text-center py-2">
+            <i className="bi bi-check-circle-fill me-2"></i>
+            {message}
+          </div>
+        )}
+        
+        {/* Error Message */}
+        {message && !message.includes("success") && (
+          <div className="alert alert-danger text-center py-2">
+            <i className="bi bi-exclamation-triangle-fill me-2"></i>
+            {message}
+          </div>
+        )}
+
+        {/* Validation Message */}
+        {validationMessage && (
+          <div className="alert alert-warning text-center py-2">
+            <i className="bi bi-exclamation-circle-fill me-2"></i>
+            {validationMessage}
+          </div>
+        )}
 
           {/* Terms and Conditions */}
           <div className="mb-4">

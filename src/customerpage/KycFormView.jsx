@@ -19,6 +19,7 @@ const KycFormView = ({
   submitMessage,
   handleFinalSubmit,
   StepCards,
+  onContinueToLoan,      // optional – if provided, will be called when button is clicked
 }) => {
   // State for copy feedback
   const [copySuccess, setCopySuccess] = useState(false);
@@ -43,6 +44,18 @@ const KycFormView = ({
 
   const contact = getContactValue();
 
+  // Default handler when onContinueToLoan is not provided
+  const handleContinueToLoan = () => {
+    if (onContinueToLoan) {
+      onContinueToLoan();
+    } else {
+      // 🔁 Replace this default action with your own navigation logic
+      console.log("Continue to Apply Loan clicked – no handler provided");
+      // Example: window.location.href = "/apply-loan";
+      // Or if using React Router: navigate("/apply-loan");
+    }
+  };
+
   return (
     <div className="content-section">
       <h2>KYC Forms</h2>
@@ -57,10 +70,21 @@ const KycFormView = ({
               <div className="kyc-icon">
                 <FaCheckCircle size={48} style={{ color: "#2ecc71" }} />
               </div>
-              <h3>KYC Completed Successfully</h3>
+              <h3>KYC Submitted</h3>
               <p className="kyc-subtitle">
                 Your identity verification has been completed successfully.
               </p>
+            </div>
+
+
+            <div className="kyc-action-buttons" style={{ marginTop: "24px", textAlign: "center" }}>
+              <button
+                type="button"
+                className="btn-crazy btn-crazy-primary"
+                onClick={handleContinueToLoan}
+              >
+               Apply For Loan
+              </button>
             </div>
 
             {/* Professional KYC Code Section with Copy Button */}
@@ -113,6 +137,9 @@ const KycFormView = ({
                 </div>
               </div>
             </div>
+
+            {/* Continue to Apply Loan Button – always visible */}
+            
           </div>
         </div>
       ) : submitted ? (

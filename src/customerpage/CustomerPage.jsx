@@ -215,7 +215,14 @@ const CustomerView = () => {
 
   const renderContent = () => {
     switch (activeMenu) {
-      case 'kyc': return <CustomerCompleteKyc user={user} />;
+     // case 'kyc': return <CustomerCompleteKyc user={user} />;
+     case 'kyc':
+  return (
+    <CustomerCompleteKyc
+      user={user}
+      onContinueToLoan={() => setActiveMenu("loan")}
+    />
+  );
       case 'viewKyc': return <CustomerKycDetails user={user} />;
       case 'loan': return <CustomerApplyLoan user={user} />;
       case 'loanStatus': return <CustomerLoanStatus user={user} onApplyLoan={() => setActiveMenu('loan')} />;

@@ -12,7 +12,7 @@ import {
   validateNationalId,
 } from "./kycValidation";
 
-const CustomerCompleteKyc = ({ user }) => {
+const CustomerCompleteKyc = ({ user ,onContinueToLoan }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [submitting, setSubmitting] = useState(false);
   const [submitMessage, setSubmitMessage] = useState(null);
@@ -24,6 +24,9 @@ const CustomerCompleteKyc = ({ user }) => {
   const [nationalIdAvailable, setNationalIdAvailable] = useState(true);
   const nationalIdCheckTimeout = useRef(null);
   const abortControllerRef = useRef(null);
+
+
+ // const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
 
   const [formData, setFormData] = useState({
     userId: "",
@@ -442,39 +445,59 @@ const CustomerCompleteKyc = ({ user }) => {
 
   // ==========================
   // RENDER PREVIEW AFTER SUBMIT
-  // ==========================
   const renderPreview = () => (
-    <div className="kyc-preview-card">
-      <h3 className="kyc-title">✅ KYC Submitted Successfully!</h3>
-      <div className="kyc-grid">
-        <div className="kyc-item">
-          <span className="kyc-label">KYC Code:</span>
-          <span className="kyc-value kyc-code-value">
-            {formData.kycCode || "Pending"}
-          </span>
-        </div>
-        <div className="kyc-item">
-          <span className="kyc-label">Name:</span>
-          <span className="kyc-value">
-            {formData.title} {formData.firstName} {formData.middleName}{" "}
-            {formData.lastName}
-          </span>
-        </div>
-        <div className="kyc-item">
-          <span className="kyc-label">National ID:</span>
-          <span className="kyc-value">{formData.nationalId}</span>
-        </div>
-        <div className="kyc-item">
-          <span className="kyc-label">Email:</span>
-          <span className="kyc-value">{formData.email}</span>
-        </div>
-        <div className="kyc-item">
-          <span className="kyc-label">Phone:</span>
-          <span className="kyc-value">{formData.mobileNumber}</span>
-        </div>
+  <div className="kyc-preview-card">
+    <h3 className="kyc-title">✅ KYC Submitted Successfully!</h3>
+
+    <div className="kyc-grid">
+      <div className="kyc-item">
+        <span className="kyc-label">KYC Code:</span>
+        <span className="kyc-value kyc-code-value">
+          {formData.kycCode || "Pending"}
+        </span>
+      </div>
+
+      <div className="kyc-item">
+        <span className="kyc-label">Name:</span>
+        <span className="kyc-value">
+          {formData.title} {formData.firstName} {formData.middleName}{" "}
+          {formData.lastName}
+        </span>
+      </div>
+
+      <div className="kyc-item">
+        <span className="kyc-label">National ID:</span>
+        <span className="kyc-value">{formData.nationalId}</span>
+      </div>
+
+      <div className="kyc-item">
+        <span className="kyc-label">Email:</span>
+        <span className="kyc-value">{formData.email}</span>
+      </div>
+
+      <div className="kyc-item">
+        <span className="kyc-label">Phone:</span>
+        <span className="kyc-value">{formData.mobileNumber}</span>
       </div>
     </div>
-  );
+
+    {/* Continue Button */}
+    <div
+      style={{
+        marginTop: "25px",
+        textAlign: "center",
+      }}
+    >
+      <button
+        type="button"
+        className="btn-crazy btn-crazy-primary"
+        onClick={() => onContinueToLoan?.()}
+      >
+        Continue to Apply Loan
+      </button>
+    </div>
+  </div>
+);
 
   // ==========================
   // STEP CARDS COMPONENT (used inside KycFormView)
@@ -532,6 +555,7 @@ const CustomerCompleteKyc = ({ user }) => {
       submitMessage={submitMessage}
       handleFinalSubmit={handleFinalSubmit}
       StepCards={StepCards}
+        onContinueToLoan={onContinueToLoan}
     />
   );
 };
