@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from "react";
+import ViewEnquiryModal from "./ViewEnquiryModal";
+import EditEnquiryModal from "./EditEnquiryModal";
 
 const CustomerEnquiries = () => {
   const [enquiries, setEnquiries] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  // Search & filter
+  // Search & Filter
   const [searchTerm, setSearchTerm] = useState("");
   const [filterStatus, setFilterStatus] = useState("all");
 
@@ -13,84 +15,118 @@ const CustomerEnquiries = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
 
-  // Modal states
+  // Modals
   const [showViewModal, setShowViewModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedEnquiry, setSelectedEnquiry] = useState(null);
-  const [editFormData, setEditFormData] = useState({ status: "", response: "" });
 
-  // ==================== FETCH DATA ====================
+  const [editFormData, setEditFormData] = useState({
+    status: "",
+    response: "",
+  });
+
+  // =========================================
+  // FETCH DATA
+  // =========================================
   useEffect(() => {
-    const fetchEnquiries = async () => {
-      setLoading(true);
-      setError("");
-      try {
-        const token = localStorage.getItem("token");
-        if (!token) {
-          setError("Please login first.");
-          setLoading(false);
-          return;
-        }
-
-        const res = await fetch(
-          `${process.env.REACT_APP_API_URL}/api/customer-enquiries`,
-          {
-            headers: { Authorization: `Bearer ${token}` },
-          }
-        );
-        if (!res.ok) throw new Error("Failed to fetch loan data");
-
-        const data = await res.json();
-        const loans = data?.data || [];
-
-        // Map to required table fields
-        const mapped = loans.map((loan, idx) => ({
-          id: loan.id,
-          customerId: loan.customerId || loan.customer_id,
-          customerName: loan.customerName || loan.applicant_fullName,
-          contactNumber: loan.contactNumber || loan.customerPhone || loan.applicant_phone,
-          amountApproved: loan.amountApproved || loan.kyc_loan_amount || loan.evaluated_loan_amount,
-          approvalDate: loan.approvalDate || loan.approved_date,
-          status: loan.status || loan.loan_status,
-          enquiryType: loan.enquiryType || "Loan Application",
-          assignedTo: loan.assignedTo,
-          response: loan.response || loan.comments,
-        }));
-        setEnquiries(mapped);
-      } catch (err) {
-        console.error(err);
-        setError("Network error while loading loan approvals");
-      } finally {
-        setLoading(false);
-      }
-    };
     fetchEnquiries();
   }, []);
 
-  // ==================== FILTER & PAGINATION ====================
+  const fetchEnquiries = async () => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const token = localStorage.getItem("token");
+
+      if (!token) {
+        setError("Please login first");
+        setLoading(false);
+        return;
+      }
+
+      const res = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/customer-enquiries`,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      if (!res.ok) {
+        throw new Error("Failed to fetch customer enquiries");
+      }
+
+      const data = await res.json();
+
+     const mapped = (data?.data || []).map((loan) => ({
+  id: loan.id,
+  enquiryId: loan.enquiryId,
+  customerId: loan.customerId || "",
+  customerName: loan.customerName || "",
+
+  avatar: loan.avatar
+    ? `http://localhost:5000/uploads/${loan.avatar}`
+    : "",
+
+  contactNumber: loan.contactNumber || "",
+  email: loan.email || "",
+  dob: loan.dob || "",
+  gender: loan.gender || "",
+  amountApproved: loan.amountApproved || 0,
+  approvalDate: loan.approvalDate || "",
+  status: loan.status || "pending",
+  response: loan.response || "",
+}));
+
+      setEnquiries(mapped);
+    } catch (err) {
+      console.error(err);
+      setError("Network error while loading customer enquiries");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // =========================================
+  // FILTERING
+  // =========================================
   const filtered = enquiries.filter((e) => {
-    const term = searchTerm.toLowerCase().trim();
+    const term = searchTerm.toLowerCase();
+
     const matchSearch =
       (e.customerId || "").toLowerCase().includes(term) ||
       (e.customerName || "").toLowerCase().includes(term) ||
-      (e.contactNumber || "").toLowerCase().includes(term);
-    const matchStatus = filterStatus === "all" || e.status === filterStatus;
+      (e.contactNumber || "").toLowerCase().includes(term) ||
+      (e.email || "").toLowerCase().includes(term);
+
+    const matchStatus =
+      filterStatus === "all" || e.status === filterStatus;
+
     return matchSearch && matchStatus;
   });
 
+  // =========================================
+  // PAGINATION
+  // =========================================
   const totalPages = Math.ceil(filtered.length / itemsPerPage);
   const start = (currentPage - 1) * itemsPerPage;
   const currentItems = filtered.slice(start, start + itemsPerPage);
 
   const goToPage = (page) => {
-    if (page >= 1 && page <= totalPages) setCurrentPage(page);
+    if (page >= 1 && page <= totalPages) {
+      setCurrentPage(page);
+    }
   };
 
   useEffect(() => {
     setCurrentPage(1);
   }, [searchTerm, filterStatus]);
 
-  // ==================== HANDLERS ====================
+  // =========================================
+  // HANDLERS
+  // =========================================
   const handleView = (item) => {
     setSelectedEnquiry(item);
     setShowViewModal(true);
@@ -98,47 +134,21 @@ const CustomerEnquiries = () => {
 
   const handleEdit = (item) => {
     setSelectedEnquiry(item);
-    setEditFormData({ status: item.status, response: item.response || "" });
+    setEditFormData({
+      status: item.status,
+      response: item.response || "",
+    });
     setShowEditModal(true);
   };
 
-  const handleInputChange = (e) => {
-    setEditFormData({ ...editFormData, [e.target.name]: e.target.value });
+  const handleUpdateEnquiry = (updatedEnquiry) => {
+    setEnquiries((prev) =>
+      prev.map((e) =>
+        e.id === updatedEnquiry.id ? updatedEnquiry : e
+      )
+    );
   };
 
-  const handleSave = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      const res = await fetch(
-        `${process.env.REACT_APP_API_URL}/api/customer-enquiries/${selectedEnquiry.id}`,
-        {
-          method: "PUT",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${token}`,
-          },
-          body: JSON.stringify({
-            status: editFormData.status,
-            comments: editFormData.response,
-          }),
-        }
-      );
-      if (!res.ok) throw new Error("Update failed");
-      setEnquiries((prev) =>
-        prev.map((e) =>
-          e.id === selectedEnquiry.id
-            ? { ...e, status: editFormData.status, response: editFormData.response }
-            : e
-        )
-      );
-      setShowEditModal(false);
-    } catch (err) {
-      console.error(err);
-      alert("Update failed");
-    }
-  };
-
-  // ==================== HELPER ====================
   const getStatusBadge = (status) => {
     const colors = {
       pending: "bg-warning text-dark",
@@ -150,303 +160,223 @@ const CustomerEnquiries = () => {
     return colors[status?.toLowerCase()] || "bg-secondary";
   };
 
-  // ==================== LOADING / ERROR ====================
+  // =========================================
+  // RENDER STATES
+  // =========================================
   if (loading) {
     return (
       <div className="d-flex justify-content-center align-items-center py-5">
-        <div className="spinner-border text-primary" role="status">
-          <span className="visually-hidden">Loading...</span>
-        </div>
-        <span className="ms-2">Loading Customer Enquiries...</span>
+        <div className="spinner-border text-primary" role="status"></div>
+        <span className="ms-3">Loading Customer Enquiries...</span>
       </div>
     );
   }
+
   if (error) {
-    return <div className="alert alert-danger m-3 shadow-sm">{error}</div>;
+    return <div className="alert alert-danger m-3">{error}</div>;
   }
 
-  // ==================== RENDER ====================
+  // =========================================
+  // MAIN RENDER
+  // =========================================
   return (
-    <div className="container-fluid px-4 py-3">
-      {/* Header */}
+    <div className="container-fluid px-4 py-4">
+      {/* HEADER */}
       <div className="d-flex justify-content-between align-items-center mb-4">
         <div>
-          <h4 className="fw-bold text-primary mb-0">
-            <i className="bi bi-file-check me-2"></i> Customer Enquiries
-          </h4>
-          <p className="text-muted small mb-0">Manage approved loans and customer details</p>
+          <h3 className="fw-bold text-primary mb-1">
+            <i className="bi bi-people-fill me-2"></i>
+            Customer Enquiries
+          </h3>
+          <p className="text-muted mb-0">
+            Manage approved customer loan enquiries
+          </p>
         </div>
-        <div className="text-muted">Total: {filtered.length} records</div>
+        <div className="badge bg-primary fs-6 px-3 py-2">
+          Total Customer(s): {filtered.length}
+        </div>
       </div>
 
-      {/* Search & Filter */}
-      <div className="card shadow-sm border-0 rounded-4 mb-4">
-        <div className="card-body p-3">
-          <div className="row g-3 align-items-end">
-            <div className="col-md-5">
-              <label className="form-label small fw-semibold">
-                <i className="bi bi-search me-1"></i> Search
+      {/* SEARCH & FILTER */}
+      <div className="card border-0 shadow-sm rounded-4 mb-4">
+        <div className="card-body">
+          <div className="row g-3">
+            <div className="col-md-6">
+              <label className="form-label fw-semibold">
+                Search Customer
               </label>
               <div className="input-group">
                 <span className="input-group-text bg-white">
-                  <i className="bi bi-search text-muted"></i>
+                  <i className="bi bi-search"></i>
                 </span>
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="Customer ID, name or phone..."
+                  placeholder="Search by customer ID, name, phone or email"
                   value={searchTerm}
                   onChange={(e) => setSearchTerm(e.target.value)}
                 />
-                {searchTerm && (
-                  <button className="btn btn-outline-secondary" type="button" onClick={() => setSearchTerm("")}>
-                    <i className="bi bi-x-lg"></i>
-                  </button>
-                )}
               </div>
             </div>
+
             <div className="col-md-3">
-              <label className="form-label small fw-semibold">
-                <i className="bi bi-funnel me-1"></i> Status
+              <label className="form-label fw-semibold">
+                Filter Status
               </label>
               <select
                 className="form-select"
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
               >
-                <option value="all">All statuses</option>
+                <option value="all">All Status</option>
                 <option value="pending">Pending</option>
-                <option value="under_review">Under Review</option>
                 <option value="approved">Approved</option>
-                <option value="disbursed">Disbursed</option>
                 <option value="rejected">Rejected</option>
+                <option value="under_review">Under Review</option>
+                <option value="disbursed">Disbursed</option>
               </select>
             </div>
-            <div className="col-md-4 text-md-end">
+
+            <div className="col-md-3 d-flex align-items-end">
               <button
-                className="btn btn-outline-secondary"
+                className="btn btn-outline-secondary w-100"
                 onClick={() => {
                   setSearchTerm("");
                   setFilterStatus("all");
                 }}
               >
-                <i className="bi bi-arrow-repeat me-1"></i> Reset Filters
+                <i className="bi bi-arrow-clockwise me-2"></i>
+                Reset Filters
               </button>
             </div>
           </div>
         </div>
       </div>
 
-      {/* Professional Table */}
-      <div className="card shadow-sm border-0 rounded-4 overflow-hidden">
-        <div className="card-body p-0">
-          <div className="table-responsive">
-            <table className="table table-hover professional-table mb-0">
-              <thead className="bg-light">
-                <tr>
-                  <th style={{ width: "50px" }}>#</th>
-                  <th><i className="bi bi-upc-scan me-2"></i>Customer ID</th>
-                  <th><i className="bi bi-person me-2"></i>Customer Name</th>
-                  <th><i className="bi bi-telephone me-2"></i>Contact Number</th>
-                  <th><i className="bi bi-cash-stack me-2"></i>Amount Approved</th>
-                  <th><i className="bi bi-calendar-check me-2"></i>Approval Date</th>
-                  <th><i className="bi bi-check-circle me-2"></i>Status</th>
-                  <th style={{ width: "120px" }}>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                {currentItems.length > 0 ? (
-                  currentItems.map((item, idx) => (
-                    <tr key={item.id}>
-                      <td className="text-muted">{start + idx + 1}</td>
-                      <td>
-                        <code className="bg-light px-2 py-1 rounded">{item.customerId}</code>
-                      </td>
-                      <td className="fw-semibold">{item.customerName}</td>
-                      <td>{item.contactNumber || "—"}</td>
-                      <td className="fw-semibold text-success">
-                        {item.amountApproved
-                          ? `₵${Number(item.amountApproved).toLocaleString(undefined, {
-                              minimumFractionDigits: 2,
-                              maximumFractionDigits: 2,
-                            })}`
-                          : "—"}
-                      </td>
-                      <td>{item.approvalDate || "—"}</td>
-                      <td>
-                        <span
-                          className={`badge ${getStatusBadge(item.status)} px-3 py-2 rounded-pill`}
-                          style={{ fontSize: "0.75rem" }}
-                        >
-                          {item.status?.toUpperCase()}
-                        </span>
-                      </td>
-                      <td>
-                        <button
-                          className="btn btn-sm btn-outline-primary me-1"
-                          onClick={() => handleView(item)}
-                          title="View Details"
-                        >
-                          <i className="bi bi-eye"></i>
-                        </button>
-                        <button
-                          className="btn btn-sm btn-outline-warning"
-                          onClick={() => handleEdit(item)}
-                          title="Edit Status"
-                        >
-                          <i className="bi bi-pencil"></i>
-                        </button>
-                      </td>
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="8" className="text-center py-5">
-                      <i className="bi bi-inbox fs-1 text-muted"></i>
-                      <p className="mt-2 mb-0">No loan approvals found</p>
+      {/* TABLE */}
+      <div className="card border-0 shadow-sm rounded-4 overflow-hidden">
+        <div className="table-responsive">
+          <table className="table table-hover align-middle mb-0">
+            <thead className="table-light">
+              <tr>
+                <th>#</th>
+                  
+                <th>Customer ID</th>
+                <th>Full Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>DOB</th>
+                <th>Gender</th>
+                <th>Actions</th>
+                
+              </tr>
+            </thead>
+            <tbody>
+              {currentItems.length > 0 ? (
+                currentItems.map((item, idx) => (
+                  <tr key={item.id}>
+                    <td>{start + idx + 1}</td>
+                    
+                    <td>
+                      <code className="bg-light px-2 py-1 rounded">
+                        {item.customerId || "—"}
+                      </code>
+                    </td>
+                    <td className="fw-semibold">{item.customerName || "—"}</td>
+                    <td>{item.contactNumber || "—"}</td>
+                    <td>{item.email || "—"}</td>
+                    <td>
+                      {item.dob
+                        ? new Date(item.dob).toLocaleDateString()
+                        : "—"}
+                    </td>
+                    <td>
+                      <span className="badge bg-info">{item.gender || "—"}</span>
+                    </td>
+                    <td>
+                      <button
+                        className="btn btn-sm btn-outline-primary me-2"
+                        onClick={() => handleView(item)}
+                      >
+                        <i className="bi bi-eye"></i>
+                      </button>
+                      <button
+                        className="btn btn-sm btn-outline-warning"
+                        onClick={() => handleEdit(item)}
+                      >
+                        <i className="bi bi-pencil"></i>
+                      </button>
                     </td>
                   </tr>
-                )}
-              </tbody>
-            </table>
-          </div>
+                ))
+              ) : (
+                <tr>
+                  <td colSpan="8" className="text-center py-5">
+                    <i className="bi bi-inbox fs-1 text-muted"></i>
+                    <p className="mt-2 mb-0 text-muted">
+                      No customer enquiries found
+                    </p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
         </div>
-        {/* Pagination */}
+
+        {/* PAGINATION */}
         {totalPages > 1 && (
-          <div className="card-footer bg-white border-0 py-3">
-            <div className="d-flex justify-content-between align-items-center flex-wrap gap-2">
-              <div className="small text-muted">
-                Showing {start + 1}–{Math.min(start + itemsPerPage, filtered.length)} of {filtered.length}
-              </div>
-              <nav>
-                <ul className="pagination pagination-sm mb-0">
-                  <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
-                    <button className="page-link" onClick={() => goToPage(currentPage - 1)}>
-                      Previous
+          <div className="card-footer bg-white">
+            <div className="d-flex justify-content-between align-items-center">
+              <small className="text-muted">
+                Showing {start + 1} to{" "}
+                {Math.min(start + itemsPerPage, filtered.length)} of{" "}
+                {filtered.length}
+              </small>
+              <ul className="pagination pagination-sm mb-0">
+                <li className={`page-item ${currentPage === 1 ? "disabled" : ""}`}>
+                  <button className="page-link" onClick={() => goToPage(currentPage - 1)}>
+                    Previous
+                  </button>
+                </li>
+                {[...Array(totalPages).keys()].map((page) => (
+                  <li
+                    key={page}
+                    className={`page-item ${currentPage === page + 1 ? "active" : ""}`}
+                  >
+                    <button className="page-link" onClick={() => goToPage(page + 1)}>
+                      {page + 1}
                     </button>
                   </li>
-                  {[...Array(totalPages).keys()].map((page) => (
-                    <li key={page} className={`page-item ${currentPage === page + 1 ? "active" : ""}`}>
-                      <button className="page-link" onClick={() => goToPage(page + 1)}>
-                        {page + 1}
-                      </button>
-                    </li>
-                  ))}
-                  <li className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}>
-                    <button className="page-link" onClick={() => goToPage(currentPage + 1)}>
-                      Next
-                    </button>
-                  </li>
-                </ul>
-              </nav>
+                ))}
+                <li
+                  className={`page-item ${currentPage === totalPages ? "disabled" : ""}`}
+                >
+                  <button className="page-link" onClick={() => goToPage(currentPage + 1)}>
+                    Next
+                  </button>
+                </li>
+              </ul>
             </div>
           </div>
         )}
       </div>
 
-      {/* ========== VIEW MODAL ========== */}
-      {showViewModal && selectedEnquiry && (
-        <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onClick={() => setShowViewModal(false)}>
-          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content shadow-lg border-0 rounded-4">
-              <div className="modal-header bg-primary text-white rounded-top-4">
-                <h5 className="modal-title">
-                  <i className="bi bi-info-circle-fill me-2"></i> Loan Details
-                </h5>
-                <button type="button" className="btn-close btn-close-white" onClick={() => setShowViewModal(false)}></button>
-              </div>
-              <div className="modal-body">
-                <div className="row mb-3">
-                  <div className="col-md-6">
-                    <small className="text-muted">Customer ID</small>
-                    <div className="fw-bold">{selectedEnquiry.customerId}</div>
-                  </div>
-                  <div className="col-md-6">
-                    <small className="text-muted">Customer Name</small>
-                    <div>{selectedEnquiry.customerName}</div>
-                  </div>
-                  <div className="col-md-6 mt-2">
-                    <small className="text-muted">Contact Number</small>
-                    <div>{selectedEnquiry.contactNumber || "—"}</div>
-                  </div>
-                  <div className="col-md-6 mt-2">
-                    <small className="text-muted">Amount Approved</small>
-                    <div className="text-success fw-semibold">
-                      {selectedEnquiry.amountApproved
-                        ? `₵${Number(selectedEnquiry.amountApproved).toLocaleString()}`
-                        : "—"}
-                    </div>
-                  </div>
-                  <div className="col-md-6 mt-2">
-                    <small className="text-muted">Approval Date</small>
-                    <div>{selectedEnquiry.approvalDate || "—"}</div>
-                  </div>
-                  <div className="col-md-6 mt-2">
-                    <small className="text-muted">Status</small>
-                    <div>
-                      <span className={`badge ${getStatusBadge(selectedEnquiry.status)} px-3 py-2 rounded-pill`}>
-                        {selectedEnquiry.status?.toUpperCase()}
-                      </span>
-                    </div>
-                  </div>
-                  <div className="col-12 mt-3">
-                    <small className="text-muted">Comments / Response</small>
-                    <div className="p-2 bg-light rounded-3">
-                      {selectedEnquiry.response || "No comments"}
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setShowViewModal(false)}>Close</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* MODALS */}
+      <ViewEnquiryModal
+        show={showViewModal}
+        enquiry={selectedEnquiry}
+        onClose={() => setShowViewModal(false)}
+        getStatusBadge={getStatusBadge}
+      />
 
-      {/* ========== EDIT MODAL ========== */}
-      {showEditModal && selectedEnquiry && (
-        <div className="modal show d-block" style={{ backgroundColor: "rgba(0,0,0,0.5)" }} onClick={() => setShowEditModal(false)}>
-          <div className="modal-dialog modal-dialog-centered" onClick={(e) => e.stopPropagation()}>
-            <div className="modal-content shadow-lg border-0 rounded-4">
-              <div className="modal-header bg-warning text-dark rounded-top-4">
-                <h5 className="modal-title">
-                  <i className="bi bi-pencil-square me-2"></i> Update Loan Status
-                </h5>
-                <button type="button" className="btn-close" onClick={() => setShowEditModal(false)}></button>
-              </div>
-              <div className="modal-body">
-                <div className="mb-3">
-                  <label className="form-label fw-semibold">Status</label>
-                  <select name="status" className="form-select" value={editFormData.status} onChange={handleInputChange}>
-                    <option value="pending">Pending</option>
-                    <option value="under_review">Under Review</option>
-                    <option value="approved">Approved</option>
-                    <option value="disbursed">Disbursed</option>
-                    <option value="rejected">Rejected</option>
-                  </select>
-                </div>
-                <div className="mb-3">
-                  <label className="form-label fw-semibold">Comments / Response</label>
-                  <textarea
-                    name="response"
-                    className="form-control"
-                    rows="4"
-                    value={editFormData.response}
-                    onChange={handleInputChange}
-                    placeholder="Add internal notes or response..."
-                  ></textarea>
-                </div>
-              </div>
-              <div className="modal-footer">
-                <button className="btn btn-secondary" onClick={() => setShowEditModal(false)}>Cancel</button>
-                <button className="btn btn-primary" onClick={handleSave}>Save Changes</button>
-              </div>
-            </div>
-          </div>
-        </div>
-      )}
+      <EditEnquiryModal
+        show={showEditModal}
+        enquiry={selectedEnquiry}
+        formData={editFormData}
+        onFormChange={(newData) => setEditFormData(newData)}
+        onClose={() => setShowEditModal(false)}
+        onSave={handleUpdateEnquiry}
+      />
     </div>
   );
 };

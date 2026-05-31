@@ -2,25 +2,29 @@
 import React from "react";
 import { HashRouter as Router, Routes, Route } from "react-router-dom";
 
-import CustomerLanding from "./cls/CustomerLanding";
-import LoginPage from "./cls/StaffLoginPage";
-import DefaultSuper from "./cls/DefaultSuper";
+import CustomerLanding from "./auth/CustomerLanding";
+import LoginPage from "./auth/StaffLoginPage";
+import DefaultSuper from "./auth/DefaultSuper";
 
 import Customerview from "./customerpage/CustomerPage";
 import AdminDashboard from "./AdminDashboard";
 import ManagerDashboard from "./managerpage/ManagerDashboard";
 
-// Add these if you already have them created
 import LoanOfficerDashboard from "./loanofficerpage/LoanOfficerDashboard";
 import LoanSupervisorDashboard from "./supervisorpage/LoanSupervisorDashboard";
 
 import ProtectedRoute from "./ProtectedRoute";
 
+import AutoLogout from "./components/AutoLogout";
+
 function App() {
   return (
     <Router>
+      <AutoLogout />
+
       <div className="App">
         <Routes>
+
           {/* PUBLIC ROUTES */}
           <Route path="/apply" element={<CustomerLanding />} />
           <Route path="/access" element={<LoginPage />} />
@@ -75,6 +79,7 @@ function App() {
               </ProtectedRoute>
             }
           />
+
         </Routes>
       </div>
     </Router>

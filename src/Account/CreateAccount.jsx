@@ -174,7 +174,7 @@ const CreateAccount = () => {
     <div className="container py-5">
       {/* Header */}
       <div className="text-center mb-5">
-        <h2 className="fw-bold text-primary">Create Bank Account</h2>
+        <h2 className="fw-bold text-primary">Create  Account</h2>
         <p className="text-muted">Enter customer ID to fetch details and assign account type</p>
         <hr className="w-25 mx-auto" />
       </div>
@@ -311,10 +311,10 @@ const CreateAccount = () => {
                   onChange={handleChange}
                   required
                 >
-                  <option value="">-- Select Account Type --</option>
+                  <option value=""> Select Account Type </option>
                   <option value="Loan"> Loan Account</option>
                   <option value="Lien"> Lien Account</option>
-                  <option value="Fixed Deposit"> Fixed Deposit Account</option>
+                  
                 </select>
               </div>
             </div>

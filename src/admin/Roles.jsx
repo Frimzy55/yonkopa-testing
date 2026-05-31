@@ -51,19 +51,141 @@ const getAllPermissionsFromMenu = () => {
   return Object.values(unique);
 };
 
+// ============================================================
+// IMPROVED GROUPING WITH HUMAN-READABLE NAMES
+// ============================================================
+const formatPermissionName = (permId) => {
+  const parts = permId.split('_');
+  let lastPart = parts[parts.length - 1];
+  return lastPart
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+};
+
 const groupPermissionsByCategory = (permissions, availablePermissions) => {
   const grouped = {};
   permissions.forEach((permId) => {
-    const matched = availablePermissions.find(p => p.id === permId);
-    const rawCategory = permId.split('_')[0];
-    const category = matched?.category || rawCategory;
+    let matched = availablePermissions.find(p => p.id === permId);
+    let displayName;
+    if (matched && matched.name) {
+      displayName = matched.name;
+    } else {
+      displayName = formatPermissionName(permId);
+    }
+    let category = matched?.category || permId.split('_')[0];
+    category = category.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
     if (!grouped[category]) grouped[category] = [];
     grouped[category].push({
       id: permId,
-      name: matched?.name || permId.split('_').slice(1).join('_'),
+      name: displayName,
     });
   });
   return grouped;
+};
+
+// ============================================================
+// HIERARCHICAL PERMISSION HELPERS
+// ============================================================
+
+// Find a menu item by its permission ID (returns the item and its path)
+const findMenuItemByPermissionId = (permissionId, items = menuItems, path = []) => {
+  for (const item of items) {
+    let currentId;
+    if (path.length === 0) {
+      currentId = getPermissionId(item.name);
+    } else if (path.length === 1) {
+      currentId = getPermissionId(path[0], item.name);
+    } else if (path.length === 2) {
+      currentId = getPermissionId(path[0], path[1], item.name);
+    } else {
+      continue;
+    }
+
+    if (currentId === permissionId) {
+      return { item, path };
+    }
+
+    if (item.subMenus) {
+      const found = findMenuItemByPermissionId(permissionId, item.subMenus, [...path, item.name]);
+      if (found) return found;
+    }
+    if (item.nestedMenus) {
+      const found = findMenuItemByPermissionId(permissionId, item.nestedMenus, [...path, item.name]);
+      if (found) return found;
+    }
+  }
+  return null;
+};
+
+// Get all descendant permission IDs for a given permission ID
+const getAllDescendantIds = (permissionId) => {
+  const result = findMenuItemByPermissionId(permissionId);
+  if (!result) return [];
+
+  const { item, path } = result;
+  const descendants = new Set();
+
+  const collect = (currentItem, currentPath) => {
+    if (currentItem.subMenus) {
+      currentItem.subMenus.forEach(sub => {
+        const subId = getPermissionId(currentPath[0], sub.name);
+        descendants.add(subId);
+        collect(sub, [currentPath[0], sub.name]);
+      });
+    }
+    if (currentItem.nestedMenus) {
+      currentItem.nestedMenus.forEach(nested => {
+        let nestedId;
+        if (currentPath.length === 1) {
+          nestedId = getPermissionId(currentPath[0], null, nested.name);
+        } else {
+          nestedId = getPermissionId(currentPath[0], currentPath[1], nested.name);
+        }
+        descendants.add(nestedId);
+        collect(nested, [...currentPath, nested.name]);
+      });
+    }
+    if (currentItem.reports) {
+      currentItem.reports.forEach(report => {
+        const reportId = currentPath.length === 1
+          ? getPermissionId(currentPath[0], null, report.name)
+          : getPermissionId(currentPath[0], currentPath[1], report.name);
+        descendants.add(reportId);
+      });
+    }
+  };
+
+  collect(item, path.length ? path : [item.name]);
+  return Array.from(descendants);
+};
+
+// Get immediate parent permission ID
+const getParentPermissionId = (permissionId) => {
+  const found = findMenuItemByPermissionId(permissionId);
+  if (!found || found.path.length === 0) return null;
+  const { path } = found;
+  if (path.length === 1) return getPermissionId(path[0]);
+  if (path.length === 2) return getPermissionId(path[0], path[1]);
+  return null;
+};
+
+// Update parent checkboxes after a child change
+const updateParentCheckboxes = (changedId, currentPermissionsSet) => {
+  let parentId = getParentPermissionId(changedId);
+  const visited = new Set();
+  while (parentId && !visited.has(parentId)) {
+    visited.add(parentId);
+    const children = getAllDescendantIds(parentId);
+    const allChildrenSelected = children.length > 0 && children.every(child => currentPermissionsSet.has(child));
+    const isParentSelected = currentPermissionsSet.has(parentId);
+    if (allChildrenSelected && !isParentSelected) {
+      currentPermissionsSet.add(parentId);
+    } else if (!allChildrenSelected && isParentSelected) {
+      currentPermissionsSet.delete(parentId);
+    }
+    parentId = getParentPermissionId(parentId);
+  }
 };
 
 // ============================================================
@@ -227,15 +349,28 @@ const Roles = () => {
     return formData.permissions.includes(permissionId);
   };
 
+  // ======================== HIERARCHICAL TOGGLE ========================
   const handleMenuPermissionChange = (permissionId) => {
     setFormData(prev => {
-      const newPermissions = prev.permissions.includes(permissionId)
-        ? prev.permissions.filter(p => p !== permissionId)
-        : [...prev.permissions, permissionId];
-      return { ...prev, permissions: newPermissions };
+      const newSet = new Set(prev.permissions);
+      const isCurrentlySelected = newSet.has(permissionId);
+
+      if (isCurrentlySelected) {
+        newSet.delete(permissionId);
+        const descendants = getAllDescendantIds(permissionId);
+        descendants.forEach(id => newSet.delete(id));
+      } else {
+        newSet.add(permissionId);
+        const descendants = getAllDescendantIds(permissionId);
+        descendants.forEach(id => newSet.add(id));
+      }
+
+      updateParentCheckboxes(permissionId, newSet);
+      return { ...prev, permissions: Array.from(newSet) };
     });
   };
 
+  // ======================== Render functions ========================
   const renderReports = (reports, menuName, subMenuName) => {
     if (!reports || reports.length === 0) return null;
     return (
@@ -576,6 +711,7 @@ const Roles = () => {
           tasks: formData.permissions
         }, { headers: { Authorization: `Bearer ${token}` } });
         toast.success(`Permissions updated successfully for ${editingStaff.full_name}`);
+        await fetchUsers(); // ✅ Refresh user data so sidebar updates
       } else if (editingRole) {
         const updatedRoles = roles.map((role) =>
           role.name === editingRole.name ? { ...role, ...formData } : role
@@ -815,7 +951,7 @@ const Roles = () => {
                             </div>
                           )}
                         </div>
-                      </td>
+                       </td>
                     </tr>
                   ))}
                 </tbody>
@@ -931,7 +1067,7 @@ const Roles = () => {
         </div>
       )}
 
-      {/* View Staff Permissions Modal – Grouped by Category */}
+      {/* View Staff Permissions Modal – Grouped by Category (improved display) */}
       {showStaffPermissionsModal && viewingStaff && viewingRole && (() => {
         const groupedViewPermissions = groupPermissionsByCategory(
           viewingRole.permissions,
@@ -963,14 +1099,14 @@ const Roles = () => {
                     Object.entries(groupedViewPermissions).map(([category, perms]) => (
                       <div key={category} className="mb-3 border rounded p-2">
                         <div className="fw-bold text-primary mb-2 text-uppercase">
-                          {category.replace(/_/g, ' ')}
+                          {category}
                         </div>
                         {perms.map((perm, idx) => (
                           <div key={idx} className="d-flex justify-content-between align-items-center mb-2">
                             <div>
                               <i className="bi bi-check-circle-fill text-success me-2"></i>
                               <span>{perm.name}</span>
-                              <small className="text-muted ms-2">(raw: {perm.id})</small>
+                              <small className="text-muted ms-2">(ID: {perm.id})</small>
                             </div>
                             <button
                               className="btn btn-sm btn-outline-danger"

@@ -395,3 +395,88 @@ html {
     font-size: 16px !important; /* Prevents zoom on focus in iOS */
   }
 }
+
+
+
+
+
+
+
+
+/* Make the logo container a positioning context for the tree */
+.logo-container {
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+/* Christmas tree absolutely positioned over the logo */
+.tree-on-logo {
+  position: absolute;
+  top: -30px;      /* adjust as needed */
+  left: -30px;     /* adjust as needed */
+  width: 80px;     /* or any size that fits your design */
+  height: auto;
+  pointer-events: none;  /* prevents blocking clicks on form elements */
+  z-index: 2;
+}
+
+
+
+
+
+/* ========== CHRISTMAS GREETING STYLES ========== */
+.christmas-greeting {
+  text-align: center;
+  margin: 0.5rem 0 0.75rem 0;
+  padding: 0.5rem 0;
+  background: linear-gradient(135deg, #fff9e6 0%, #fff0d4 100%);
+  border-radius: 50px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  animation: gentlePulse 2s infinite ease-in-out;
+  font-family: 'Segoe UI', 'Poppins', 'Georgia', cursive;
+}
+
+.greeting-icon {
+  font-size: 1.3rem;
+  margin: 0 0.6rem;
+  display: inline-block;
+  animation: sway 3s infinite ease-in-out;
+}
+
+.greeting-text {
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(45deg, #c1272d, #d4541e, #b8860b);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: 0.5px;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.05);
+}
+
+/* Animations */
+@keyframes gentlePulse {
+  0% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.95; }
+}
+
+@keyframes sway {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(8deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Ensure the greeting doesn't overlap with the tree or form */
+@media (max-width: 768px) {
+  .greeting-text {
+    font-size: 0.85rem;
+  }
+  .greeting-icon {
+    font-size: 1rem;
+    margin: 0 0.3rem;
+  }
+}

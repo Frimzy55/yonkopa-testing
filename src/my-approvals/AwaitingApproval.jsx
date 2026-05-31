@@ -1,53 +1,41 @@
-
-
-
-
 import React, { useState, useEffect } from 'react';
-import { Table, Dropdown, ButtonGroup } from 'react-bootstrap'; // Make sure to install react-bootstrap
-import './AwaitingApproval.css'; // Optional: for styling
+import { Table, Dropdown, ButtonGroup } from 'react-bootstrap';
+import './AwaitingApproval.css';
 import LoanDetailsModal from "./AwaitLoanDetailsModal";
-
-
 
 const AwaitingApproval = () => {
   const [loans, setLoans] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [entries, setEntries] = useState(10); // For pagination
-  const [highlightedRowId, ] = useState(null);
+  const [entries, setEntries] = useState(10);
+  const [highlightedRowId, setHighlightedRowId] = useState(null);
   const [showModal, setShowModal] = useState(false);
-const [selectedLoan, setSelectedLoan] = useState(null);
+  const [selectedLoan, setSelectedLoan] = useState(null);
 
   useEffect(() => {
     fetchLoanData();
   }, []);
 
-  // In your backend, create a new endpoint that returns ALL loans or add a parameter
-// GET /api/admin/loan-full-view-evaluation?status=pending,approved,rejected
-
-const fetchLoanData = async () => {
-  try {
-    setLoading(true);
-    // Fetch all loans, not just pending
-    const response = await fetch(
-      `${process.env.REACT_APP_API_URL}/api/admin/loan-full-view-evaluation?status=all`
-    );
-    
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+  const fetchLoanData = async () => {
+    try {
+      setLoading(true);
+      const response = await fetch(
+        `${process.env.REACT_APP_API_URL}/api/admin/loan-full-view-evaluation?status=all`
+      );
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+      const data = await response.json();
+      setLoans(data);
+      setError(null);
+    } catch (err) {
+      console.error('Error fetching loan data:', err);
+      setError(err.message);
+    } finally {
+      setLoading(false);
     }
-    
-    const data = await response.json();
-    setLoans(data);
-    setError(null);
-  } catch (err) {
-    console.error('Error fetching loan data:', err);
-    setError(err.message);
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   const handleSearch = (event) => {
     setSearchTerm(event.target.value);
@@ -61,97 +49,86 @@ const fetchLoanData = async () => {
       'under_review': 'info',
       'disbursed': 'primary'
     };
-    
     const color = statusColors[status?.toLowerCase()] || 'secondary';
     return <span className={`badge bg-${color}`}>{status || 'Pending'}</span>;
   };
-/*const handleAction = (action, loan) => {
-  switch(action) {
-    case 'view':
-      setSelectedLoan(loan);
-      setShowModal(true);
-      break;
 
-    case 'approve':
-      console.log('Approve loan:', loan);
-      break;
+  const handleAction = async (action, loan) => {
+    switch (action) {
+      case "view":
+        setSelectedLoan(loan);
+        setShowModal(true);
+        break;
 
-    case 'reject':
-      console.log('Reject loan:', loan);
-      break;
+      case "approve":
+        try {
+          await fetch(
+            `${process.env.REACT_APP_API_URL}/api/admin/approve-loan1/${loan.loan_id}`,
+            { method: "PUT", headers: { "Content-Type": "application/json" } }
+          );
+          const updated = loans.map((item) =>
+            item.loan_id === loan.loan_id
+              ? { ...item, loan_status: "approved" }
+              : item
+          );
+          setLoans(updated);
+        } catch (err) {
+          console.error("Approve failed:", err);
+        }
+        break;
 
-    default:
-      break;
-  }
-};*/
-
-const handleAction = async (action, loan) => {
-  switch (action) {
-    case "view":
-      setSelectedLoan(loan);
-      setShowModal(true);
-      break;
-
-    case "approve":
-      try {
-        await fetch(
-          `${process.env.REACT_APP_API_URL}/api/admin/approve-loan1/${loan.loan_id}`,
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-            },
+      case "reject":
+        try {
+          const response = await fetch(
+            `${process.env.REACT_APP_API_URL}/loan/reject1`,
+            {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ loan_id: loan.loan_id }),
+            }
+          );
+          const data = await response.json();
+          if (!response.ok) {
+            throw new Error(data.error || "Reject failed");
           }
-        );
+          const updated = loans.map((item) =>
+            item.loan_id === loan.loan_id
+              ? { ...item, loan_status: "rejected" }
+              : item
+          );
+          setLoans(updated);
+          console.log("Loan rejected successfully");
+        } catch (err) {
+          console.error("Reject failed:", err);
+          alert(err.message);
+        }
+        break;
 
-        // ✅ instant UI update
-        const updated = loans.map((item) =>
-          item.loan_id === loan.loan_id
-            ? { ...item, loan_status: "approved" }
-            : item
-        );
+      default:
+        break;
+    }
+  };
 
-        setLoans(updated);
-
-      } catch (err) {
-        console.error("Approve failed:", err);
-      }
-      break;
-
-    case "reject":
-      console.log("Reject loan:", loan);
-      break;
-
-    default:
-      break;
-  }
-};
-
-  // Filter data based on search term
- const filteredData = loans.filter((loan) => {
-  // Hide approved loans
-  if (loan.loan_status?.toLowerCase() === "approved") {
-    return false;
-  }
-
-  // If no search term, show remaining loans
-  if (!searchTerm) return true;
-
-  const searchFields = [
-    loan.loan_id,
-    loan.kyc_code,
-    loan.applicant_fullName,
-    loan.mobileNumber,
-    loan.kyc_loan_amount,
-    loan.loan_status
-  ];
-
-  return searchFields.some(
-    (field) =>
-      field &&
-      field.toString().toLowerCase().includes(searchTerm.toLowerCase())
-  );
-});
+  // Filter for table: hide approved & rejected
+  const filteredData = loans.filter((loan) => {
+    if (["approved", "rejected"].includes(loan.loan_status?.toLowerCase())) {
+      return false;
+    }
+    if (!searchTerm) return true;
+    const searchFields = [
+      loan.loan_id,
+      loan.kyc_code,
+      loan.applicant_fullName,
+      loan.mobileNumber,
+      loan.kyc_loan_amount,
+      loan.loan_status,
+    ];
+    return searchFields.some(
+      (field) =>
+        field &&
+        field.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  });
 
   if (loading) {
     return (
@@ -181,12 +158,11 @@ const handleAction = async (action, loan) => {
         <div className="stats">
           <span className="total-count">Total Applications: {loans.length}</span>
           <span className="pending-count">
-          Pending: {
-  loans.filter(
-    (l) =>
-      l.loan_status?.toLowerCase() !== "approved"
-  ).length
-}
+            Pending: {
+              loans.filter(
+                (l) => l.loan_status?.toLowerCase() === "pending"
+              ).length
+            }
           </span>
         </div>
       </div>
@@ -229,7 +205,7 @@ const handleAction = async (action, loan) => {
           </thead>
           <tbody>
             {filteredData.slice(0, entries).map((loan) => (
-              <tr 
+              <tr
                 key={loan.applicant_id || loan.loan_id}
                 id={`loan-row-${loan.loan_id}`}
                 className={highlightedRowId === loan.loan_id ? "highlight-row" : ""}
@@ -241,28 +217,27 @@ const handleAction = async (action, loan) => {
                 <td>₵{parseFloat(loan.kyc_loan_amount).toLocaleString()}</td>
                 <td>{getStatusBadge(loan.loan_status)}</td>
                 <td>
-                  {loan.loan_created_at 
+                  {loan.loan_created_at
                     ? new Date(loan.loan_created_at).toLocaleString()
                     : '-'}
                 </td>
                 <td>
                   <Dropdown as={ButtonGroup} size="sm" drop="up">
-  <Dropdown.Toggle variant="secondary" size="sm">
-    Actions
-  </Dropdown.Toggle>
-
-  <Dropdown.Menu>
-    <Dropdown.Item onClick={() => handleAction('view', loan)}>
-      View Details
-    </Dropdown.Item>
-    <Dropdown.Item onClick={() => handleAction('approve', loan)}>
-      Approve
-    </Dropdown.Item>
-    <Dropdown.Item onClick={() => handleAction('reject', loan)}>
-      Reject
-    </Dropdown.Item>
-  </Dropdown.Menu>
-</Dropdown>
+                    <Dropdown.Toggle variant="secondary" size="sm">
+                      Actions
+                    </Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={() => handleAction('view', loan)}>
+                        View Details
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleAction('approve', loan)}>
+                        Approve
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleAction('reject', loan)}>
+                        Reject
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
                 </td>
               </tr>
             ))}
@@ -284,12 +259,11 @@ const handleAction = async (action, loan) => {
         </div>
       )}
 
-
       <LoanDetailsModal
-  show={showModal}
-  handleClose={() => setShowModal(false)}
-  loan={selectedLoan}
-/>
+        show={showModal}
+        handleClose={() => setShowModal(false)}
+        loan={selectedLoan}
+      />
     </div>
   );
 };

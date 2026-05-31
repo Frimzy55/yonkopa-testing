@@ -1,7 +1,7 @@
 // src/components/LoginPage.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import myImage from '../image/image1.jpg';
 import logo from '../image/yonko.png';
 import christmasTree from '../image/cha.png';
@@ -10,6 +10,8 @@ import './LoginPage.css';
 
 const LoginPage = ({ onClose }) => {
   const navigate = useNavigate();
+  const location = useLocation();
+
   const [formData, setFormData] = useState({ identifier: '', password: '' });
   const [errors, setErrors] = useState({});
   const [touched, setTouched] = useState({});
@@ -18,7 +20,10 @@ const LoginPage = ({ onClose }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showChristmasTree, setShowChristmasTree] = useState(false);
 
-  // Show Christmas tree for Dec 24-31
+  // logout message from AutoLogout
+  const logoutMessage = location.state?.message || '';
+
+  // Show Christmas elements for Dec 24-31 (month 11 = December)
   useEffect(() => {
     const today = new Date();
     if (today.getMonth() === 11 && today.getDate() >= 24 && today.getDate() <= 31) {
@@ -26,24 +31,23 @@ const LoginPage = ({ onClose }) => {
     }
   }, []);
 
-  // Validation
-  // Validation
-const validateField = (name, value) => {
-  const newErrors = { ...errors };
+  // Validation (unchanged)
+  const validateField = (name, value) => {
+    const newErrors = { ...errors };
 
-  if (name === 'identifier') {
-    if (!value.trim()) newErrors.identifier = 'Email or phone is required';
-    else delete newErrors.identifier; // remove format validation
-  }
+    if (name === 'identifier') {
+      if (!value.trim()) newErrors.identifier = 'Email or phone is required';
+      else delete newErrors.identifier;
+    }
 
-  if (name === 'password') {
-    if (!value) newErrors.password = 'Password is required';
-    else if (value.length < 6) newErrors.password = 'Password must be at least 6 characters';
-    else delete newErrors.password;
-  }
+    if (name === 'password') {
+      if (!value) newErrors.password = 'Password is required';
+      else if (value.length < 6) newErrors.password = 'Password must be at least 6 characters';
+      else delete newErrors.password;
+    }
 
-  return newErrors;
-};
+    return newErrors;
+  };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -61,10 +65,12 @@ const validateField = (name, value) => {
   const validateForm = () => {
     const newTouched = {};
     const newErrors = {};
+
     Object.keys(formData).forEach(field => {
       newTouched[field] = true;
       Object.assign(newErrors, validateField(field, formData[field]));
     });
+
     setTouched(newTouched);
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -81,7 +87,11 @@ const validateField = (name, value) => {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login2`, formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/login2`,
+        formData
+      );
+
       const { token, user } = response.data;
 
       localStorage.setItem('token', token);
@@ -90,8 +100,8 @@ const validateField = (name, value) => {
       if (user.role === 'admin') navigate('/admin-dashboard');
       else if (user.role === 'loan_officer') navigate('/loan-officer-dashboard');
       else if (user.role === 'manager') navigate('/loan-manager');
-       else if (user.role === 'supervisor') navigate('/loan-supervisor');
-      //else navigate('/customer-dashboard');
+      else if (user.role === 'supervisor') navigate('/loan-supervisor');
+      else navigate('/customer-page');
 
       onClose && onClose();
     } catch (err) {
@@ -110,26 +120,56 @@ const validateField = (name, value) => {
 
   return (
     <div className="login-page">
+
       {/* LEFT IMAGE */}
       <div className="login-image">
         <img src={myImage} alt="Background" />
-        {showChristmasTree && (
-          <img src={christmasTree} alt="Christmas Tree" className="christmas-tree" />
-        )}
       </div>
 
-      {/* RIGHT LOGIN FORM */}
+      {/* RIGHT FORM */}
       <div className="login-form-container">
         <div className="login-form-card">
+
+          {/* Logo container with Christmas tree on top */}
           <div className="logo-container">
             <img src={logo} alt="Logo" className="logo" />
+            {showChristmasTree && (
+              <img src={christmasTree} alt="Christmas Tree" className="tree-on-logo" />
+            )}
           </div>
+
+          {/* 🎄 Professional "Merry Christmas" greeting (only during holiday period) */}
+          {showChristmasTree && (
+            <div className="christmas-greeting">
+              <span className="greeting-icon">🎄</span>
+              <span className="greeting-text">Merry Christmas &amp; Happy New Year!</span>
+              <span className="greeting-icon">🎁</span>
+            </div>
+          )}
 
           <h2 className="login-title">Login</h2>
 
-          {serverError && <div className="server-error">{serverError}</div>}
+          {/* Auto logout message */}
+          {logoutMessage && (
+            <div
+              className="server-error"
+              style={{
+                background: '#fff3cd',
+                color: '#856404',
+                border: '1px solid #ffeeba'
+              }}
+            >
+              {logoutMessage}
+            </div>
+          )}
+
+          {serverError && (
+            <div className="server-error">{serverError}</div>
+          )}
 
           <form onSubmit={handleSubmit} noValidate>
+
+            {/* Identifier */}
             <div className="form-group">
               <label>Email or Phone</label>
               <input
@@ -147,6 +187,7 @@ const validateField = (name, value) => {
               )}
             </div>
 
+            {/* Password */}
             <div className="form-group">
               <label>Password</label>
               <div className="password-input">
@@ -160,15 +201,20 @@ const validateField = (name, value) => {
                   placeholder="Enter your password"
                   disabled={isSubmitting}
                 />
-                <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
+                <span
+                  className="toggle-password"
+                  onClick={() => setShowPassword(!showPassword)}
+                >
                   {showPassword ? <FaEyeSlash /> : <FaEye />}
                 </span>
               </div>
+
               {touched.password && errors.password && (
                 <span className="error-message">{errors.password}</span>
               )}
             </div>
 
+            {/* Submit */}
             <button
               type="submit"
               disabled={!canSubmit}
@@ -176,6 +222,7 @@ const validateField = (name, value) => {
             >
               {isSubmitting ? 'Logging in...' : 'Login'}
             </button>
+
           </form>
         </div>
       </div>
