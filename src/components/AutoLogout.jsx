@@ -1,10 +1,11 @@
 import { useEffect, useRef, useCallback } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
-const AUTO_LOGOUT_TIME = 15 * 60 * 1000;
+const AUTO_LOGOUT_TIME = 1 * 60 * 1000;
 
 const AutoLogout = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const timeoutRef = useRef(null);
 
   const logout = useCallback(() => {
@@ -12,11 +13,11 @@ const AutoLogout = () => {
     localStorage.removeItem("user");
 
     navigate("/access", {
+      replace: true,
       state: {
-        message: "Logged out due to inactivity"
-      }
+        message: "Logged out due to inactivity",
+      },
     });
-
   }, [navigate]);
 
   const resetTimer = useCallback(() => {
@@ -24,13 +25,26 @@ const AutoLogout = () => {
       clearTimeout(timeoutRef.current);
     }
 
-    timeoutRef.current = setTimeout(() => {
-      logout();
-    }, AUTO_LOGOUT_TIME);
-
+    timeoutRef.current = setTimeout(logout, AUTO_LOGOUT_TIME);
   }, [logout]);
 
   useEffect(() => {
+    // Do not run on customer page
+    if (location.pathname === "/customer-page") {
+      return;
+    }
+
+    const user = JSON.parse(localStorage.getItem("user") || "{}");
+
+    // Do not run for customers
+    if (user.role === "customer") {
+      return;
+    }
+
+    // Only run if logged in
+    if (!localStorage.getItem("token")) {
+      return;
+    }
 
     const events = [
       "mousemove",
@@ -38,7 +52,7 @@ const AutoLogout = () => {
       "keypress",
       "scroll",
       "touchstart",
-      "click"
+      "click",
     ];
 
     events.forEach((event) => {
@@ -48,7 +62,6 @@ const AutoLogout = () => {
     resetTimer();
 
     return () => {
-
       if (timeoutRef.current) {
         clearTimeout(timeoutRef.current);
       }
@@ -56,10 +69,8 @@ const AutoLogout = () => {
       events.forEach((event) => {
         window.removeEventListener(event, resetTimer);
       });
-
     };
-
-  }, [resetTimer]);
+  }, [location.pathname, resetTimer]);
 
   return null;
 };
