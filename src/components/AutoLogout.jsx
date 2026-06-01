@@ -1,7 +1,7 @@
 import { useEffect, useRef, useCallback } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 
-const AUTO_LOGOUT_TIME = 1 * 60 * 1000;
+const AUTO_LOGOUT_TIME = 15 * 60 * 1000;
 
 const AutoLogout = () => {
   const navigate = useNavigate();
