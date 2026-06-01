@@ -16,7 +16,6 @@ import LoanDetailsModal from "./LoanDetailsModal";
 import KycDetailsModal from "./KycDetailsModal";
 import LoanEvaluation from "./LoanEvaluation/LoanEvaluation";
 
-
 const ApproveWebLoanApplication = () => {
   const [loanData, setLoanData] = useState([]);
   const [filteredData, setFilteredData] = useState([]);
@@ -101,7 +100,7 @@ const ApproveWebLoanApplication = () => {
     if (action === "evaluate") {
       setHighlightedRowId(loan.loan_id);
       setEvaluatingLoan(loan);
-       setEvaluationStep(1);
+      setEvaluationStep(1);
     }
 
     // ✅ APPROVE
@@ -157,18 +156,11 @@ const ApproveWebLoanApplication = () => {
     }
 
     // ⚠️ SKIP
-   /* if (action === "skip") {
-      setEvaluatingLoan(null);
-      setHighlightedRowId(null);
-    }*/
-
     if (action === "skip") {
-  setHighlightedRowId(loan.loan_id);
-  setEvaluatingLoan(loan);
-  setEvaluationStep(4); // jump to final step
-}
-
-
+      setHighlightedRowId(loan.loan_id);
+      setEvaluatingLoan(loan);
+      setEvaluationStep(4); // jump to final step
+    }
   };
 
   // ✅ VIEW KYC
@@ -246,7 +238,7 @@ const ApproveWebLoanApplication = () => {
     return (
       <LoanEvaluation
         loan={evaluatingLoan}
-         initialStep={evaluationStep}
+        initialStep={evaluationStep}
         onApprove={(loan) => handleAction("approve", loan)}
         onReject={(loan) => handleAction("reject", loan)}
         onBack={() => {
@@ -322,59 +314,50 @@ const ApproveWebLoanApplication = () => {
         </thead>
 
         <tbody>
-          {filteredData.slice(0, entries).map((loan) => (
-            <tr 
-              key={loan.applicant_id}
-              id={`loan-row-${loan.loan_id}`}
-              className={highlightedRowId === loan.loan_id ? "highlight-row" : ""}
-            >
-              <td>{loan.loan_id}</td>
-              <td>{loan.kyc_code}</td>
-              <td>{loan.applicant_fullName}</td>
-              <td>{loan.mobileNumber}</td>
-              <td>₵{loan.loanAmount}</td>
-              <td>{getStatusBadge(loan.loan_status)}</td>
-              <td>
-                {new Date(
-                  loan.applicant_created_at
-                ).toLocaleString()}
-              </td>
-
-              <td>
-                <Dropdown as={ButtonGroup}>
-                  <Dropdown.Toggle size="sm">
-                    Actions
-                  </Dropdown.Toggle>
-
-                  <Dropdown.Menu>
-                    <Dropdown.Item
-                      onClick={() => handleAction("review", loan)}
-                    >
-                      Review
-                    </Dropdown.Item>
-
-                    <Dropdown.Item
-                      onClick={() => handleAction("evaluate", loan)}
-                    >
-                      Evaluate Loan
-                    </Dropdown.Item>
-
-                    <Dropdown.Item
-                      onClick={() => handleAction("skip", loan)}
-                    >
-                      Skip Evaluation
-                    </Dropdown.Item>
-
-                    <Dropdown.Item
-                      onClick={() => handleAction("reject", loan)}
-                    >
-                      Reject
-                    </Dropdown.Item>
-                  </Dropdown.Menu>
-                </Dropdown>
+          {filteredData.length === 0 ? (
+            <tr>
+              <td colSpan="8" className="text-center">
+                No loan applications found.
               </td>
             </tr>
-          ))}
+          ) : (
+            filteredData.slice(0, entries).map((loan) => (
+              <tr
+                key={loan.applicant_id}
+                id={`loan-row-${loan.loan_id}`}
+                className={highlightedRowId === loan.loan_id ? "highlight-row" : ""}
+              >
+                <td>{loan.loan_id}</td>
+                <td>{loan.kyc_code}</td>
+                <td>{loan.applicant_fullName}</td>
+                <td>{loan.mobileNumber}</td>
+                <td>₵{loan.loanAmount}</td>
+                <td>{getStatusBadge(loan.loan_status)}</td>
+                <td>
+                  {new Date(loan.applicant_created_at).toLocaleString()}
+                </td>
+                <td>
+                  <Dropdown as={ButtonGroup}>
+                    <Dropdown.Toggle size="sm">Actions</Dropdown.Toggle>
+                    <Dropdown.Menu>
+                      <Dropdown.Item onClick={() => handleAction("review", loan)}>
+                        Review
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleAction("evaluate", loan)}>
+                        Evaluate Loan
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleAction("skip", loan)}>
+                        Skip Evaluation
+                      </Dropdown.Item>
+                      <Dropdown.Item onClick={() => handleAction("reject", loan)}>
+                        Reject
+                      </Dropdown.Item>
+                    </Dropdown.Menu>
+                  </Dropdown>
+                </td>
+              </tr>
+            ))
+          )}
         </tbody>
       </Table>
 

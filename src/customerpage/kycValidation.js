@@ -19,7 +19,7 @@
   return null;
 };*/
 
-export const validateFile = (file, fieldName, options = {}) => {
+/*export const validateFile = (file, fieldName, options = {}) => {
   const {
     allowedExtensions = [".jpg", ".jpeg", ".png", ".webp", ".heic", ".heif"],
     maxSize = 25 * 1024 * 1024,
@@ -47,7 +47,47 @@ export const validateFile = (file, fieldName, options = {}) => {
 
   return null;
 };
+*/
 
+
+
+export const validateFile = (file, fieldName, options = {}) => {
+  const {
+    allowedExtensions = [
+      ".jpg",
+      ".jpeg",
+      ".png",
+      ".webp",
+      ".heic",
+      ".heif",
+      ".pdf"
+    ],
+    maxSize = 25 * 1024 * 1024,
+    required = true
+  } = options;
+
+  if (required && !file) {
+    return `${fieldName} is required`;
+  }
+
+  if (!file) return null;
+
+  const fileName = file.name?.toLowerCase() || "";
+
+  const isValidExtension = allowedExtensions.some((ext) =>
+    fileName.endsWith(ext)
+  );
+
+  if (!isValidExtension) {
+    return "Only JPG, JPEG, PNG, WEBP, HEIC, HEIF, and PDF files are allowed";
+  }
+
+  if (file.size > maxSize) {
+    return `File size must be less than ${maxSize / (1024 * 1024)}MB`;
+  }
+
+  return null;
+};
 
 
 
