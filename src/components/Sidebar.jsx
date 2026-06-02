@@ -28,17 +28,19 @@ export const Sidebar = memo(
   }) => {
     const SidebarContent = () => (
       <>
-        {/* HEADER with LOGO */}
+        {/* HEADER with LOGO - enlarged */}
         <div className="d-flex align-items-center justify-content-between p-3 border-bottom border-secondary flex-shrink-0">
           {(!sidebarCollapsed || isMobile) && (
             <div className="d-flex align-items-center">
-              {/* 👇 Replace '/logo.png' with your actual logo path */}
+              {/* 👇 INCREASED LOGO SIZE */}
               <img
                 src="/yonko.png"
                 alt="Logo"
-                style={{ height: "30px", marginRight: "10px" }}
+                style={{ height: "48px", marginRight: "12px" }}
               />
-              <h5 className="mb-0 text-white fw-bold">General Portal</h5>
+              <h5 className="mb-0 text-white fw-bold" style={{ fontSize: "1.25rem" }}>
+                General Portal
+              </h5>
             </div>
           )}
 

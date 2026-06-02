@@ -1,14 +1,14 @@
-// src/components/LoginPage.jsx
+// src/auth/StaffLoginPage.jsx
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { useNavigate, useLocation } from 'react-router-dom';
 import myImage from '../image/image1.jpg';
 import logo from '../image/yonko.png';
 import christmasTree from '../image/cha.png';
-import { FaEye, FaEyeSlash } from 'react-icons/fa';
+import { FaEye, FaEyeSlash, FaClock } from 'react-icons/fa';
 import './LoginPage.css';
 
-const LoginPage = ({ onClose }) => {
+const StaffLoginPage = ({ onClose }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -29,16 +29,27 @@ const LoginPage = ({ onClose }) => {
   const [isForgotSubmitting, setIsForgotSubmitting] = useState(false);
   const [forgotTouched, setForgotTouched] = useState(false);
 
-  // logout message from AutoLogout
-  const logoutMessage = location.state?.message || '';
+  // Modal for inactivity logout message
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [logoutModalMessage, setLogoutModalMessage] = useState("");
 
-  // Show Christmas elements for Dec 24-31 (month 11 = December)
+  // Show Christmas elements for Dec 24-31
   useEffect(() => {
     const today = new Date();
     if (today.getMonth() === 11 && today.getDate() >= 24 && today.getDate() <= 31) {
       setShowChristmasTree(true);
     }
   }, []);
+
+  // Watch for logout message from AutoLogout and show modal
+  useEffect(() => {
+    if (location.state?.message) {
+      setLogoutModalMessage(location.state.message);
+      setShowLogoutModal(true);
+      // Clear navigation state so modal doesn't reappear on refresh
+      navigate(location.pathname, { replace: true, state: {} });
+    }
+  }, [location, navigate]);
 
   // Helper: validate email/phone
   const validateIdentifier = (value) => {
@@ -122,13 +133,14 @@ const LoginPage = ({ onClose }) => {
       localStorage.setItem('token', token);
       localStorage.setItem('user', JSON.stringify(user));
 
+      // Redirect based on role
       if (user.role === 'admin') navigate('/admin-dashboard');
       else if (user.role === 'loan_officer') navigate('/loan-officer-dashboard');
       else if (user.role === 'manager') navigate('/loan-manager');
       else if (user.role === 'supervisor') navigate('/loan-supervisor');
       else navigate('/customer-page');
 
-      onClose && onClose();
+      if (onClose) onClose();
     } catch (err) {
       setServerError(err.response?.data?.message || 'Login failed. Try again.');
       setTimeout(() => setServerError(''), 5000);
@@ -211,7 +223,6 @@ const LoginPage = ({ onClose }) => {
       {/* RIGHT FORM */}
       <div className="login-form-container">
         <div className="login-form-card">
-          {/* Logo container with Christmas tree on top */}
           <div className="logo-container">
             <img src={logo} alt="Logo" className="logo" />
             {showChristmasTree && (
@@ -219,7 +230,6 @@ const LoginPage = ({ onClose }) => {
             )}
           </div>
 
-          {/* Christmas greeting (only during holiday period) */}
           {showChristmasTree && (
             <div className="christmas-greeting">
               <span className="greeting-icon">🎄</span>
@@ -232,27 +242,9 @@ const LoginPage = ({ onClose }) => {
             // LOGIN FORM
             <>
               <h2 className="login-title">Login</h2>
-
-              {/* Auto logout message */}
-              {logoutMessage && (
-                <div
-                  className="server-error"
-                  style={{
-                    background: '#fff3cd',
-                    color: '#856404',
-                    border: '1px solid #ffeeba'
-                  }}
-                >
-                  {logoutMessage}
-                </div>
-              )}
-
-              {serverError && (
-                <div className="server-error">{serverError}</div>
-              )}
+              {serverError && <div className="server-error">{serverError}</div>}
 
               <form onSubmit={handleSubmit} noValidate>
-                {/* Identifier */}
                 <div className="form-group">
                   <label>Email or Phone</label>
                   <input
@@ -270,7 +262,6 @@ const LoginPage = ({ onClose }) => {
                   )}
                 </div>
 
-                {/* Password */}
                 <div className="form-group">
                   <label>Password</label>
                   <div className="password-input">
@@ -284,10 +275,7 @@ const LoginPage = ({ onClose }) => {
                       placeholder="Enter your password"
                       disabled={isSubmitting}
                     />
-                    <span
-                      className="toggle-password"
-                      onClick={() => setShowPassword(!showPassword)}
-                    >
+                    <span className="toggle-password" onClick={() => setShowPassword(!showPassword)}>
                       {showPassword ? <FaEyeSlash /> : <FaEye />}
                     </span>
                   </div>
@@ -296,23 +284,13 @@ const LoginPage = ({ onClose }) => {
                   )}
                 </div>
 
-                {/* Forgot password link */}
                 <div className="forgot-password-link">
-                  <button
-                    type="button"
-                    className="link-button"
-                    onClick={() => setShowForgotPassword(true)}
-                  >
+                  <button type="button" className="link-button" onClick={() => setShowForgotPassword(true)}>
                     Forgot password?
                   </button>
                 </div>
 
-                {/* Submit */}
-                <button
-                  type="submit"
-                  disabled={!canSubmit}
-                  className={`btn-login ${isSubmitting ? 'loading' : ''}`}
-                >
+                <button type="submit" disabled={!canSubmit} className={`btn-login ${isSubmitting ? 'loading' : ''}`}>
                   {isSubmitting ? 'Logging in...' : 'Login'}
                 </button>
               </form>
@@ -324,7 +302,6 @@ const LoginPage = ({ onClose }) => {
               <p className="reset-instruction">
                 Enter your email or phone number and we'll send you a link to reset your password.
               </p>
-
               {forgotError && (
                 <div className="server-error" style={{ background: '#f8d7da', color: '#721c24' }}>
                   {forgotError}
@@ -335,7 +312,6 @@ const LoginPage = ({ onClose }) => {
                   {forgotSuccess}
                 </div>
               )}
-
               <form onSubmit={handleForgotSubmit} noValidate>
                 <div className="form-group">
                   <label>Email or Phone Number</label>
@@ -352,7 +328,6 @@ const LoginPage = ({ onClose }) => {
                     <span className="error-message">{forgotError}</span>
                   )}
                 </div>
-
                 <button
                   type="submit"
                   className={`btn-login ${isForgotSubmitting ? 'loading' : ''}`}
@@ -360,7 +335,6 @@ const LoginPage = ({ onClose }) => {
                 >
                   {isForgotSubmitting ? 'Sending...' : 'Send Reset Link'}
                 </button>
-
                 <button
                   type="button"
                   className="btn-back-to-login"
@@ -374,8 +348,116 @@ const LoginPage = ({ onClose }) => {
           )}
         </div>
       </div>
+
+      {/* MODAL FOR INACTIVITY LOGOUT MESSAGE - NO BACKGROUND, NO BLUR */}
+      {showLogoutModal && (
+        <div
+          style={{
+            position: 'fixed',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            backgroundColor: 'transparent', // completely transparent
+            display: 'flex',
+            justifyContent: 'center',
+            alignItems: 'center',
+            zIndex: 10000,
+            animation: 'fadeIn 0.3s ease-out',
+          }}
+          onClick={(e) => e.stopPropagation()}
+        >
+          <div
+            style={{
+              backgroundColor: '#fff',
+              borderRadius: '20px',
+              maxWidth: '420px',
+              width: '90%',
+              padding: '32px 24px',
+              textAlign: 'center',
+              boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.25)',
+              border: '1px solid rgba(255,255,255,0.2)',
+              background: 'linear-gradient(135deg, #ffffff 0%, #f8faff 100%)',
+              transform: 'scale(1)',
+              transition: 'transform 0.2s ease',
+            }}
+          >
+            <div
+              style={{
+                width: '70px',
+                height: '70px',
+                background: 'linear-gradient(135deg, #ff6b6b, #feca57)',
+                borderRadius: '50%',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                margin: '0 auto 20px auto',
+                boxShadow: '0 8px 20px rgba(0,0,0,0.1)',
+              }}
+            >
+              <FaClock size={36} color="#fff" />
+            </div>
+            <h3
+              style={{
+                fontSize: '1.8rem',
+                fontWeight: 600,
+                margin: '0 0 12px 0',
+                background: 'linear-gradient(135deg, #2c3e50, #3498db)',
+                WebkitBackgroundClip: 'text',
+                WebkitTextFillColor: 'transparent',
+                backgroundClip: 'text',
+              }}
+            >
+              Session Expired
+            </h3>
+            <p
+              style={{
+                fontSize: '1rem',
+                color: '#4a5568',
+                marginBottom: '28px',
+                lineHeight: 1.5,
+              }}
+            >
+              {logoutModalMessage || 'Logged out due to inactivity'}
+            </p>
+            <button
+              onClick={() => setShowLogoutModal(false)}
+              style={{
+                backgroundColor: '#3498db',
+                color: 'white',
+                border: 'none',
+                padding: '12px 28px',
+                borderRadius: '40px',
+                cursor: 'pointer',
+                fontSize: '1rem',
+                fontWeight: 500,
+                transition: 'all 0.2s ease',
+                boxShadow: '0 4px 12px rgba(52,152,219,0.3)',
+              }}
+              onMouseEnter={(e) => {
+                e.target.style.backgroundColor = '#2980b9';
+                e.target.style.transform = 'translateY(-2px)';
+              }}
+              onMouseLeave={(e) => {
+                e.target.style.backgroundColor = '#3498db';
+                e.target.style.transform = 'translateY(0)';
+              }}
+            >
+              Okay
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Simple fade-in animation (only opacity) */}
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+      `}</style>
     </div>
   );
 };
 
-export default LoginPage;
+export default StaffLoginPage;

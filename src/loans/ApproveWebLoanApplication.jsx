@@ -10,6 +10,8 @@ import {
   Row,
   Col,
   Badge,
+  Modal,
+  Button,
 } from "react-bootstrap";
 import axios from "axios";
 import LoanDetailsModal from "./LoanDetailsModal";
@@ -30,65 +32,53 @@ const ApproveWebLoanApplication = () => {
   const [showKycModal, setShowKycModal] = useState(false);
   const [selectedKyc, setSelectedKyc] = useState(null);
 
-  // ✅ Evaluation screen state
-  const [evaluatingLoan, setEvaluatingLoan] = useState(null);
-  
-  // ✅ Track the row that was clicked for highlighting
-  const [highlightedRowId, setHighlightedRowId] = useState(null);
-  
-  // ✅ Ref to scroll to highlighted row
-  const tableRef = useRef(null);
+  // Reject confirmation modal state
+  const [showRejectModal, setShowRejectModal] = useState(false);
+  const [rejectLoan, setRejectLoan] = useState(null);
 
+  // Evaluation screen state
+  const [evaluatingLoan, setEvaluatingLoan] = useState(null);
+  const [highlightedRowId, setHighlightedRowId] = useState(null);
+  const tableRef = useRef(null);
   const [evaluationStep, setEvaluationStep] = useState(1);
 
-  // ✅ Fetch all loans
+  // Fetch all loans
   useEffect(() => {
     const fetchLoanData = async () => {
       try {
         const response = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/admin/full-loan-kyc`
         );
-
         setLoanData(response.data);
         setFilteredData(response.data);
         setLoading(false);
       } catch (err) {
         setError(
-          err.response?.data?.error ||
-            err.message ||
-            "Error fetching loan data"
+          err.response?.data?.error || err.message || "Error fetching loan data"
         );
         setLoading(false);
       }
     };
-
     fetchLoanData();
   }, []);
 
-  // ✅ Scroll to and highlight row when returning from evaluation
+  // Scroll to and highlight row when returning from evaluation
   useEffect(() => {
     if (!evaluatingLoan && highlightedRowId && tableRef.current) {
-      // Find the row element and scroll to it
       const rowElement = document.getElementById(`loan-row-${highlightedRowId}`);
       if (rowElement) {
-        rowElement.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        
-        // Remove highlight after animation
-        setTimeout(() => {
-          setHighlightedRowId(null);
-        }, 3000);
+        rowElement.scrollIntoView({ behavior: "smooth", block: "center" });
+        setTimeout(() => setHighlightedRowId(null), 3000);
       }
     }
   }, [evaluatingLoan, highlightedRowId]);
 
   const handleAction = async (action, loan) => {
-    // 🔍 REVIEW
     if (action === "review") {
       try {
         const res = await axios.get(
           `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.userId}`
         );
-
         setSelectedLoan(res.data);
         setShowModal(true);
       } catch (err) {
@@ -96,27 +86,20 @@ const ApproveWebLoanApplication = () => {
       }
     }
 
-    // ✅ EVALUATE - Store the loan ID for highlighting when returning
     if (action === "evaluate") {
       setHighlightedRowId(loan.loan_id);
       setEvaluatingLoan(loan);
       setEvaluationStep(1);
     }
 
-    // ✅ APPROVE
     if (action === "approve") {
       try {
-        await axios.post(
-          `${process.env.REACT_APP_API_URL}/loan/approve`,
-          { loan_id: loan.loan_id }
-        );
-
+        await axios.post(`${process.env.REACT_APP_API_URL}/loan/approve`, {
+          loan_id: loan.loan_id,
+        });
         const updated = loanData.map((item) =>
-          item.loan_id === loan.loan_id
-            ? { ...item, loan_status: "approved" }
-            : item
+          item.loan_id === loan.loan_id ? { ...item, loan_status: "approved" } : item
         );
-
         setLoanData(updated);
         setFilteredData(updated);
         setEvaluatingLoan(null);
@@ -126,50 +109,50 @@ const ApproveWebLoanApplication = () => {
       }
     }
 
-    // ❌ REJECT
     if (action === "reject") {
-      const confirmReject = window.confirm(
-        "Are you sure you want to reject this loan?"
-      );
-
-      if (!confirmReject) return;
-
-      try {
-        await axios.post(
-          `${process.env.REACT_APP_API_URL}/loan/reject`,
-          { loan_id: loan.loan_id }
-        );
-
-        const updated = loanData.map((item) =>
-          item.loan_id === loan.loan_id
-            ? { ...item, loan_status: "rejected" }
-            : item
-        );
-
-        setLoanData(updated);
-        setFilteredData(updated);
-        setEvaluatingLoan(null);
-        setHighlightedRowId(null);
-      } catch (err) {
-        console.error("Reject failed:", err);
-      }
+      // Open custom modal instead of window.confirm
+      setRejectLoan(loan);
+      setShowRejectModal(true);
     }
 
-    // ⚠️ SKIP
     if (action === "skip") {
       setHighlightedRowId(loan.loan_id);
       setEvaluatingLoan(loan);
-      setEvaluationStep(4); // jump to final step
+      setEvaluationStep(4);
     }
   };
 
-  // ✅ VIEW KYC
+  // Confirm reject from modal
+  const handleConfirmReject = async () => {
+    if (!rejectLoan) return;
+    try {
+      await axios.post(`${process.env.REACT_APP_API_URL}/loan/reject`, {
+        loan_id: rejectLoan.loan_id,
+      });
+      const updated = loanData.map((item) =>
+        item.loan_id === rejectLoan.loan_id ? { ...item, loan_status: "rejected" } : item
+      );
+      setLoanData(updated);
+      setFilteredData(updated);
+      setEvaluatingLoan(null);
+      setHighlightedRowId(null);
+      setShowRejectModal(false);
+      setRejectLoan(null);
+    } catch (err) {
+      console.error("Reject failed:", err);
+    }
+  };
+
+  const handleCancelReject = () => {
+    setShowRejectModal(false);
+    setRejectLoan(null);
+  };
+
   const handleViewKyc = async (loan) => {
     try {
       const res = await axios.get(
         `${process.env.REACT_APP_API_URL}/api/admin/kyc/${loan.kyc_code}`
       );
-
       setSelectedKyc(res.data);
       setShowKycModal(true);
     } catch (err) {
@@ -179,27 +162,22 @@ const ApproveWebLoanApplication = () => {
     }
   };
 
-  // 🔍 Search
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
     setSearchTerm(term);
-
     const filtered = loanData.filter(
       (loan) =>
         loan.applicant_fullName.toLowerCase().includes(term) ||
         loan.kyc_code.toLowerCase().includes(term) ||
         loan.mobileNumber.toLowerCase().includes(term)
     );
-
     setFilteredData(filtered);
   };
 
-  // 📄 Entries
   const handleEntriesChange = (e) => {
     setEntries(Number(e.target.value));
   };
 
-  // 🎨 Status Badge
   const getStatusBadge = (status) => {
     switch (status.toLowerCase()) {
       case "approved":
@@ -217,7 +195,6 @@ const ApproveWebLoanApplication = () => {
     }
   };
 
-  // ⏳ Loading
   if (loading)
     return (
       <div className="text-center mt-5">
@@ -225,7 +202,6 @@ const ApproveWebLoanApplication = () => {
       </div>
     );
 
-  // ❌ Error
   if (error)
     return (
       <div className="text-center mt-5">
@@ -233,7 +209,6 @@ const ApproveWebLoanApplication = () => {
       </div>
     );
 
-  // ✅ EVALUATION SCREEN (TABLE HIDDEN)
   if (evaluatingLoan) {
     return (
       <LoanEvaluation
@@ -241,21 +216,15 @@ const ApproveWebLoanApplication = () => {
         initialStep={evaluationStep}
         onApprove={(loan) => handleAction("approve", loan)}
         onReject={(loan) => handleAction("reject", loan)}
-        onBack={() => {
-          // Clear evaluating loan but keep highlightedRowId
-          setEvaluatingLoan(null);
-          // The useEffect will handle scrolling when this returns
-        }}
+        onBack={() => setEvaluatingLoan(null)}
       />
     );
   }
 
-  // ✅ DEFAULT TABLE VIEW
   return (
     <div className="loan-table-container" ref={tableRef}>
       <h2 className="mb-4">Full Loan KYC Applications</h2>
 
-      {/* Add custom CSS for highlighting */}
       <style>
         {`
           .highlight-row {
@@ -263,22 +232,14 @@ const ApproveWebLoanApplication = () => {
             background-color: #fff3cd !important;
             border-left: 4px solid #ffc107 !important;
           }
-          
           @keyframes highlightFade {
-            0% {
-              background-color: #fff3cd;
-            }
-            70% {
-              background-color: #fff3cd;
-            }
-            100% {
-              background-color: transparent;
-            }
+            0% { background-color: #fff3cd; }
+            70% { background-color: #fff3cd; }
+            100% { background-color: transparent; }
           }
         `}
       </style>
 
-      {/* Search */}
       <Row className="mb-3">
         <Col md={6}>
           <Form.Control
@@ -288,7 +249,6 @@ const ApproveWebLoanApplication = () => {
             onChange={handleSearch}
           />
         </Col>
-
         <Col md={3}>
           <Form.Select value={entries} onChange={handleEntriesChange}>
             <option value={5}>5</option>
@@ -298,7 +258,6 @@ const ApproveWebLoanApplication = () => {
         </Col>
       </Row>
 
-      {/* Table */}
       <Table bordered hover>
         <thead>
           <tr>
@@ -312,7 +271,6 @@ const ApproveWebLoanApplication = () => {
             <th>Actions</th>
           </tr>
         </thead>
-
         <tbody>
           {filteredData.length === 0 ? (
             <tr>
@@ -333,9 +291,7 @@ const ApproveWebLoanApplication = () => {
                 <td>{loan.mobileNumber}</td>
                 <td>₵{loan.loanAmount}</td>
                 <td>{getStatusBadge(loan.loan_status)}</td>
-                <td>
-                  {new Date(loan.applicant_created_at).toLocaleString()}
-                </td>
+                <td>{new Date(loan.applicant_created_at).toLocaleString()}</td>
                 <td>
                   <Dropdown as={ButtonGroup}>
                     <Dropdown.Toggle size="sm">Actions</Dropdown.Toggle>
@@ -361,7 +317,24 @@ const ApproveWebLoanApplication = () => {
         </tbody>
       </Table>
 
-      {/* Modals */}
+      {/* Reject Confirmation Modal */}
+      <Modal show={showRejectModal} onHide={handleCancelReject} centered>
+        <Modal.Header closeButton>
+          <Modal.Title>Confirm Rejection</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          Are you sure you want to reject this loan?
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCancelReject}>
+            Cancel
+          </Button>
+          <Button variant="danger" onClick={handleConfirmReject}>
+            Yes, Reject
+          </Button>
+        </Modal.Footer>
+      </Modal>
+
       <LoanDetailsModal
         show={showModal}
         onClose={() => setShowModal(false)}

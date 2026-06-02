@@ -2,26 +2,15 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import GLAccountFormModal from './GLAccountFormModal';
 
 const GLAccounts = () => {
   const [glAccounts, setGlAccounts] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [editingAccount, setEditingAccount] = useState(null);
-  const [formData, setFormData] = useState({
-    accountCode: '',
-    accountName: '',
-    accountType: 'Asset',
-    category: '',
-    normalBalance: 'Debit',
-    description: '',
-    status: 'Active',
-    parentAccount: '',
-    isSubAccount: false
-  });
 
   const accountTypes = ['Asset', 'Liability', 'Equity', 'Revenue', 'Expense'];
-  const normalBalances = ['Debit', 'Credit'];
   const statuses = ['Active', 'Inactive', 'Suspended'];
 
   // Fetch GL Accounts
@@ -45,57 +34,8 @@ const GLAccounts = () => {
     }
   };
 
-  const handleInputChange = (e) => {
-    const { name, value, type, checked } = e.target;
-    setFormData({
-      ...formData,
-      [name]: type === 'checkbox' ? checked : value
-    });
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-    
-    try {
-      const token = localStorage.getItem('token');
-      const config = {
-        headers: { Authorization: `Bearer ${token}` }
-      };
-
-      if (editingAccount) {
-        // Update existing account
-        await axios.put(`http://localhost:5000/api/gl-accounts/${editingAccount.id}`, formData, config);
-        toast.success('GL Account updated successfully');
-      } else {
-        // Create new account
-        await axios.post('http://localhost:5000/api/gl-accounts', formData, config);
-        toast.success('GL Account created successfully');
-      }
-      
-      resetForm();
-      fetchGLAccounts();
-    } catch (error) {
-      console.error('Error saving GL account:', error);
-      toast.error(error.response?.data?.message || 'Failed to save GL account');
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleEdit = (account) => {
     setEditingAccount(account);
-    setFormData({
-      accountCode: account.accountCode,
-      accountName: account.accountName,
-      accountType: account.accountType,
-      category: account.category || '',
-      normalBalance: account.normalBalance,
-      description: account.description || '',
-      status: account.status,
-      parentAccount: account.parentAccount || '',
-      isSubAccount: account.isSubAccount || false
-    });
     setShowModal(true);
   };
 
@@ -118,20 +58,9 @@ const GLAccounts = () => {
     }
   };
 
-  const resetForm = () => {
-    setFormData({
-      accountCode: '',
-      accountName: '',
-      accountType: 'Asset',
-      category: '',
-      normalBalance: 'Debit',
-      description: '',
-      status: 'Active',
-      parentAccount: '',
-      isSubAccount: false
-    });
-    setEditingAccount(null);
+  const closeModal = () => {
     setShowModal(false);
+    setEditingAccount(null);
   };
 
   const getBalanceTypeColor = (balance) => {
@@ -150,7 +79,7 @@ const GLAccounts = () => {
   return (
     <div className="gl-accounts-container">
       <ToastContainer position="top-right" autoClose={3000} />
-      
+
       {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
@@ -338,173 +267,14 @@ const GLAccounts = () => {
         </div>
       </div>
 
-      {/* Modal for Create/Edit */}
-      {showModal && (
-        <div className="modal show d-block" style={{ backgroundColor: 'rgba(0,0,0,0.5)' }} tabIndex="-1">
-          <div className="modal-dialog modal-lg">
-            <div className="modal-content">
-              <div className="modal-header">
-                <h5 className="modal-title">
-                  {editingAccount ? 'Edit GL Account' : 'Create New GL Account'}
-                </h5>
-                <button type="button" className="btn-close" onClick={resetForm}></button>
-              </div>
-              <form onSubmit={handleSubmit}>
-                <div className="modal-body">
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Account Code *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="accountCode"
-                        value={formData.accountCode}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="e.g., 1010, 2020"
-                      />
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Account Name *</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="accountName"
-                        value={formData.accountName}
-                        onChange={handleInputChange}
-                        required
-                        placeholder="e.g., Cash in Bank"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Account Type *</label>
-                      <select
-                        className="form-select"
-                        name="accountType"
-                        value={formData.accountType}
-                        onChange={handleInputChange}
-                        required
-                      >
-                        {accountTypes.map(type => (
-                          <option key={type} value={type}>{type}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Category</label>
-                      <input
-                        type="text"
-                        className="form-control"
-                        name="category"
-                        value={formData.category}
-                        onChange={handleInputChange}
-                        placeholder="e.g., Current Assets, Fixed Assets"
-                      />
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Normal Balance *</label>
-                      <select
-                        className="form-select"
-                        name="normalBalance"
-                        value={formData.normalBalance}
-                        onChange={handleInputChange}
-                        required
-                      >
-                        {normalBalances.map(balance => (
-                          <option key={balance} value={balance}>{balance}</option>
-                        ))}
-                      </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Status *</label>
-                      <select
-                        className="form-select"
-                        name="status"
-                        value={formData.status}
-                        onChange={handleInputChange}
-                        required
-                      >
-                        {statuses.map(status => (
-                          <option key={status} value={status}>{status}</option>
-                        ))}
-                      </select>
-                    </div>
-                  </div>
-
-                  <div className="row">
-                    <div className="col-md-6 mb-3">
-                      <label className="form-label">Parent Account</label>
-                      <select
-                        className="form-select"
-                        name="parentAccount"
-                        value={formData.parentAccount}
-                        onChange={handleInputChange}
-                      >
-                        <option value="">None (Main Account)</option>
-                        {glAccounts
-                          .filter(acc => !acc.isSubAccount && acc.id !== editingAccount?.id)
-                          .map(account => (
-                            <option key={account.id} value={account.accountCode}>
-                              {account.accountCode} - {account.accountName}
-                            </option>
-                          ))}
-                      </select>
-                    </div>
-                    <div className="col-md-6 mb-3">
-                      <div className="form-check mt-4">
-                        <input
-                          type="checkbox"
-                          className="form-check-input"
-                          name="isSubAccount"
-                          checked={formData.isSubAccount}
-                          onChange={handleInputChange}
-                          id="isSubAccount"
-                        />
-                        <label className="form-check-label" htmlFor="isSubAccount">
-                          This is a sub-account
-                        </label>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="mb-3">
-                    <label className="form-label">Description</label>
-                    <textarea
-                      className="form-control"
-                      name="description"
-                      rows="3"
-                      value={formData.description}
-                      onChange={handleInputChange}
-                      placeholder="Enter account description..."
-                    ></textarea>
-                  </div>
-                </div>
-                <div className="modal-footer">
-                  <button type="button" className="btn btn-secondary" onClick={resetForm}>
-                    Cancel
-                  </button>
-                  <button type="submit" className="btn btn-primary" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <span className="spinner-border spinner-border-sm me-2"></span>
-                        Saving...
-                      </>
-                    ) : (
-                      editingAccount ? 'Update Account' : 'Create Account'
-                    )}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Modal Component */}
+      <GLAccountFormModal
+        show={showModal}
+        onClose={closeModal}
+        onSave={fetchGLAccounts}
+        initialData={editingAccount}
+        accounts={glAccounts}
+      />
     </div>
   );
 };

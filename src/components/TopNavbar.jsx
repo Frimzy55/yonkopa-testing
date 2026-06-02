@@ -138,7 +138,7 @@ export const TopNavbar = memo(({
       <nav
         className="navbar navbar-expand-lg navbar-dark shadow-sm px-3 px-md-4 py-2 full-width-navbar"
         style={{
-          background: 'linear-gradient(120deg, #74c1f5 0%, #a566f7 100%)'
+          background: 'linear-gradient(120deg, #6097fd 0%, #8477f8 100%)'
         }}
       >
         <div className="container-fluid">
