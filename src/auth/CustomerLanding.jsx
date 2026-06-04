@@ -3,15 +3,27 @@ import SignUpPage from './SignUpPage';
 import LoginPage from './LoginPage';
 import { FaBolt, FaChartLine, FaShieldAlt, FaChevronDown } from 'react-icons/fa';
 import logo from '../image/yonko.png';
+import christmasTree from '../image/hat1.png';   // import Christmas tree image
 import './CustomerLanding.css';
 
 const CustomerLanding = () => {
   const [showSignUp, setShowSignUp] = useState(false);
   const [showLogin, setShowLogin] = useState(false);
+  const [showChristmasTree, setShowChristmasTree] = useState(false);
   
   // Refs for smooth scrolling
   const featuresRef = useRef(null);
   const homeRef = useRef(null);
+
+  // Show Christmas elements from Dec 24 to Jan 4
+  useEffect(() => {
+    const today = new Date();
+    const month = today.getMonth();
+    const date = today.getDate();
+    if ((month === 11 && date >= 24 && date <= 31) || (month === 0 && date >= 1 && date <= 4)) {
+      setShowChristmasTree(true);
+    }
+  }, []);
 
   // Prevent background scroll when modal is open
   useEffect(() => {
@@ -61,8 +73,12 @@ const CustomerLanding = () => {
               className="logo-img"
             />
             <h3 className="m-0 fw-bold text-primary">
-  Yonkopa Micro Credit
-</h3>
+              Yonkopa Micro Credit
+            </h3>
+            {/* Christmas tree next to logo (optional) */}
+            {showChristmasTree && (
+              <img src={christmasTree} alt="Christmas Tree" style={{ width: '35px', marginLeft: '10px' }} />
+            )}
           </div>
 
           <div className="d-flex gap-3">
@@ -89,6 +105,15 @@ const CustomerLanding = () => {
           </div>
         </div>
       </nav>
+
+      {/* Christmas greeting banner (appears below header if active) */}
+      {showChristmasTree && (
+        <div className="christmas-greeting-banner">
+          <span className="greeting-icon">🎄</span>
+          <span className="greeting-text">Merry Christmas &amp; Happy New Year!</span>
+          <span className="greeting-icon">🎁</span>
+        </div>
+      )}
 
       {/* HERO SECTION */}
       <section ref={homeRef} className="hero-section">

@@ -38,7 +38,7 @@ const ViewEnquiryModal = ({ show, enquiry, onClose, getStatusBadge }) => {
   // ----------------------------
   // SAFE IMAGE HANDLER (FIX)
   // ----------------------------
-  const getAvatarUrl = (avatar) => {
+  /*const getAvatarUrl = (avatar) => {
     if (!avatar) return null;
 
     // already full URL
@@ -48,7 +48,25 @@ const ViewEnquiryModal = ({ show, enquiry, onClose, getStatusBadge }) => {
 
     // backend relative path or filename
     return `${IMAGE_BASE_URL}/${avatar.replace(/^\/+/, "")}`;
-  };
+  };*/
+
+
+  const getAvatarUrl = (avatar) => {
+  if (!avatar) return null;
+
+  if (
+    avatar.startsWith("http://") ||
+    avatar.startsWith("https://")
+  ) {
+    return avatar;
+  }
+
+  const cleanPath = avatar
+    .replace(/\\/g, "/")
+    .replace(/^\/+/, "");
+
+  return `${IMAGE_BASE_URL}/${cleanPath}`;
+};
 
   const accountsData = enquiry.accounts || [];
   const loansData = enquiry.loans || [];

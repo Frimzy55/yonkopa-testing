@@ -68,8 +68,13 @@
 }
 
 .logo-container {
-  text-align: center;
-  margin-bottom: 30px;
+  position: relative;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  width: 100%;
+  max-width: 100%;
 }
 
 .logo {
@@ -274,8 +279,10 @@
     box-shadow: 0 -5px 30px rgba(0, 0, 0, 0.1);
   }
   
+  /* REDUCED LOGO SIZE FOR MOBILE */
   .logo {
-    max-width: 100px;
+    width: 70px;
+    max-width: 70px;
   }
   
   .logo-container {
@@ -300,6 +307,13 @@
     padding: 12px;
     font-size: 14px;
   }
+
+  /* Christmas tree overlay positioning for mobile */
+  .tree-on-logo {
+    width: 40px;
+    top: -15px;
+    left: -15px;
+  }
 }
 
 /* Small Mobile Devices */
@@ -313,8 +327,10 @@
     margin-top: -20px;
   }
   
+  /* FURTHER REDUCED LOGO SIZE */
   .logo {
-    max-width: 80px;
+    width: 55px;
+    max-width: 55px;
   }
   
   .login-title {
@@ -338,6 +354,13 @@
   
   .christmas-tree {
     width: 50px;
+  }
+
+  /* Smaller tree on very small screens */
+  .tree-on-logo {
+    width: 30px;
+    top: -10px;
+    left: -10px;
   }
 }
 
@@ -364,8 +387,10 @@
     margin-bottom: 12px;
   }
   
+  /* Smaller logo for landscape */
   .logo {
-    max-width: 70px;
+    width: 55px;
+    max-width: 55px;
   }
   
   .logo-container {
@@ -375,6 +400,12 @@
   .login-title {
     margin-bottom: 12px;
     font-size: 18px;
+  }
+
+  .tree-on-logo {
+    width: 35px;
+    top: -12px;
+    left: -12px;
   }
 }
 
@@ -396,36 +427,16 @@ html {
   }
 }
 
-
-
-
-
-
-
-
-/* Make the logo container a positioning context for the tree */
-.logo-container {
-  position: relative;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  margin-bottom: 1rem;
-}
-
-/* Christmas tree absolutely positioned over the logo */
+/* Christmas tree absolutely positioned over the logo (base styles) */
 .tree-on-logo {
   position: absolute;
-  top: -30px;      /* adjust as needed */
-  left: -30px;     /* adjust as needed */
-  width: 80px;     /* or any size that fits your design */
+  top: -30px;
+  left: -30px;
+  width: 80px;
   height: auto;
-  pointer-events: none;  /* prevents blocking clicks on form elements */
+  pointer-events: none;
   z-index: 2;
 }
-
-
-
-
 
 /* ========== CHRISTMAS GREETING STYLES ========== */
 .christmas-greeting {
@@ -481,14 +492,7 @@ html {
   }
 }
 
-
-
-
-
-
-
-
-
+/* Forgot password styles */
 .forgot-password-link {
   text-align: right;
   margin-bottom: 1.5rem;
@@ -523,26 +527,6 @@ html {
   font-size: 0.9rem;
 }
 
-
-
-
-
-
-/* Ensure the left image container has relative positioning */
-.login-image {
-  position: relative;
-  flex: 1;  /* adjust based on your layout, often 1 to take half width */
-  overflow: hidden;
-}
-
-.login-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-  display: block;
-}
-
-/* Overlay text at the bottom of the image */
 /* Overlay text at the bottom of the image - ENLARGED */
 .image-overlay-text {
   position: absolute;
@@ -560,7 +544,7 @@ html {
 
 .image-overlay-text h1 {
   margin: 0;
-  font-size: 2.8rem;      /* enlarged from 1.8rem */
+  font-size: 2.8rem;
   font-weight: 800;
   letter-spacing: 2px;
   text-transform: uppercase;
@@ -568,21 +552,7 @@ html {
 
 .image-overlay-text p {
   margin: 0.5rem 0 0;
-  font-size: 1.5rem;      /* enlarged from 1rem */
+  font-size: 1.5rem;
   font-weight: 600;
   letter-spacing: 1px;
-}
-
-/* Make sure the parent container uses flex and gives equal width */
-.login-page {
-  display: flex;
-  min-height: 100vh;
-  width: 100%;
-}
-
-.login-form-container {
-  flex: 1;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }

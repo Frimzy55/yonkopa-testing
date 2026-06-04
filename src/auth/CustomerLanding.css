@@ -192,3 +192,64 @@ html {
     justify-content: center;
   }
 }
+
+
+
+
+
+
+/* Christmas greeting banner */
+.christmas-greeting-banner {
+  text-align: center;
+  padding: 8px 16px;
+  background: linear-gradient(135deg, #fff9e6 0%, #fff0d4 100%);
+  border-bottom: 1px solid rgba(0,0,0,0.05);
+  animation: gentlePulse 2s infinite ease-in-out;
+  font-family: 'Segoe UI', 'Poppins', cursive;
+}
+
+.greeting-icon {
+  font-size: 1.2rem;
+  margin: 0 10px;
+  display: inline-block;
+  animation: sway 3s infinite ease-in-out;
+}
+
+.greeting-text {
+  font-size: 1rem;
+  font-weight: 600;
+  background: linear-gradient(45deg, #c1272d, #d4541e, #b8860b);
+  background-clip: text;
+  -webkit-background-clip: text;
+  color: transparent;
+  letter-spacing: 0.5px;
+}
+
+@keyframes gentlePulse {
+  0% { transform: scale(1); opacity: 0.95; }
+  50% { transform: scale(1.02); opacity: 1; }
+  100% { transform: scale(1); opacity: 0.95; }
+}
+
+@keyframes sway {
+  0% { transform: rotate(0deg); }
+  50% { transform: rotate(6deg); }
+  100% { transform: rotate(0deg); }
+}
+
+/* Make sure the tree image doesn't break layout on mobile */
+@media (max-width: 768px) {
+  .christmas-greeting-banner {
+    padding: 5px 10px;
+  }
+  .greeting-text {
+    font-size: 0.85rem;
+  }
+  .greeting-icon {
+    font-size: 1rem;
+    margin: 0 5px;
+  }
+  .navbar .d-flex img:last-child {
+    width: 25px;
+  }
+}

@@ -34,12 +34,23 @@ const StaffLoginPage = ({ onClose }) => {
   const [logoutModalMessage, setLogoutModalMessage] = useState("");
 
   // Show Christmas elements for Dec 24-31
-  useEffect(() => {
+ /* useEffect(() => {
     const today = new Date();
     if (today.getMonth() === 11 && today.getDate() >= 24 && today.getDate() <= 31) {
       setShowChristmasTree(true);
     }
-  }, []);
+  }, []);*/
+
+
+  // Show Christmas elements for Dec 24 - Jan 4
+useEffect(() => {
+  const today = new Date();
+  const month = today.getMonth();
+  const date = today.getDate();
+  if ((month === 11 && date >= 24 && date <= 31) || (month === 0 && date >= 1 && date <= 4)) {
+    setShowChristmasTree(true);
+  }
+}, []);
 
   // Watch for logout message from AutoLogout and show modal
   useEffect(() => {

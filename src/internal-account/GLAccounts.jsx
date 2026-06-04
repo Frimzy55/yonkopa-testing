@@ -83,7 +83,7 @@ const GLAccounts = () => {
       {/* Header Section */}
       <div className="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
         <div>
-          <h4 className="mb-1">General Ledger Accounts</h4>
+          <h4 className="mb-1">General Ledger Report</h4>
           <p className="text-muted mb-0">Manage chart of accounts and GL master data</p>
         </div>
         <button 
