@@ -66,9 +66,10 @@ const CustomerEnquiries = () => {
   customerId: loan.customerId || "",
   customerName: loan.customerName || "",
 
+
   avatar: loan.avatar
-    ? `http://localhost:5000/uploads/${loan.avatar}`
-    : "",
+  ? `${process.env.REACT_APP_API_URL}/uploads/${loan.avatar}`
+  : "",
 
   contactNumber: loan.contactNumber || "",
   email: loan.email || "",

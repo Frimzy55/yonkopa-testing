@@ -67,6 +67,7 @@ const ViewEnquiryModal = ({ show, enquiry, onClose, getStatusBadge }) => {
 
   return `${IMAGE_BASE_URL}/${cleanPath}`;
 };
+  
 
   const accountsData = enquiry.accounts || [];
   const loansData = enquiry.loans || [];
