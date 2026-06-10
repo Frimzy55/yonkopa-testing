@@ -4,7 +4,14 @@ import { useNavigate } from 'react-router-dom';
 import logo from '../image/yonko.png';
 import "bootstrap-icons/font/bootstrap-icons.css";
 
-const LoginPage = ({ onClose, onSwitchToSignUp }) => {
+//const LoginPage = ({ onClose, onSwitchToSignUp }) => {
+
+  const LoginPage = ({
+  apiUrl,
+  onClose,
+  onSwitchToSignUp
+}) => {
+
   const navigate = useNavigate();
 
   // Login form state
@@ -90,7 +97,13 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
     }
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
+      //const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
+
+      const response = await axios.post(
+     `${apiUrl}/login`,
+      formData
+      );
+
       const { token, user } = response.data;
 
       localStorage.setItem("token", token);
@@ -144,9 +157,15 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
 
     setIsForgotSubmitting(true);
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/forgot-password`, { 
+    /* await axios.post(`${process.env.REACT_APP_API_URL}/forgot-password`, { 
         identifier: forgotIdentifier.trim() 
-      });
+      });*/
+      await axios.post(
+  `${apiUrl}/forgot-password`,
+  {
+    identifier: forgotIdentifier.trim()
+  }
+);
       setForgotSuccess('Password reset link sent! Check your email or SMS.');
       setForgotIdentifier('');
       setForgotTouched(false);
