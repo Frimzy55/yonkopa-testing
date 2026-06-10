@@ -97,12 +97,9 @@ import "bootstrap-icons/font/bootstrap-icons.css";
     }
 
     try {
-      //const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
+      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
 
-      const response = await axios.post(
-     `${apiUrl}/login`,
-      formData
-      );
+      
 
       const { token, user } = response.data;
 
@@ -157,15 +154,10 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 
     setIsForgotSubmitting(true);
     try {
-    /* await axios.post(`${process.env.REACT_APP_API_URL}/forgot-password`, { 
+     await axios.post(`${process.env.REACT_APP_API_URL}/forgot-password`, { 
         identifier: forgotIdentifier.trim() 
-      });*/
-      await axios.post(
-  `${apiUrl}/forgot-password`,
-  {
-    identifier: forgotIdentifier.trim()
-  }
-);
+      });
+     
       setForgotSuccess('Password reset link sent! Check your email or SMS.');
       setForgotIdentifier('');
       setForgotTouched(false);

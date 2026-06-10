@@ -86,26 +86,8 @@ function App() {
         <Routes>
           {/* PUBLIC ROUTES */}
           <Route path="/apply" element={<CustomerLanding />} />
-          
-          <Route
-  path="/access"
-  element={
-    <LoginPage
-      apiUrl={process.env.REACT_APP_API_URL}
-    />
-  }
-/>
-
-<Route
-  path="/demo"
-  element={
-    <LoginPage
-      apiUrl={process.env.REACT_APP_DEMO_API_URL}
-    />
-  }
-/>
-
-
+          <Route path="/access" element={<LoginPage />} />
+          <Route path="/demo" element={<LoginPage />} />
           <Route path="/signup" element={<DefaultSuper />} />
 
           {/* CUSTOMER ROUTE */}
