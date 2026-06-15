@@ -8,7 +8,8 @@ import christmasTree from '../image/cha.png';
 import { FaEye, FaEyeSlash, FaClock } from 'react-icons/fa';
 import './LoginPage.css';
 
-const StaffLoginPage = ({ onClose }) => {
+//const StaffLoginPage = ({ onClose }) => {
+  const StaffLoginPage = ({ onClose, apiUrl }) => {
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -54,9 +55,9 @@ const StaffLoginPage = ({ onClose }) => {
 
   // ------------------- VALIDATION (NO EMAIL/PHONE CHECK) -------------------
   // Always returns no error for identifier
-  const validateIdentifier = () => {
-    return ''; // No validation – any input is accepted
-  };
+ /// const validateIdentifier = () => {
+   /// return ''; // No validation – any input is accepted
+  //};
 
   // Login validation – only password is checked
   const validateField = (name, value) => {
@@ -114,10 +115,15 @@ const StaffLoginPage = ({ onClose }) => {
     }
 
     try {
-      const response = await axios.post(
+     /* const response = await axios.post(
         `${process.env.REACT_APP_API_URL}/login2`,
         formData
-      );
+      );*/
+
+      const response = await axios.post(
+  `${apiUrl}/login2`,
+  formData
+);
 
       const { token, user } = response.data;
 
@@ -176,9 +182,16 @@ const StaffLoginPage = ({ onClose }) => {
 
     setIsForgotSubmitting(true);
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/forgot-password`, {
+     /* await axios.post(`${process.env.REACT_APP_API_URL}/forgot-password`, {
         identifier: forgotIdentifier.trim()
-      });
+      });*/
+
+      await axios.post(
+  `${apiUrl}/forgot-password`,
+  {
+    identifier: forgotIdentifier.trim()
+  }
+);
       setForgotSuccess('Password reset link sent! Check your email or SMS.');
       setForgotIdentifier('');
       setForgotTouched(false);
@@ -243,7 +256,7 @@ const StaffLoginPage = ({ onClose }) => {
                     onChange={handleChange}
                     onBlur={handleBlur}
                     className={touched.identifier && errors.identifier ? 'input-error' : ''}
-                    placeholder="Enter email or phone"
+                    placeholder="Enter Username"
                     disabled={isSubmitting}
                   />
                   {touched.identifier && errors.identifier && (

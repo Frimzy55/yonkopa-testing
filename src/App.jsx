@@ -17,7 +17,7 @@ import ProtectedRoute from "./ProtectedRoute";
 import AutoLogout from "./components/AutoLogout";
 
 function App() {
-  // Inject global font styles
+  // Inject global font 
   useEffect(() => {
   const style = document.createElement("style");
 
@@ -86,8 +86,27 @@ function App() {
         <Routes>
           {/* PUBLIC ROUTES */}
           <Route path="/apply" element={<CustomerLanding />} />
-          <Route path="/access" element={<LoginPage />} />
-          <Route path="/demo" element={<LoginPage />} />
+          {/* <Route path="/access" element={<LoginPage />} />
+          <Route path="/demo" element={<LoginPage />} /> */}
+
+          <Route
+           path="/access"
+           element={
+           <LoginPage
+            apiUrl={process.env.REACT_APP_API_URL}
+           />
+          }
+         />
+
+      <Route
+        path="/demo"
+        element={
+       <LoginPage
+        apiUrl={process.env.REACT_APP_DEMO_API_URL}
+        />
+        }
+       />
+
           <Route path="/signup" element={<DefaultSuper />} />
 
           {/* CUSTOMER ROUTE */}

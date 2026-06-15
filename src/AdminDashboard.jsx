@@ -332,12 +332,23 @@ const AdminDashboard = () => {
     navigate('/admin/settings');
   }, [navigate]);
 
-  const handleLogout = useCallback((e) => {
+  /*const handleLogout = useCallback((e) => {
     if (e) e.preventDefault();
     setIsUserDropdownOpen(false);
     localStorage.removeItem('token');
-    navigate('/access');
-  }, [navigate]);
+     navigate('/access');
+     navigate('/demo');
+  }, [navigate]);*/
+
+
+  const handleLogout = useCallback((e) => {
+  if (e) e.preventDefault();
+
+  setIsUserDropdownOpen(false);
+  localStorage.removeItem("token");
+
+  navigate("/access");
+}, [navigate]);   
 
   const handleSummarySelect = useCallback((summaryType, summaryName) => {
     setSelectedSummary(summaryType);
