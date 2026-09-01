@@ -58,14 +58,16 @@ const ApproveWebLoanApplication = () => {
     const fetchLoanData = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/admin/full-loan-kyc`
+          `${process.env.REACT_APP_API_URL}/api/admin/full-loan-kyc`,
         );
         setLoanData(response.data);
         setFilteredData(response.data);
         setLoading(false);
       } catch (err) {
         setError(
-          err.response?.data?.error || err.message || "Error fetching loan data"
+          err.response?.data?.error ||
+            err.message ||
+            "Error fetching loan data",
         );
         setLoading(false);
       }
@@ -76,7 +78,9 @@ const ApproveWebLoanApplication = () => {
   // Scroll to and highlight row when returning from evaluation
   useEffect(() => {
     if (!evaluatingLoan && highlightedRowId && tableRef.current) {
-      const rowElement = document.getElementById(`loan-row-${highlightedRowId}`);
+      const rowElement = document.getElementById(
+        `loan-row-${highlightedRowId}`,
+      );
       if (rowElement) {
         rowElement.scrollIntoView({ behavior: "smooth", block: "center" });
         setTimeout(() => setHighlightedRowId(null), 3000);
@@ -88,7 +92,7 @@ const ApproveWebLoanApplication = () => {
     if (action === "review") {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.userId}`
+          `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.userId}`,
         );
         setSelectedLoan(res.data);
         setShowModal(true);
@@ -109,7 +113,9 @@ const ApproveWebLoanApplication = () => {
           loan_id: loan.loan_id,
         });
         const updated = loanData.map((item) =>
-          item.loan_id === loan.loan_id ? { ...item, loan_status: "approved" } : item
+          item.loan_id === loan.loan_id
+            ? { ...item, loan_status: "approved" }
+            : item,
         );
         setLoanData(updated);
         setFilteredData(updated);
@@ -139,7 +145,9 @@ const ApproveWebLoanApplication = () => {
         loan_id: rejectLoan.loan_id,
       });
       const updated = loanData.map((item) =>
-        item.loan_id === rejectLoan.loan_id ? { ...item, loan_status: "rejected" } : item
+        item.loan_id === rejectLoan.loan_id
+          ? { ...item, loan_status: "rejected" }
+          : item,
       );
       setLoanData(updated);
       setFilteredData(updated);
@@ -160,7 +168,7 @@ const ApproveWebLoanApplication = () => {
   const handleViewKyc = async (loan) => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/admin/kyc/${loan.kyc_code}`
+        `${process.env.REACT_APP_API_URL}/api/admin/kyc/${loan.kyc_code}`,
       );
       setSelectedKyc(res.data);
       setShowKycModal(true);
@@ -178,7 +186,7 @@ const ApproveWebLoanApplication = () => {
       (loan) =>
         loan.applicant_fullName.toLowerCase().includes(term) ||
         loan.kyc_code.toLowerCase().includes(term) ||
-        loan.mobileNumber.toLowerCase().includes(term)
+        loan.mobileNumber.toLowerCase().includes(term),
     );
     setFilteredData(filtered);
   };
@@ -194,7 +202,11 @@ const ApproveWebLoanApplication = () => {
       pending: "warning",
     };
     const variant = map[status?.toLowerCase()] || "secondary";
-    return <Badge bg={variant} pill className="px-3 py-2">{status}</Badge>;
+    return (
+      <Badge bg={variant} pill className="px-3 py-2">
+        {status}
+      </Badge>
+    );
   };
 
   if (loading)
@@ -258,7 +270,11 @@ const ApproveWebLoanApplication = () => {
           />
         </Col>
         <Col md={3} lg={2}>
-          <Form.Select value={entries} onChange={handleEntriesChange} className="rounded-pill">
+          <Form.Select
+            value={entries}
+            onChange={handleEntriesChange}
+            className="rounded-pill"
+          >
             <option value={5}>5 entries</option>
             <option value={10}>10 entries</option>
             <option value={25}>25 entries</option>
@@ -270,8 +286,15 @@ const ApproveWebLoanApplication = () => {
       <Card className="shadow-sm border-0">
         <Card.Body className="p-0">
           <div className="table-responsive">
-            <Table hover className="mb-0" style={{ borderCollapse: "separate", borderSpacing: "0" }}>
-              <thead className="bg-light" style={{ borderBottom: "2px solid #dee2e6" }}>
+            <Table
+              hover
+              className="mb-0"
+              style={{ borderCollapse: "separate", borderSpacing: "0" }}
+            >
+              <thead
+                className="bg-light"
+                style={{ borderBottom: "2px solid #dee2e6" }}
+              >
                 <tr>
                   <th className="fw-semibold text-muted py-3">Loan ID</th>
                   <th className="fw-semibold text-muted py-3">KYC Code</th>
@@ -280,7 +303,9 @@ const ApproveWebLoanApplication = () => {
                   <th className="fw-semibold text-muted py-3">Amount</th>
                   <th className="fw-semibold text-muted py-3">Status</th>
                   <th className="fw-semibold text-muted py-3">Date</th>
-                  <th className="fw-semibold text-muted py-3 text-center">Actions</th>
+                  <th className="fw-semibold text-muted py-3 text-center">
+                    Actions
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -295,19 +320,27 @@ const ApproveWebLoanApplication = () => {
                     <tr
                       key={loan.applicant_id}
                       id={`loan-row-${loan.loan_id}`}
-                      className={highlightedRowId === loan.loan_id ? "highlight-row" : ""}
+                      className={
+                        highlightedRowId === loan.loan_id ? "highlight-row" : ""
+                      }
                     >
                       <td className="py-2">
-                        <strong className="text-primary">WL-{String(loan.loan_id).padStart(5, "0")}</strong>
+                        <strong className="text-primary">
+                          WL-{String(loan.loan_id).padStart(5, "0")}
+                        </strong>
                       </td>
                       <td className="py-2">{loan.kyc_code}</td>
                       <td className="py-2">{loan.applicant_fullName}</td>
                       <td className="py-2">{loan.mobileNumber}</td>
                       <td className="py-2 fw-semibold">₵{loan.loanAmount}</td>
-                      <td className="py-2">{getStatusBadge(loan.loan_status)}</td>
-                      <td className="py-2">{formatDate(loan.applicant_created_at)}</td>
+                      <td className="py-2">
+                        {getStatusBadge(loan.loan_status)}
+                      </td>
+                      <td className="py-2">
+                        {formatDate(loan.applicant_created_at)}
+                      </td>
                       <td className="py-2 text-center">
-                        <Dropdown as={ButtonGroup}>
+                        <Dropdown as={ButtonGroup} drop="up">
                           <Dropdown.Toggle
                             variant="outline-secondary"
                             size="sm"
@@ -315,18 +348,33 @@ const ApproveWebLoanApplication = () => {
                           >
                             Actions
                           </Dropdown.Toggle>
+
                           <Dropdown.Menu align="end">
-                            <Dropdown.Item onClick={() => handleAction("review", loan)}>
+                            <Dropdown.Item
+                              onClick={() => handleAction("review", loan)}
+                            >
                               <i className="bi bi-eye me-2"></i> Review
                             </Dropdown.Item>
-                            <Dropdown.Item onClick={() => handleAction("evaluate", loan)}>
-                              <i className="bi bi-clipboard-check me-2"></i> Evaluate Loan
+
+                            <Dropdown.Item
+                              onClick={() => handleAction("evaluate", loan)}
+                            >
+                              <i className="bi bi-clipboard-check me-2"></i>{" "}
+                              Evaluate Loan
                             </Dropdown.Item>
-                            <Dropdown.Item onClick={() => handleAction("skip", loan)}>
-                              <i className="bi bi-fast-forward me-2"></i> Skip Evaluation
+
+                            <Dropdown.Item
+                              onClick={() => handleAction("skip", loan)}
+                            >
+                              <i className="bi bi-fast-forward me-2"></i> Skip
+                              Evaluation
                             </Dropdown.Item>
-                            <Dropdown.Item onClick={() => handleAction("reject", loan)}>
-                              <i className="bi bi-x-circle me-2 text-danger"></i> Reject
+
+                            <Dropdown.Item
+                              onClick={() => handleAction("reject", loan)}
+                            >
+                              <i className="bi bi-x-circle me-2 text-danger"></i>{" "}
+                              Reject
                             </Dropdown.Item>
                           </Dropdown.Menu>
                         </Dropdown>
@@ -346,13 +394,19 @@ const ApproveWebLoanApplication = () => {
           <Modal.Title className="fw-bold">Confirm Rejection</Modal.Title>
         </Modal.Header>
         <Modal.Body className="py-4">
-          <p className="mb-0">Are you sure you want to reject this loan application?</p>
+          <p className="mb-0">
+            Are you sure you want to reject this loan application?
+          </p>
         </Modal.Body>
         <Modal.Footer className="border-0">
           <Button variant="light" onClick={handleCancelReject}>
             Cancel
           </Button>
-          <Button variant="danger" onClick={handleConfirmReject} className="px-4">
+          <Button
+            variant="danger"
+            onClick={handleConfirmReject}
+            className="px-4"
+          >
             Yes, Reject
           </Button>
         </Modal.Footer>

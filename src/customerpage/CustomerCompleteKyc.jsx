@@ -38,8 +38,6 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
   const [draftSaved, setDraftSaved] = useState(false);
   const [draftLoaded, setDraftLoaded] = useState(false);
   const [draftError, setDraftError] = useState(false);
-  const [draftDataLoaded, setDraftDataLoaded] = useState(false);
-  const [showDraftSummary, setShowDraftSummary] = useState(false);
 
   // =========================================================
   // REFS
@@ -56,10 +54,7 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
     userId: "",
     kycCode: "",
 
-    // =======================================================
     // PERSONAL
-    // =======================================================
-
     avatar: null,
     title: "",
     firstName: "",
@@ -75,24 +70,17 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
     spouseName: "",
     spouseContact: "",
 
-    // =======================================================
     // CONTACT
-    // =======================================================
-
     mobileNumber: "",
     email: "",
     residentialAddress: "",
-    //residentialLandmark: "",
     city: "",
     state: "",
     zipCode: "",
     postalAddress: "",
     alternatePhone: "",
 
-    // =======================================================
     // EMPLOYMENT
-    // =======================================================
-
     employmentStatus: "",
     employerName: "",
     jobTitle: "",
@@ -105,10 +93,7 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
     ghanaCardBack: null,
     employmentId: null,
 
-    // =======================================================
     // BUSINESS
-    // =======================================================
-
     businessName: "",
     businessType: "",
     monthlyBusinessIncome: "",
@@ -119,18 +104,13 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
     workingCapital: "",
     businessPicture: null,
 
-    // =======================================================
     // REFERENCES
-    // =======================================================
-
     referenceName1: "",
     referencePhone1: "",
     referenceRelationship1: "",
-
     referenceName2: "",
     referencePhone2: "",
     referenceRelationship2: "",
-
     referenceName3: "",
     referencePhone3: "",
     referenceRelationship3: "",
@@ -145,12 +125,10 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
 
     try {
       const storageKey = `kycDraftUuid_${user.userId}`;
-
       let existingDraftUuid = localStorage.getItem(storageKey);
 
       if (!existingDraftUuid) {
         existingDraftUuid = crypto.randomUUID();
-
         localStorage.setItem(storageKey, existingDraftUuid);
       }
 
@@ -170,21 +148,19 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
     const checkKyc = async () => {
       try {
         const token = localStorage.getItem("token");
-
         const res = await fetch(
           `${process.env.REACT_APP_API_URL}/api/kyc/check/${user.userId}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          },
+          }
         );
 
         const data = await res.json();
 
         if (data.hasKyc) {
           setHasKyc(true);
-
           setFormData((prev) => ({
             ...prev,
             kycCode: data.kycCode || prev.kycCode,
@@ -208,27 +184,16 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
     if (!user) return;
 
     const fullname = user.fullname || user.fullName || user.full_name || "";
-
     const nameParts = fullname.trim().split(/\s+/);
 
     setFormData((prev) => ({
       ...prev,
-
       userId: user.userId || prev.userId || "",
-
       kycCode: user.kycCode || prev.kycCode || "",
-
       firstName: prev.firstName || nameParts[0] || "",
-
-      middleName:
-        prev.middleName || (nameParts.length === 3 ? nameParts[1] : ""),
-
-      lastName:
-        prev.lastName ||
-        (nameParts.length >= 2 ? nameParts[nameParts.length - 1] : ""),
-
+      middleName: prev.middleName || (nameParts.length === 3 ? nameParts[1] : ""),
+      lastName: prev.lastName || (nameParts.length >= 2 ? nameParts[nameParts.length - 1] : ""),
       email: prev.email || user.email || "",
-
       mobileNumber: prev.mobileNumber || user.phone || "",
     }));
   }, [user]);
@@ -249,7 +214,6 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
         setDraftError(false);
 
         const token = localStorage.getItem("token");
-
         const res = await fetch(
           `${process.env.REACT_APP_API_URL}/api/kyc/draft/${draftUuid}?userId=${user.userId}`,
           {
@@ -257,39 +221,27 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
             headers: {
               Authorization: `Bearer ${token}`,
             },
-          },
+          }
         );
 
-        // -----------------------------------------------------
         // NO DRAFT FOUND
-        // -----------------------------------------------------
-
         if (res.status === 404) {
           if (!cancelled) {
             setDraftLoaded(true);
-            setDraftDataLoaded(false);
           }
-
           return;
         }
 
-        // -----------------------------------------------------
         // OTHER HTTP ERROR
-        // -----------------------------------------------------
-
         if (!res.ok) {
           throw new Error(`Draft request failed: ${res.status}`);
         }
 
         const data = await res.json();
 
-        // -----------------------------------------------------
         // DRAFT FOUND
-        // -----------------------------------------------------
-
         if (!cancelled && data.success && data.draft) {
           const savedFormData = data.draft.formData || {};
-
           setFormData((prev) => ({
             ...prev,
             ...savedFormData,
@@ -297,21 +249,18 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
           }));
 
           const savedStep = Number(data.draft.currentStep);
-
           if (savedStep >= 1 && savedStep <= 4) {
             setCurrentStep(savedStep);
           }
 
           setDraftSaved(true);
           setDraftLoaded(true);
-          setDraftDataLoaded(true);
         } else {
           setDraftLoaded(true);
         }
       } catch (err) {
         if (!cancelled) {
           console.error("Failed to load KYC draft:", err);
-
           setDraftError(true);
           setDraftLoaded(true);
         }
@@ -340,24 +289,22 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
     }
 
     const controller = new AbortController();
-
     abortControllerRef.current = controller;
 
     setCheckingNationalId(true);
 
     try {
       const token = localStorage.getItem("token");
-
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/kyc/check-national-id/${encodeURIComponent(
-          cleanId,
+          cleanId
         )}`,
         {
           headers: {
             Authorization: `Bearer ${token}`,
           },
           signal: controller.signal,
-        },
+        }
       );
 
       const data = res.ok ? await res.json() : { exists: false };
@@ -365,24 +312,17 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
       if (data.exists) {
         setFormErrors((prev) => ({
           ...prev,
-
           nationalId: "❌ This National ID is already registered",
         }));
-
         setNationalIdAvailable(false);
       } else {
         setFormErrors((prev) => {
-          const newErrors = {
-            ...prev,
-          };
-
+          const newErrors = { ...prev };
           if (newErrors.nationalId?.includes("already registered")) {
             delete newErrors.nationalId;
           }
-
           return newErrors;
         });
-
         setNationalIdAvailable(true);
       }
     } catch (err) {
@@ -418,9 +358,7 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
         ...prev,
         nationalId: formatError,
       }));
-
       setNationalIdAvailable(false);
-
       return;
     }
 
@@ -455,7 +393,7 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
       case "referencePhone3": {
         const phoneError = validatePhoneNumber(
           value,
-          name.replace(/([A-Z])/g, " $1").toLowerCase(),
+          name.replace(/([A-Z])/g, " $1").toLowerCase()
         );
 
         if (phoneError) {
@@ -465,28 +403,19 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
           }));
         } else {
           setFormErrors((prev) => {
-            const newErrors = {
-              ...prev,
-            };
-
+            const newErrors = { ...prev };
             delete newErrors[name];
-
             return newErrors;
           });
         }
-
         break;
       }
 
       default:
         if (formErrors[name]) {
           setFormErrors((prev) => {
-            const newErrors = {
-              ...prev,
-            };
-
+            const newErrors = { ...prev };
             delete newErrors[name];
-
             return newErrors;
           });
         }
@@ -535,12 +464,8 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
 
     if (formErrors[name]) {
       setFormErrors((prev) => {
-        const newErrors = {
-          ...prev,
-        };
-
+        const newErrors = { ...prev };
         delete newErrors[name];
-
         return newErrors;
       });
     }
@@ -587,30 +512,23 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
         setDraftError(false);
 
         const token = localStorage.getItem("token");
-
         const draftData = getDraftFormData();
 
         const res = await fetch(
           `${process.env.REACT_APP_API_URL}/api/kyc/save-draft`,
           {
             method: "POST",
-
             headers: {
               "Content-Type": "application/json",
-
               Authorization: `Bearer ${token}`,
             },
-
             body: JSON.stringify({
               userId: user.userId,
-
               draftUuid,
-
               formData: draftData,
-
               currentStep,
             }),
-          },
+          }
         );
 
         if (!res.ok) {
@@ -626,7 +544,6 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
         }
       } catch (err) {
         console.error("KYC draft auto-save failed:", err);
-
         setDraftError(true);
       } finally {
         setDraftSaving(false);
@@ -652,71 +569,47 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
 
   const validateCurrentStep = () => {
     const errors = getStepErrors(formData, currentStep);
-
     setFormErrors(errors);
-
     return Object.keys(errors).length === 0;
   };
 
   // =========================================================
-  // SAVE ALL KYC
-  // FINAL SUBMISSION
+  // SAVE ALL KYC – FINAL SUBMISSION
   // =========================================================
 
   const saveAllKyc = async () => {
     try {
       const data = new FormData();
 
-      // ---------------------------------------------------
       // USER ID
-      // ---------------------------------------------------
-
       if (!user?.userId) {
         setSubmitMessage({
           type: "error",
           text: "❌ User ID is missing. Please log in again.",
         });
-
         return false;
       }
 
-      // IMPORTANT:
-      // userId is appended ONCE
       data.append("userId", String(user.userId));
 
-      // ---------------------------------------------------
       // DRAFT UUID
-      // ---------------------------------------------------
-
       if (draftUuid) {
         data.append("draftUuid", draftUuid);
       }
 
-      // ---------------------------------------------------
       // APPEND FORM DATA
-      // ---------------------------------------------------
-
       Object.keys(formData).forEach((key) => {
-        // userId already added
-        if (key === "userId") {
-          return;
-        }
+        if (key === "userId") return;
 
         const value = formData[key];
-
         if (value === null || value === undefined || value === "") {
           return;
         }
-
         data.append(key, value);
       });
 
-      // ---------------------------------------------------
       // DEBUG FORM DATA
-      // ---------------------------------------------------
-
       console.log("========== KYC FORM DATA ==========");
-
       for (const [key, value] of data.entries()) {
         if (value instanceof File) {
           console.log(key, {
@@ -728,140 +621,86 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
           console.log(key, value);
         }
       }
-
       console.log("===================================");
 
-      // ---------------------------------------------------
-      // TOKEN
-      // ---------------------------------------------------
-
       const token = localStorage.getItem("token");
-
-      // ---------------------------------------------------
-      // SUBMIT
-      // ---------------------------------------------------
 
       const res = await fetch(
         `${process.env.REACT_APP_API_URL}/api/kyc/save-all-online`,
         {
           method: "POST",
-
           headers: {
             Authorization: `Bearer ${token}`,
           },
-
-          // DO NOT manually set Content-Type
-          // Browser handles multipart/form-data
           body: data,
-        },
+        }
       );
 
-      // ---------------------------------------------------
-      // READ RESPONSE
-      // ---------------------------------------------------
-
       let result;
-
       try {
         result = await res.json();
       } catch (jsonError) {
         console.error("Backend returned invalid JSON:", jsonError);
-
         setSubmitMessage({
           type: "error",
           text: `❌ Server returned an invalid response (${res.status}).`,
         });
-
         return false;
       }
 
       console.log("========== KYC SERVER RESPONSE ==========");
-
       console.log(result);
-
       console.log("==========================================");
-
-      // ---------------------------------------------------
-      // HTTP ERROR
-      // ---------------------------------------------------
 
       if (!res.ok) {
         console.error("KYC HTTP ERROR:", {
           status: res.status,
           result,
         });
-
-        const backendMessage =
-          result?.message || `Server returned ${res.status}`;
-
+        const backendMessage = result?.message || `Server returned ${res.status}`;
         setSubmitMessage({
           type: "error",
-
           text: `❌ ${backendMessage}`,
         });
-
-        // National ID error
         if (backendMessage.toLowerCase().includes("national id")) {
           setFormErrors((prev) => ({
             ...prev,
-
             nationalId: backendMessage,
           }));
-
           setNationalIdAvailable(false);
         }
-
         return false;
       }
-
-      // ---------------------------------------------------
-      // BACKEND SUCCESS FALSE
-      // ---------------------------------------------------
 
       if (!result.success) {
         console.error("KYC BACKEND ERROR:", result);
-
         setSubmitMessage({
           type: "error",
-
           text: result?.message || "❌ KYC submission failed.",
         });
-
         return false;
       }
 
-      // ---------------------------------------------------
-      // SUCCESS
-      // ---------------------------------------------------
-
       if (result.success) {
         console.log("✅ KYC submitted successfully");
-
         console.log("KYC Code:", result.kycCode);
-
         console.log("Customer Code:", result.customerCode);
-
         console.log("Draft UUID:", result.draftUuid);
 
         setFormData((prev) => ({
           ...prev,
-
           kycCode: result.kycCode || prev.kycCode,
         }));
-
         return true;
       }
 
       return false;
     } catch (err) {
       console.error("FINAL KYC SUBMISSION ERROR:", err);
-
       setSubmitMessage({
         type: "error",
-
         text: `❌ ${err.message || "Network error. Unable to submit KYC."}`,
       });
-
       return false;
     }
   };
@@ -873,10 +712,8 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
   const nextStep = () => {
     if (validateCurrentStep()) {
       setCurrentStep((prev) => Math.min(prev + 1, 4));
-
       setFormErrors({});
       setDraftSaved(false);
-
       window.scrollTo({
         top: 0,
         behavior: "smooth",
@@ -891,10 +728,8 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
 
   const prevStep = () => {
     setCurrentStep((prev) => Math.max(prev - 1, 1));
-
     setFormErrors({});
     setDraftSaved(false);
-
     window.scrollTo({
       top: 0,
       behavior: "smooth",
@@ -908,31 +743,19 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
   const handleFinalSubmit = async (e) => {
     e.preventDefault();
 
-    // Clear previous message
     setSubmitMessage(null);
-
-    // -----------------------------------------------------
-    // NATIONAL ID DUPLICATE
-    // -----------------------------------------------------
 
     if (!nationalIdAvailable && formData.nationalId) {
       setSubmitMessage({
         type: "error",
-
         text: "❌ Cannot submit: This National ID has already been used for KYC verification.",
       });
-
       window.scrollTo({
         top: 0,
         behavior: "smooth",
       });
-
       return;
     }
-
-    // -----------------------------------------------------
-    // VALIDATE ALL STEPS
-    // -----------------------------------------------------
 
     const { isValid, errors } = validateAllSteps(formData);
 
@@ -943,56 +766,30 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
         ...errors.step3,
         ...errors.step4,
       };
-
       setFormErrors(allErrors);
-
       setSubmitMessage({
         type: "error",
-
         text: "❌ Please complete all required fields correctly before submitting.",
       });
-
       window.scrollTo({
         top: 0,
         behavior: "smooth",
       });
-
       return;
     }
 
-    // -----------------------------------------------------
-    // SUBMIT
-    // -----------------------------------------------------
-
     setSubmitting(true);
-
     const success = await saveAllKyc();
-
     setSubmitting(false);
-
-    // -----------------------------------------------------
-    // SUCCESS
-    // -----------------------------------------------------
 
     if (success) {
       setSubmitMessage({
         type: "success",
-
         text: "✅ KYC submitted successfully!",
       });
-
       setSubmitted(true);
-
       setDraftSaved(false);
-
-      setDraftDataLoaded(false);
     }
-
-    // IMPORTANT:
-    // Do NOT set a generic error here.
-    //
-    // saveAllKyc() already displays the actual
-    // backend error.
   };
 
   // =========================================================
@@ -1002,37 +799,25 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
   const renderStep = () => {
     const stepProps = {
       formData,
-
       handleInputChange,
-
       handleFileChange,
-
       formErrors,
-
       checkingNationalId,
-
       nationalIdAvailable,
-
       user,
-
       isMobileLocked: false,
-
       isEmailLocked: false,
     };
 
     switch (currentStep) {
       case 1:
         return <PersonalInfo {...stepProps} />;
-
       case 2:
         return <ContactInfo {...stepProps} />;
-
       case 3:
         return <EmploymentInfo {...stepProps} />;
-
       case 4:
         return <ReferenceInfo {...stepProps} />;
-
       default:
         return null;
     }
@@ -1045,19 +830,15 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
   const renderPreview = () => (
     <div className="kyc-preview-card">
       <h3 className="kyc-title">✅ KYC Submitted Successfully!</h3>
-
       <div className="kyc-grid">
         <div className="kyc-item">
           <span className="kyc-label">KYC Code:</span>
-
           <span className="kyc-value kyc-code-value">
             {formData.kycCode || "Pending"}
           </span>
         </div>
-
         <div className="kyc-item">
           <span className="kyc-label">Name:</span>
-
           <span className="kyc-value">
             {[
               formData.title,
@@ -1069,38 +850,27 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
               .join(" ")}
           </span>
         </div>
-
         <div className="kyc-item">
           <span className="kyc-label">Customer Code:</span>
-
           <span className="kyc-value">{user?.customerCode || "Generated"}</span>
         </div>
-
         <div className="kyc-item">
           <span className="kyc-label">National ID:</span>
-
           <span className="kyc-value">{formData.nationalId || "-"}</span>
         </div>
-
         <div className="kyc-item">
           <span className="kyc-label">Email:</span>
-
           <span className="kyc-value">{formData.email || "-"}</span>
         </div>
-
         <div className="kyc-item">
           <span className="kyc-label">Phone:</span>
-
           <span className="kyc-value">{formData.mobileNumber || "-"}</span>
         </div>
-
         <div className="kyc-item">
           <span className="kyc-label">Status:</span>
-
           <span className="kyc-value">Submitted</span>
         </div>
       </div>
-
       <div
         style={{
           marginTop: "25px",
@@ -1119,154 +889,22 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
   );
 
   // =========================================================
-  // DRAFT SUMMARY
-  // =========================================================
-
-  const renderDraftSummary = () => {
-    if (!draftDataLoaded) {
-      return null;
-    }
-
-    const excludedFields = [
-      "userId",
-      "kycCode",
-      "avatar",
-      "payslip",
-      "ghanaCardFront",
-      "ghanaCardBack",
-      "employmentId",
-      "businessPicture",
-    ];
-
-    const summary = Object.keys(formData)
-      .filter(
-        (key) =>
-          !excludedFields.includes(key) &&
-          formData[key] !== null &&
-          formData[key] !== undefined &&
-          formData[key] !== "",
-      )
-      .reduce((acc, key) => {
-        acc[key] = formData[key];
-
-        return acc;
-      }, {});
-
-    return (
-      <div
-        className="draft-summary-card"
-        style={{
-          marginBottom: "20px",
-          padding: "15px",
-          border: "1px solid #ccc",
-          borderRadius: "8px",
-          backgroundColor: "#f9f9f9",
-        }}
-      >
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-          }}
-        >
-          <h4
-            style={{
-              margin: 0,
-            }}
-          >
-            📄 Draft Summary
-          </h4>
-
-          <button
-            type="button"
-            className="btn-sm"
-            onClick={() => setShowDraftSummary(!showDraftSummary)}
-          >
-            {showDraftSummary ? "Hide" : "Show"}
-          </button>
-        </div>
-
-        {showDraftSummary && (
-          <div
-            style={{
-              marginTop: "10px",
-              maxHeight: "300px",
-              overflowY: "auto",
-            }}
-          >
-            <table
-              style={{
-                width: "100%",
-                borderCollapse: "collapse",
-              }}
-            >
-              <tbody>
-                {Object.entries(summary).map(([key, value]) => (
-                  <tr key={key}>
-                    <td
-                      style={{
-                        padding: "5px",
-                        fontWeight: "bold",
-                        borderBottom: "1px solid #eee",
-                      }}
-                    >
-                      {key
-                        .replace(/([A-Z])/g, " $1")
-                        .replace(/^./, (str) => str.toUpperCase())}
-                    </td>
-
-                    <td
-                      style={{
-                        padding: "5px",
-                        borderBottom: "1px solid #eee",
-                      }}
-                    >
-                      {typeof value === "object"
-                        ? JSON.stringify(value)
-                        : String(value)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    );
-  };
-
-  // =========================================================
   // STEP CARDS
   // =========================================================
 
   const StepCards = () => {
     const steps = [
-      {
-        number: 1,
-        label: "Personal",
-      },
-      {
-        number: 2,
-        label: "Contact",
-      },
-      {
-        number: 3,
-        label: "Employment",
-      },
-      {
-        number: 4,
-        label: "Reference",
-      },
+      { number: 1, label: "Personal" },
+      { number: 2, label: "Contact" },
+      { number: 3, label: "Employment" },
+      { number: 4, label: "Reference" },
     ];
 
     return (
       <div className="step-cards-container">
         {steps.map((step) => {
           const isActive = currentStep === step.number;
-
           const isCompleted = currentStep > step.number;
-
           const isLocked = step.number > currentStep;
 
           return (
@@ -1278,11 +916,8 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
               onClick={() => {
                 if (!isLocked) {
                   setCurrentStep(step.number);
-
                   setFormErrors({});
-
                   setDraftSaved(false);
-
                   window.scrollTo({
                     top: 0,
                     behavior: "smooth",
@@ -1291,7 +926,6 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
               }}
             >
               <div className="step-number">{step.number}</div>
-
               <div className="step-title">{step.label}</div>
             </div>
           );
@@ -1306,48 +940,25 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
 
   return (
     <div>
-      {/* ===================================================
-          DRAFT RESTORED
-      =================================================== */}
-
-      {draftDataLoaded && !submitted && (
+      {/* DRAFT STATUS */}
+      {!submitted && draftUuid && (
         <div
           style={{
-            backgroundColor: "#d4edda",
-            color: "#155724",
-            padding: "10px",
-            borderRadius: "5px",
-            marginBottom: "15px",
             display: "flex",
-            justifyContent: "space-between",
+            justifyContent: "flex-end",
             alignItems: "center",
+            marginBottom: "10px",
+            minHeight: "24px",
+            fontSize: "13px",
           }}
         >
-          <span>
-            ✅ Your saved progress has been restored. You were on Step{" "}
-            {currentStep}.
-          </span>
-
-          <button
-            type="button"
-            style={{
-              background: "transparent",
-              border: "none",
-              color: "#155724",
-              cursor: "pointer",
-              fontSize: "18px",
-            }}
-            onClick={() => setDraftDataLoaded(false)}
-          >
-            ✕
-          </button>
+          {draftSaving && <span>Saving draft...</span>}
+          {!draftSaving && draftSaved && <span>✓ Draft saved</span>}
+          {!draftSaving && draftError && <span>⚠ Unable to save draft</span>}
         </div>
       )}
 
-      {/* ===================================================
-          DRAFT LOAD ERROR
-      =================================================== */}
-
+      {/* DRAFT LOAD ERROR */}
       {draftError && !submitted && (
         <div
           style={{
@@ -1365,7 +976,6 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
             ⚠️ Could not load your saved draft. Your previous progress may be
             lost.
           </span>
-
           <button
             type="button"
             style={{
@@ -1381,60 +991,21 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
         </div>
       )}
 
-      {/* ===================================================
-          DRAFT STATUS
-      =================================================== */}
-
-      {!submitted && draftUuid && (
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "flex-end",
-            alignItems: "center",
-            marginBottom: "10px",
-            minHeight: "24px",
-            fontSize: "13px",
-          }}
-        >
-          {draftSaving && <span>Saving draft...</span>}
-
-          {!draftSaving && draftSaved && <span>✓ Draft saved</span>}
-
-          {!draftSaving && draftError && <span>⚠ Unable to save draft</span>}
-        </div>
-      )}
-
-      {/* ===================================================
-          DRAFT SUMMARY
-      =================================================== */}
-
-      {draftDataLoaded && !submitted && renderDraftSummary()}
-
-      {/* ===================================================
-          SUBMISSION ERROR / SUCCESS MESSAGE
-      =================================================== */}
-
+      {/* SUBMISSION ERROR / SUCCESS MESSAGE */}
       {submitMessage && (
         <div
           style={{
             marginBottom: "20px",
-
             padding: "14px 16px",
-
             borderRadius: "8px",
-
             backgroundColor:
               submitMessage.type === "success" ? "#d4edda" : "#f8d7da",
-
             color: submitMessage.type === "success" ? "#155724" : "#721c24",
-
             border:
               submitMessage.type === "success"
                 ? "1px solid #c3e6cb"
                 : "1px solid #f5c6cb",
-
             fontWeight: "500",
-
             wordBreak: "break-word",
           }}
         >
@@ -1442,10 +1013,7 @@ const CustomerCompleteKyc = ({ user, onContinueToLoan }) => {
         </div>
       )}
 
-      {/* ===================================================
-          MAIN KYC FORM
-      =================================================== */}
-
+      {/* MAIN KYC FORM */}
       <KycFormView
         checkingKyc={checkingKyc || !draftLoaded}
         hasKyc={hasKyc}
