@@ -12,7 +12,7 @@ const AutoLogout = () => {
     const publicRoutes = [
       "/",
       "/apply",
-      "/demo",
+      "/access",
       "/signup",
       "/officer-access",
       "/server-error",
@@ -31,7 +31,7 @@ const AutoLogout = () => {
         currentPath === "/admin-dashboard" ||
         currentPath === "/loan-manager"
       ) {
-        return "/demo";
+        return "/access";
       }
 
       // Officer-related dashboards use OfficerAccess
