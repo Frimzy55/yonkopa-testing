@@ -1,22 +1,22 @@
 {
   "files": {
-    "main.css": "/yonkopa-testing/static/css/main.04ac8498.css",
-    "main.js": "/yonkopa-testing/static/js/main.bd134148.js",
-    "static/js/453.64aababc.chunk.js": "/yonkopa-testing/static/js/453.64aababc.chunk.js",
-    "static/media/new-notification.wav": "/yonkopa-testing/static/media/new-notification.d5d8ec2285a606e44f86.wav",
-    "static/media/hat1.png": "/yonkopa-testing/static/media/hat1.cc6187f0f611f77bdbb7.png",
-    "static/media/yonko1.jpeg": "/yonkopa-testing/static/media/yonko1.8667248d5effb6f0568f.jpeg",
-    "static/media/bootstrap-icons.woff?": "/yonkopa-testing/static/media/bootstrap-icons.1295669cd4e305c97f2c.woff",
-    "static/media/bootstrap-icons.woff2?": "/yonkopa-testing/static/media/bootstrap-icons.92ea18a81d737146ff04.woff2",
-    "static/media/image1.jpg": "/yonkopa-testing/static/media/image1.1d3a56d033b2f5343903.jpg",
-    "static/media/notifications.mp3": "/yonkopa-testing/static/media/notifications.79a156c4eed7a4d1ab9b.mp3",
-    "index.html": "/yonkopa-testing/index.html",
-    "main.04ac8498.css.map": "/yonkopa-testing/static/css/main.04ac8498.css.map",
-    "main.bd134148.js.map": "/yonkopa-testing/static/js/main.bd134148.js.map",
-    "453.64aababc.chunk.js.map": "/yonkopa-testing/static/js/453.64aababc.chunk.js.map"
+    "main.css": "/static/css/main.92902621.css",
+    "main.js": "/static/js/main.d6647a6b.js",
+    "static/js/453.64aababc.chunk.js": "/static/js/453.64aababc.chunk.js",
+    "static/media/new-notification.wav": "/static/media/new-notification.d5d8ec2285a606e44f86.wav",
+    "static/media/hat1.png": "/static/media/hat1.cc6187f0f611f77bdbb7.png",
+    "static/media/yonko1.jpeg": "/static/media/yonko1.8667248d5effb6f0568f.jpeg",
+    "static/media/bootstrap-icons.woff?": "/static/media/bootstrap-icons.1295669cd4e305c97f2c.woff",
+    "static/media/bootstrap-icons.woff2?": "/static/media/bootstrap-icons.92ea18a81d737146ff04.woff2",
+    "static/media/image1.jpg": "/static/media/image1.1d3a56d033b2f5343903.jpg",
+    "static/media/notifications.mp3": "/static/media/notifications.79a156c4eed7a4d1ab9b.mp3",
+    "index.html": "/index.html",
+    "main.92902621.css.map": "/static/css/main.92902621.css.map",
+    "main.d6647a6b.js.map": "/static/js/main.d6647a6b.js.map",
+    "453.64aababc.chunk.js.map": "/static/js/453.64aababc.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.04ac8498.css",
-    "static/js/main.bd134148.js"
+    "static/css/main.92902621.css",
+    "static/js/main.d6647a6b.js"
   ]
 }
