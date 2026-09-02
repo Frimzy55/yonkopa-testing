@@ -4,8 +4,6 @@ import {
   Table,
   Spinner,
   Alert,
-  Dropdown,
-  ButtonGroup,
   Form,
   Row,
   Col,
@@ -13,6 +11,8 @@ import {
   Modal,
   Button,
   Card,
+  Overlay,
+  ButtonGroup,
 } from "react-bootstrap";
 import axios from "axios";
 import LoanDetailsModal from "./LoanDetailsModal";
@@ -41,11 +41,18 @@ const ApproveWebLoanApplication = () => {
   const tableRef = useRef(null);
   const [evaluationStep, setEvaluationStep] = useState(1);
 
+  // Action menu state
+  const [actionTarget, setActionTarget] = useState(null);
+  const [actionLoan, setActionLoan] = useState(null);
+
   // Helper: format date
   const formatDate = (dateString) => {
     if (!dateString) return "N/A";
+
     const date = new Date(dateString);
+
     if (isNaN(date.getTime())) return "N/A";
+
     return date.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
@@ -58,8 +65,9 @@ const ApproveWebLoanApplication = () => {
     const fetchLoanData = async () => {
       try {
         const response = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/admin/full-loan-kyc`,
+          `${process.env.REACT_APP_API_URL}/api/admin/full-loan-kyc`
         );
+
         setLoanData(response.data);
         setFilteredData(response.data);
         setLoading(false);
@@ -67,11 +75,12 @@ const ApproveWebLoanApplication = () => {
         setError(
           err.response?.data?.error ||
             err.message ||
-            "Error fetching loan data",
+            "Error fetching loan data"
         );
         setLoading(false);
       }
     };
+
     fetchLoanData();
   }, []);
 
@@ -79,21 +88,63 @@ const ApproveWebLoanApplication = () => {
   useEffect(() => {
     if (!evaluatingLoan && highlightedRowId && tableRef.current) {
       const rowElement = document.getElementById(
-        `loan-row-${highlightedRowId}`,
+        `loan-row-${highlightedRowId}`
       );
+
       if (rowElement) {
-        rowElement.scrollIntoView({ behavior: "smooth", block: "center" });
-        setTimeout(() => setHighlightedRowId(null), 3000);
+        rowElement.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+
+        setTimeout(() => {
+          setHighlightedRowId(null);
+        }, 3000);
       }
     }
   }, [evaluatingLoan, highlightedRowId]);
 
+  // Close action menu when page scrolls
+  useEffect(() => {
+    const handleScroll = () => {
+      if (actionTarget) {
+        setActionTarget(null);
+        setActionLoan(null);
+      }
+    };
+
+    window.addEventListener("scroll", handleScroll, true);
+
+    return () => {
+      window.removeEventListener("scroll", handleScroll, true);
+    };
+  }, [actionTarget]);
+
+  const handleActionMenu = (event, loan) => {
+    if (actionLoan?.loan_id === loan.loan_id && actionTarget) {
+      setActionTarget(null);
+      setActionLoan(null);
+      return;
+    }
+
+    setActionTarget(event.currentTarget);
+    setActionLoan(loan);
+  };
+
+  const closeActionMenu = () => {
+    setActionTarget(null);
+    setActionLoan(null);
+  };
+
   const handleAction = async (action, loan) => {
+    closeActionMenu();
+
     if (action === "review") {
       try {
         const res = await axios.get(
-          `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.userId}`,
+          `${process.env.REACT_APP_API_URL}/api/admin/loan/${loan.userId}`
         );
+
         setSelectedLoan(res.data);
         setShowModal(true);
       } catch (err) {
@@ -109,14 +160,19 @@ const ApproveWebLoanApplication = () => {
 
     if (action === "approve") {
       try {
-        await axios.post(`${process.env.REACT_APP_API_URL}/loan/approve`, {
-          loan_id: loan.loan_id,
-        });
+        await axios.post(
+          `${process.env.REACT_APP_API_URL}/loan/approve`,
+          {
+            loan_id: loan.loan_id,
+          }
+        );
+
         const updated = loanData.map((item) =>
           item.loan_id === loan.loan_id
             ? { ...item, loan_status: "approved" }
-            : item,
+            : item
         );
+
         setLoanData(updated);
         setFilteredData(updated);
         setEvaluatingLoan(null);
@@ -140,15 +196,21 @@ const ApproveWebLoanApplication = () => {
 
   const handleConfirmReject = async () => {
     if (!rejectLoan) return;
+
     try {
-      await axios.post(`${process.env.REACT_APP_API_URL}/loan/reject`, {
-        loan_id: rejectLoan.loan_id,
-      });
+      await axios.post(
+        `${process.env.REACT_APP_API_URL}/loan/reject`,
+        {
+          loan_id: rejectLoan.loan_id,
+        }
+      );
+
       const updated = loanData.map((item) =>
         item.loan_id === rejectLoan.loan_id
           ? { ...item, loan_status: "rejected" }
-          : item,
+          : item
       );
+
       setLoanData(updated);
       setFilteredData(updated);
       setEvaluatingLoan(null);
@@ -168,8 +230,9 @@ const ApproveWebLoanApplication = () => {
   const handleViewKyc = async (loan) => {
     try {
       const res = await axios.get(
-        `${process.env.REACT_APP_API_URL}/api/admin/kyc/${loan.kyc_code}`,
+        `${process.env.REACT_APP_API_URL}/api/admin/kyc/${loan.kyc_code}`
       );
+
       setSelectedKyc(res.data);
       setShowKycModal(true);
     } catch (err) {
@@ -181,13 +244,16 @@ const ApproveWebLoanApplication = () => {
 
   const handleSearch = (e) => {
     const term = e.target.value.toLowerCase();
+
     setSearchTerm(term);
+
     const filtered = loanData.filter(
       (loan) =>
-        loan.applicant_fullName.toLowerCase().includes(term) ||
-        loan.kyc_code.toLowerCase().includes(term) ||
-        loan.mobileNumber.toLowerCase().includes(term),
+        loan.applicant_fullName?.toLowerCase().includes(term) ||
+        loan.kyc_code?.toLowerCase().includes(term) ||
+        loan.mobileNumber?.toLowerCase().includes(term)
     );
+
     setFilteredData(filtered);
   };
 
@@ -201,7 +267,9 @@ const ApproveWebLoanApplication = () => {
       rejected: "danger",
       pending: "warning",
     };
+
     const variant = map[status?.toLowerCase()] || "secondary";
+
     return (
       <Badge bg={variant} pill className="px-3 py-2">
         {status}
@@ -209,19 +277,21 @@ const ApproveWebLoanApplication = () => {
     );
   };
 
-  if (loading)
+  if (loading) {
     return (
       <div className="d-flex justify-content-center mt-5">
         <Spinner animation="border" variant="primary" />
       </div>
     );
+  }
 
-  if (error)
+  if (error) {
     return (
       <div className="mt-4">
         <Alert variant="danger">{error}</Alert>
       </div>
     );
+  }
 
   if (evaluatingLoan) {
     return (
@@ -239,10 +309,12 @@ const ApproveWebLoanApplication = () => {
     <div className="container-fluid p-4" ref={tableRef}>
       {/* Header */}
       <div className="d-flex justify-content-between align-items-center mb-4">
-        <h4 className="fw-bold text-secondary">Full Loan KYC Applications</h4>
+        <h4 className="fw-bold text-secondary">
+          Full Loan KYC Applications
+        </h4>
       </div>
 
-      {/* Styling for highlight */}
+      {/* Highlight styling */}
       <style>
         {`
           .highlight-row {
@@ -250,10 +322,55 @@ const ApproveWebLoanApplication = () => {
             background-color: #fff3cd !important;
             border-left: 4px solid #ffc107 !important;
           }
+
           @keyframes highlightFade {
-            0% { background-color: #fff3cd; }
-            70% { background-color: #fff3cd; }
-            100% { background-color: transparent; }
+            0% {
+              background-color: #fff3cd;
+            }
+
+            70% {
+              background-color: #fff3cd;
+            }
+
+            100% {
+              background-color: transparent;
+            }
+          }
+
+          .loan-action-menu {
+            min-width: 190px;
+            border: 1px solid rgba(0, 0, 0, 0.12);
+            border-radius: 10px;
+            padding: 6px 0;
+            background: #fff;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.18);
+            z-index: 99999;
+          }
+
+          .loan-action-item {
+            display: flex;
+            align-items: center;
+            width: 100%;
+            padding: 10px 14px;
+            border: 0;
+            background: transparent;
+            color: #333;
+            text-align: left;
+            font-size: 14px;
+            cursor: pointer;
+          }
+
+          .loan-action-item:hover {
+            background: #f5f6f8;
+          }
+
+          .loan-action-item i {
+            width: 22px;
+          }
+
+          .loan-actions-button {
+            min-width: 100px;
+            font-weight: 500;
           }
         `}
       </style>
@@ -269,6 +386,7 @@ const ApproveWebLoanApplication = () => {
             className="rounded-pill"
           />
         </Col>
+
         <Col md={3} lg={2}>
           <Form.Select
             value={entries}
@@ -289,29 +407,59 @@ const ApproveWebLoanApplication = () => {
             <Table
               hover
               className="mb-0"
-              style={{ borderCollapse: "separate", borderSpacing: "0" }}
+              style={{
+                borderCollapse: "separate",
+                borderSpacing: "0",
+              }}
             >
               <thead
                 className="bg-light"
-                style={{ borderBottom: "2px solid #dee2e6" }}
+                style={{
+                  borderBottom: "2px solid #dee2e6",
+                }}
               >
                 <tr>
-                  <th className="fw-semibold text-muted py-3">Loan ID</th>
-                  <th className="fw-semibold text-muted py-3">KYC Code</th>
-                  <th className="fw-semibold text-muted py-3">Full Name</th>
-                  <th className="fw-semibold text-muted py-3">Phone</th>
-                  <th className="fw-semibold text-muted py-3">Amount</th>
-                  <th className="fw-semibold text-muted py-3">Status</th>
-                  <th className="fw-semibold text-muted py-3">Date</th>
+                  <th className="fw-semibold text-muted py-3">
+                    Loan ID
+                  </th>
+
+                  <th className="fw-semibold text-muted py-3">
+                    KYC Code
+                  </th>
+
+                  <th className="fw-semibold text-muted py-3">
+                    Full Name
+                  </th>
+
+                  <th className="fw-semibold text-muted py-3">
+                    Phone
+                  </th>
+
+                  <th className="fw-semibold text-muted py-3">
+                    Amount
+                  </th>
+
+                  <th className="fw-semibold text-muted py-3">
+                    Status
+                  </th>
+
+                  <th className="fw-semibold text-muted py-3">
+                    Date
+                  </th>
+
                   <th className="fw-semibold text-muted py-3 text-center">
                     Actions
                   </th>
                 </tr>
               </thead>
+
               <tbody>
                 {filteredData.length === 0 ? (
                   <tr>
-                    <td colSpan="8" className="text-center text-muted py-5">
+                    <td
+                      colSpan="8"
+                      className="text-center text-muted py-5"
+                    >
                       No loan applications found.
                     </td>
                   </tr>
@@ -321,63 +469,63 @@ const ApproveWebLoanApplication = () => {
                       key={loan.applicant_id}
                       id={`loan-row-${loan.loan_id}`}
                       className={
-                        highlightedRowId === loan.loan_id ? "highlight-row" : ""
+                        highlightedRowId === loan.loan_id
+                          ? "highlight-row"
+                          : ""
                       }
                     >
                       <td className="py-2">
                         <strong className="text-primary">
-                          WL-{String(loan.loan_id).padStart(5, "0")}
+                          WL-
+                          {String(loan.loan_id).padStart(5, "0")}
                         </strong>
                       </td>
-                      <td className="py-2">{loan.kyc_code}</td>
-                      <td className="py-2">{loan.applicant_fullName}</td>
-                      <td className="py-2">{loan.mobileNumber}</td>
-                      <td className="py-2 fw-semibold">₵{loan.loanAmount}</td>
+
+                      <td className="py-2">
+                        {loan.kyc_code}
+                      </td>
+
+                      <td className="py-2">
+                        {loan.applicant_fullName}
+                      </td>
+
+                      <td className="py-2">
+                        {loan.mobileNumber}
+                      </td>
+
+                      <td className="py-2 fw-semibold">
+                        ₵{loan.loanAmount}
+                      </td>
+
                       <td className="py-2">
                         {getStatusBadge(loan.loan_status)}
                       </td>
+
                       <td className="py-2">
                         {formatDate(loan.applicant_created_at)}
                       </td>
+
                       <td className="py-2 text-center">
-                        <Dropdown as={ButtonGroup} drop="up">
-                          <Dropdown.Toggle
+                        <ButtonGroup>
+                          <Button
                             variant="outline-secondary"
                             size="sm"
-                            className="rounded-pill px-3"
+                            className="rounded-pill px-3 loan-actions-button"
+                            onClick={(event) =>
+                              handleActionMenu(event, loan)
+                            }
                           >
                             Actions
-                          </Dropdown.Toggle>
-
-                          <Dropdown.Menu align="end">
-                            <Dropdown.Item
-                              onClick={() => handleAction("review", loan)}
-                            >
-                              <i className="bi bi-eye me-2"></i> Review
-                            </Dropdown.Item>
-
-                            <Dropdown.Item
-                              onClick={() => handleAction("evaluate", loan)}
-                            >
-                              <i className="bi bi-clipboard-check me-2"></i>{" "}
-                              Evaluate Loan
-                            </Dropdown.Item>
-
-                            <Dropdown.Item
-                              onClick={() => handleAction("skip", loan)}
-                            >
-                              <i className="bi bi-fast-forward me-2"></i> Skip
-                              Evaluation
-                            </Dropdown.Item>
-
-                            <Dropdown.Item
-                              onClick={() => handleAction("reject", loan)}
-                            >
-                              <i className="bi bi-x-circle me-2 text-danger"></i>{" "}
-                              Reject
-                            </Dropdown.Item>
-                          </Dropdown.Menu>
-                        </Dropdown>
+                            <i
+                              className={`bi ms-2 ${
+                                actionLoan?.loan_id === loan.loan_id &&
+                                actionTarget
+                                  ? "bi-chevron-up"
+                                  : "bi-chevron-down"
+                              }`}
+                            ></i>
+                          </Button>
+                        </ButtonGroup>
                       </td>
                     </tr>
                   ))
@@ -388,20 +536,94 @@ const ApproveWebLoanApplication = () => {
         </Card.Body>
       </Card>
 
+      {/* Action Menu */}
+      <Overlay
+        target={actionTarget}
+        show={Boolean(actionTarget && actionLoan)}
+        placement="auto"
+        rootClose
+        onHide={closeActionMenu}
+      >
+        {({
+          placement,
+          arrowProps,
+          show: _show,
+          popper,
+          ...props
+        }) => (
+          <div
+            {...props}
+            className="loan-action-menu"
+            style={{
+              ...props.style,
+              zIndex: 99999,
+            }}
+          >
+            <button
+              type="button"
+              className="loan-action-item"
+              onClick={() => handleAction("review", actionLoan)}
+            >
+              <i className="bi bi-eye me-2"></i>
+              <span>Review</span>
+            </button>
+
+            <button
+              type="button"
+              className="loan-action-item"
+              onClick={() => handleAction("evaluate", actionLoan)}
+            >
+              <i className="bi bi-clipboard-check me-2"></i>
+              <span>Evaluate Loan</span>
+            </button>
+
+            <button
+              type="button"
+              className="loan-action-item"
+              onClick={() => handleAction("skip", actionLoan)}
+            >
+              <i className="bi bi-fast-forward me-2"></i>
+              <span>Skip Evaluation</span>
+            </button>
+
+            <button
+              type="button"
+              className="loan-action-item"
+              onClick={() => handleAction("reject", actionLoan)}
+            >
+              <i className="bi bi-x-circle me-2 text-danger"></i>
+              <span>Reject</span>
+            </button>
+          </div>
+        )}
+      </Overlay>
+
       {/* Reject Confirmation Modal */}
-      <Modal show={showRejectModal} onHide={handleCancelReject} centered>
+      <Modal
+        show={showRejectModal}
+        onHide={handleCancelReject}
+        centered
+      >
         <Modal.Header closeButton className="border-0">
-          <Modal.Title className="fw-bold">Confirm Rejection</Modal.Title>
+          <Modal.Title className="fw-bold">
+            Confirm Rejection
+          </Modal.Title>
         </Modal.Header>
+
         <Modal.Body className="py-4">
           <p className="mb-0">
             Are you sure you want to reject this loan application?
           </p>
         </Modal.Body>
+
         <Modal.Footer className="border-0">
-          <Button variant="light" onClick={handleCancelReject}>
+          <Button
+            variant="light"
+            onClick={handleCancelReject}
+          >
             Cancel
           </Button>
+
           <Button
             variant="danger"
             onClick={handleConfirmReject}
@@ -412,6 +634,7 @@ const ApproveWebLoanApplication = () => {
         </Modal.Footer>
       </Modal>
 
+      {/* Loan Details */}
       <LoanDetailsModal
         show={showModal}
         onClose={() => setShowModal(false)}
@@ -421,6 +644,7 @@ const ApproveWebLoanApplication = () => {
         onViewKyc={handleViewKyc}
       />
 
+      {/* KYC Details */}
       <KycDetailsModal
         show={showKycModal}
         onClose={() => setShowKycModal(false)}
