@@ -262,7 +262,7 @@ const LoanDetails = ({ formData, handleInputChange, errors, touchedFields, handl
               </svg>
             </div>
             <div className="card-content">
-              <span className="card-label">Total Interest</span>
+              <span className="card-label">Total Interest Amount</span>
               <span className="card-value">GHS {loanSummary.interest.toFixed(2)}</span>
             </div>
           </div>

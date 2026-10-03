@@ -14,6 +14,7 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
 
+  // Forgot password state
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [forgotIdentifier, setForgotIdentifier] = useState('');
   const [forgotError, setForgotError] = useState('');
@@ -21,31 +22,37 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
   const [isForgotSubmitting, setIsForgotSubmitting] = useState(false);
   const [forgotTouched, setForgotTouched] = useState(false);
 
-  // Validation helpers (unchanged)
+  // Validation helpers
   const validateIdentifier = (value) => {
     const trimmed = value.trim();
     const digits = trimmed.replace(/\D/g, '');
-    const isValidPhone = digits.length === 10 || (digits.length === 12 && digits.startsWith('233'));
+    const isValidPhone =
+      digits.length === 10 ||
+      (digits.length === 12 && digits.startsWith('233'));
     const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(trimmed);
     if (!trimmed) return 'Email or phone number is required';
-    if (!isValidEmail && !isValidPhone) return 'Enter a valid email or 10-digit phone number';
+    if (!isValidEmail && !isValidPhone)
+      return 'Enter a valid email or 10-digit phone number';
     return '';
   };
 
   const validateField = (name, value) => {
     const newErrors = { ...errors };
     switch (name) {
-      case 'identifier':
+      case 'identifier': {
         const err = validateIdentifier(value);
         if (err) newErrors.identifier = err;
         else delete newErrors.identifier;
         break;
+      }
       case 'password':
         if (!value) newErrors.password = 'Password is required';
-        else if (value.length < 6) newErrors.password = 'Password must be at least 6 characters';
+        else if (value.length < 6)
+          newErrors.password = 'Password must be at least 6 characters';
         else delete newErrors.password;
         break;
-      default: break;
+      default:
+        break;
     }
     return newErrors;
   };
@@ -65,7 +72,7 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
 
   const validateForm = () => {
     const newErrors = {};
-    Object.keys(formData).forEach(field => {
+    Object.keys(formData).forEach((field) => {
       Object.assign(newErrors, validateField(field, formData[field]));
     });
     setErrors(newErrors);
@@ -76,18 +83,26 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
     e.preventDefault();
     setServerError('');
     setIsSubmitting(true);
-    if (!validateForm()) { setIsSubmitting(false); return; }
+    if (!validateForm()) {
+      setIsSubmitting(false);
+      return;
+    }
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/login`, formData);
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/login`,
+        formData
+      );
       const { token, user } = response.data;
-      localStorage.setItem("token", token);
-      localStorage.setItem("user", JSON.stringify(user));
-      if (user.role === "admin") navigate("/admin-dashboard");
-      else if (user.role === "loan_officer") navigate("/loan-officer-dashboard");
-      else navigate("/customer-page");
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+      if (user.role === 'admin') navigate('/admin-dashboard');
+      else if (user.role === 'loan_officer') navigate('/loan-officer-dashboard');
+      else navigate('/customer-page');
       onClose && onClose();
     } catch (err) {
-      const errorMessage = err.response?.data?.message || "Login failed. Please check your credentials.";
+      const errorMessage =
+        err.response?.data?.message ||
+        'Login failed. Please check your credentials.';
       setServerError(errorMessage);
       setTimeout(() => setServerError(''), 5000);
     } finally {
@@ -95,9 +110,13 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
     }
   };
 
-  const canSubmit = Object.keys(errors).length === 0 && formData.identifier && formData.password && !isSubmitting;
+  const canSubmit =
+    Object.keys(errors).length === 0 &&
+    formData.identifier &&
+    formData.password &&
+    !isSubmitting;
 
-  // Forgot password handlers
+  // -------- Forgot password handlers --------
   const handleForgotIdentifierChange = (e) => {
     setForgotIdentifier(e.target.value);
     if (forgotError) setForgotError('');
@@ -108,59 +127,60 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
   const handleForgotBlur = () => {
     setForgotTouched(true);
     if (forgotIdentifier.trim()) {
-      const error = validateIdentifier(forgotIdentifier);
-      setForgotError(error);
+      setForgotError(validateIdentifier(forgotIdentifier));
     } else {
       setForgotError('Email or phone number is required');
     }
   };
 
   const handleForgotSubmit = async (e) => {
-  e.preventDefault();
+    e.preventDefault();
+    setForgotError('');
+    setForgotSuccess('');
 
-  setForgotError('');
-  setForgotSuccess('');
+    const error = validateIdentifier(forgotIdentifier);
+    if (error) {
+      setForgotError(error);
+      setForgotTouched(true);
+      return;
+    }
 
-  const error = validateIdentifier(forgotIdentifier);
+    const submittedIdentifier = forgotIdentifier.trim();
+    setIsForgotSubmitting(true);
 
-  if (error) {
-    setForgotError(error);
-    setForgotTouched(true);
-    return;
-  }
+    try {
+      const response = await axios.post(
+        `${process.env.REACT_APP_API_URL}/forgot-password`,
+        { identifier: submittedIdentifier }
+      );
 
-  setIsForgotSubmitting(true);
+      // Backend returns a generic message for security (doesn't reveal if account exists)
+      setForgotSuccess(
+        response.data?.message ||
+          'Password reset request received successfully. If an account exists, you will be contacted shortly.'
+      );
 
-  try {
-    const response = await axios.post(
-      `${process.env.REACT_APP_API_URL}/forgot-password`,
-      {
-        identifier: forgotIdentifier.trim(),
-      }
-    );
-
-    setForgotSuccess(
-      response.data?.message ||
-      'If an account exists with that email or phone number, reset instructions will be sent shortly.'
-    );
-
-    setForgotIdentifier('');
-    setForgotTouched(false);
-
-  } catch (err) {
-    const message =
-      err.response?.data?.message ||
-      'Unable to process your password reset request. Please try again.';
-
-    setForgotError(message);
-
-  } finally {
-    setIsForgotSubmitting(false);
-  }
-};
+      // Keep the identifier visible in success state so user knows what was submitted
+      setForgotTouched(false);
+    } catch (err) {
+      const message =
+        err.response?.data?.message ||
+        'Unable to process your password reset request. Please try again.';
+      setForgotError(message);
+    } finally {
+      setIsForgotSubmitting(false);
+    }
+  };
 
   const handleBackToLogin = () => {
     setShowForgotPassword(false);
+    setForgotIdentifier('');
+    setForgotError('');
+    setForgotSuccess('');
+    setForgotTouched(false);
+  };
+
+  const handleTryAgain = () => {
     setForgotIdentifier('');
     setForgotError('');
     setForgotSuccess('');
@@ -171,34 +191,44 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
     <div
       className="bg-white rounded-4 shadow-lg d-flex flex-column"
       style={{
-        width: "460px",
-        maxWidth: "100%",
-        maxHeight: "90vh",
-        overflow: "hidden",
+        width: '460px',
+        maxWidth: '100%',
+        maxHeight: '90vh',
+        overflow: 'hidden',
       }}
     >
-      {/* Header – sticky */}
+      {/* Header */}
       <div className="d-flex justify-content-between align-items-center p-4 pb-3 border-bottom flex-shrink-0">
         <div className="d-flex align-items-center gap-3">
-          <img src={logo} alt="Yonkopa" style={{ height: "44px", objectFit: "contain" }} />
+          <img
+            src={logo}
+            alt="Yonkopa"
+            style={{ height: '44px', objectFit: 'contain' }}
+          />
           <h4 className="m-0 fw-semibold text-primary">
-            {showForgotPassword ? "Reset Password" : "Welcome Back"}
+            {showForgotPassword ? 'Reset Password' : 'Welcome Back'}
           </h4>
         </div>
-        <button className="btn-close" onClick={onClose} aria-label="Close"></button>
+        <button
+          className="btn-close"
+          onClick={onClose}
+          aria-label="Close"
+        ></button>
       </div>
 
-      {/* Scrollable body */}
-      <div className="p-4 pt-0 overflow-y-auto" style={{ flex: "1 1 auto" }}>
+      {/* Body */}
+      <div className="p-4 pt-0 overflow-y-auto" style={{ flex: '1 1 auto' }}>
         {!showForgotPassword ? (
-          // LOGIN FORM
+          // ============ LOGIN FORM ============
           <>
-            <p className="text-muted mb-4" style={{ fontSize: "0.95rem" }}>
+            <p className="text-muted mb-4" style={{ fontSize: '0.95rem' }}>
               Sign in to access your account
             </p>
 
             {serverError && (
-              <div className="alert alert-danger py-2 small rounded-3">{serverError}</div>
+              <div className="alert alert-danger py-2 small rounded-3">
+                {serverError}
+              </div>
             )}
 
             <form onSubmit={handleSubmit} noValidate>
@@ -211,7 +241,11 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
                   <input
                     type="text"
                     name="identifier"
-                    className={`form-control border-start-0 ${touched.identifier && errors.identifier ? "is-invalid" : ""}`}
+                    className={`form-control border-start-0 ${
+                      touched.identifier && errors.identifier
+                        ? 'is-invalid'
+                        : ''
+                    }`}
                     placeholder="Email or Phone Number"
                     value={formData.identifier}
                     onChange={handleChange}
@@ -219,7 +253,9 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
                     disabled={isSubmitting}
                   />
                   {touched.identifier && errors.identifier && (
-                    <div className="invalid-feedback">{errors.identifier}</div>
+                    <div className="invalid-feedback">
+                      {errors.identifier}
+                    </div>
                   )}
                 </div>
               </div>
@@ -231,9 +267,11 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
                     <i className="bi bi-lock text-secondary"></i>
                   </span>
                   <input
-                    type={showPassword ? "text" : "password"}
+                    type={showPassword ? 'text' : 'password'}
                     name="password"
-                    className={`form-control border-start-0 ${touched.password && errors.password ? "is-invalid" : ""}`}
+                    className={`form-control border-start-0 ${
+                      touched.password && errors.password ? 'is-invalid' : ''
+                    }`}
                     placeholder="Password"
                     value={formData.password}
                     onChange={handleChange}
@@ -242,13 +280,19 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
                   />
                   <span
                     className="input-group-text bg-light border-start-0"
-                    style={{ cursor: "pointer" }}
+                    style={{ cursor: 'pointer' }}
                     onClick={() => setShowPassword(!showPassword)}
                   >
-                    <i className={`bi ${showPassword ? "bi-eye-slash" : "bi-eye"} text-secondary`}></i>
+                    <i
+                      className={`bi ${
+                        showPassword ? 'bi-eye-slash' : 'bi-eye'
+                      } text-secondary`}
+                    ></i>
                   </span>
                   {touched.password && errors.password && (
-                    <div className="invalid-feedback d-block">{errors.password}</div>
+                    <div className="invalid-feedback d-block">
+                      {errors.password}
+                    </div>
                   )}
                 </div>
               </div>
@@ -256,14 +300,24 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
               {/* Options */}
               <div className="d-flex justify-content-between align-items-center mb-4">
                 <div className="form-check">
-                  <input className="form-check-input" type="checkbox" id="rememberMe" disabled={isSubmitting} />
-                  <label className="form-check-label small" htmlFor="rememberMe">Remember me</label>
+                  <input
+                    className="form-check-input"
+                    type="checkbox"
+                    id="rememberMe"
+                    disabled={isSubmitting}
+                  />
+                  <label
+                    className="form-check-label small"
+                    htmlFor="rememberMe"
+                  >
+                    Remember me
+                  </label>
                 </div>
                 <button
                   type="button"
                   className="btn btn-link p-0 text-decoration-none small fw-semibold"
                   onClick={() => setShowForgotPassword(true)}
-                  style={{ fontSize: "0.875rem", color: "#0d6efd" }}
+                  style={{ fontSize: '0.875rem', color: '#0d6efd' }}
                 >
                   Forgot password?
                 </button>
@@ -276,106 +330,182 @@ const LoginPage = ({ onClose, onSwitchToSignUp }) => {
               >
                 {isSubmitting ? (
                   <span>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
+                    <span
+                      className="spinner-border spinner-border-sm me-2"
+                      role="status"
+                      aria-hidden="true"
+                    ></span>
                     Logging in...
                   </span>
                 ) : (
-                  "Sign In"
+                  'Sign In'
                 )}
               </button>
             </form>
           </>
         ) : (
-          // FORGOT PASSWORD FORM
+          // ============ FORGOT PASSWORD FORM ============
           <>
-            <p className="text-muted mb-4" style={{ fontSize: "0.95rem" }}>
-              Enter your email or phone number and we'll send you a link to reset your password.
-            </p>
+            {!forgotSuccess ? (
+              <>
+                <p
+                  className="text-muted mb-4"
+                  style={{ fontSize: '0.95rem' }}
+                >
+                  Enter your email or phone number and we'll record your reset
+                  request.
+                </p>
 
-            {forgotError && (
-              <div className="alert alert-danger py-2 small rounded-3">{forgotError}</div>
-            )}
-            {forgotSuccess && (
-              <div className="alert alert-success py-2 small rounded-3">{forgotSuccess}</div>
-            )}
-
-            <form onSubmit={handleForgotSubmit} noValidate>
-              <div className="mb-4">
-                <div className="input-group">
-                  <span className="input-group-text bg-light border-end-0">
-                    <i className="bi bi-envelope text-secondary"></i>
-                  </span>
-                  <input
-                    type="text"
-                    className={`form-control border-start-0 ${forgotTouched && forgotError ? "is-invalid" : ""}`}
-                    placeholder="Email or Phone Number"
-                    value={forgotIdentifier}
-                    onChange={handleForgotIdentifierChange}
-                    onBlur={handleForgotBlur}
-                    disabled={isForgotSubmitting}
-                  />
-                  {forgotTouched && forgotError && (
-                    <div className="invalid-feedback d-block">{forgotError}</div>
-                  )}
-                </div>
-              </div>
-
-              <button
-                type="submit"
-                className="btn btn-orange w-100 py-2 fw-semibold rounded-pill mb-3"
-                disabled={isForgotSubmitting || !forgotIdentifier.trim()}
-              >
-                {isForgotSubmitting ? (
-                  <span>
-                    <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>
-                    Sending...
-                  </span>
-                ) : (
-                  "Send Reset Link"
+                {forgotError && (
+                  <div className="alert alert-danger py-2 small rounded-3">
+                    {forgotError}
+                  </div>
                 )}
-              </button>
 
-              <button
-                type="button"
-                className="btn btn-outline-secondary w-100 py-2 fw-semibold rounded-pill"
-                onClick={handleBackToLogin}
-                disabled={isForgotSubmitting}
-              >
-                Back to Login
-              </button>
-            </form>
+                <form onSubmit={handleForgotSubmit} noValidate>
+                  <div className="mb-4">
+                    <div className="input-group">
+                      <span className="input-group-text bg-light border-end-0">
+                        <i className="bi bi-envelope text-secondary"></i>
+                      </span>
+                      <input
+                        type="text"
+                        className={`form-control border-start-0 ${
+                          forgotTouched && forgotError ? 'is-invalid' : ''
+                        }`}
+                        placeholder="Email or Phone Number"
+                        value={forgotIdentifier}
+                        onChange={handleForgotIdentifierChange}
+                        onBlur={handleForgotBlur}
+                        disabled={isForgotSubmitting}
+                      />
+                      {forgotTouched && forgotError && (
+                        <div className="invalid-feedback d-block">
+                          {forgotError}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <button
+                    type="submit"
+                    className="btn btn-orange w-100 py-2 fw-semibold rounded-pill mb-3"
+                    disabled={
+                      isForgotSubmitting || !forgotIdentifier.trim()
+                    }
+                  >
+                    {isForgotSubmitting ? (
+                      <span>
+                        <span
+                          className="spinner-border spinner-border-sm me-2"
+                          role="status"
+                          aria-hidden="true"
+                        ></span>
+                        Sending...
+                      </span>
+                    ) : (
+                      'Send Reset Link'
+                    )}
+                  </button>
+
+                  <button
+                    type="button"
+                    className="btn btn-outline-secondary w-100 py-2 fw-semibold rounded-pill"
+                    onClick={handleBackToLogin}
+                    disabled={isForgotSubmitting}
+                  >
+                    Back to Login
+                  </button>
+                </form>
+              </>
+            ) : (
+              // ============ SUCCESS STATE ============
+              <div className="text-center py-4">
+                <div
+                  className="d-inline-flex align-items-center justify-content-center mb-3"
+                  style={{
+                    width: '64px',
+                    height: '64px',
+                    borderRadius: '50%',
+                    backgroundColor: '#d1e7dd',
+                  }}
+                >
+                  <i
+                    className="bi bi-check-circle-fill text-success"
+                    style={{ fontSize: '2rem' }}
+                  ></i>
+                </div>
+
+                <h5 className="fw-semibold mb-2">Request Received</h5>
+
+                <p
+                  className="text-muted mb-3"
+                  style={{ fontSize: '0.9rem' }}
+                >
+                  We've recorded a password reset request for:
+                </p>
+
+                <div className="alert alert-light border py-2 small rounded-3 mb-4">
+                  <strong>{forgotIdentifier}</strong>
+                </div>
+
+                <p
+                  className="text-muted mb-4"
+                  style={{ fontSize: '0.85rem' }}
+                >
+                  If an account exists with this email or phone number, you
+                  will receive reset instructions shortly.
+                </p>
+
+                <button
+                  type="button"
+                  className="btn btn-orange w-100 py-2 fw-semibold rounded-pill mb-3"
+                  onClick={handleTryAgain}
+                >
+                  Try Another Email / Phone
+                </button>
+
+                <button
+                  type="button"
+                  className="btn btn-outline-secondary w-100 py-2 fw-semibold rounded-pill"
+                  onClick={handleBackToLogin}
+                >
+                  Back to Login
+                </button>
+              </div>
+            )}
           </>
         )}
       </div>
 
-      {/* Sticky Footer – always visible with dark text */}
+      {/* Footer */}
       <div
         className="border-top p-3 text-center flex-shrink-0"
         style={{
-          backgroundColor: "#f8f9fa",
-          borderBottomLeftRadius: "1.5rem",
-          borderBottomRightRadius: "1.5rem",
-          color: "#212529",
+          backgroundColor: '#f8f9fa',
+          borderBottomLeftRadius: '1.5rem',
+          borderBottomRightRadius: '1.5rem',
+          color: '#212529',
         }}
       >
         {!showForgotPassword ? (
-          <p className="mb-0 small" style={{ color: "#212529" }}>
-            Don't have an account?{" "}
+          <p className="mb-0 small" style={{ color: '#212529' }}>
+            Don't have an account?{' '}
             <button
               className="btn btn-link p-0 text-primary fw-semibold"
               onClick={onSwitchToSignUp}
-              style={{ fontSize: "inherit", textDecoration: "underline" }}
+              style={{ fontSize: 'inherit', textDecoration: 'underline' }}
             >
               Create Account
             </button>
           </p>
         ) : (
-          <p className="mb-0 small" style={{ color: "#212529" }}>
-            Remember your password?{" "}
+          <p className="mb-0 small" style={{ color: '#212529' }}>
+            Remember your password?{' '}
             <button
               className="btn btn-link p-0 text-primary fw-semibold"
               onClick={handleBackToLogin}
-              style={{ fontSize: "inherit", textDecoration: "underline" }}
+              style={{ fontSize: 'inherit', textDecoration: 'underline' }}
             >
               Back to Login
             </button>

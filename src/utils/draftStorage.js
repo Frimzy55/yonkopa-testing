@@ -11,7 +11,7 @@ const dbPromise = openDB(DB_NAME, DB_VERSION, {
         keyPath: "identifier",
       });
     }
-
+       
     if (!db.objectStoreNames.contains(DRAFT_STORE)) {
       db.createObjectStore(DRAFT_STORE, {
         keyPath: "draftUuid",
@@ -19,6 +19,8 @@ const dbPromise = openDB(DB_NAME, DB_VERSION, {
     }
   },
 });
+
+
 
 function normalizeDraftUuid(value) {
   if (typeof value === "string") {

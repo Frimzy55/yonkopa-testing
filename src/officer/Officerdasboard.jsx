@@ -74,7 +74,7 @@ const Officerdasboard = () => {
     }
   }, [user]);
 
-  // ─── Authentication check & initial data ─────────────────────
+  // ─── Authentication check & initial data 
   useEffect(() => {
     if (!user) {
       navigate("/officer-access", { replace: true });
